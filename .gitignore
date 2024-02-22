@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/EventSharedExpenseTracker.Infrastructure/Data/AppDB.db
+/EventSharedExpenseTracker.Infrastructure/Data/AppDB.db-shm
+/EventSharedExpenseTracker.Infrastructure/Data/AppDB.db-wal

@@ -1,18 +1,23 @@
-using EventSharedExpenseTracker.MvC.Data;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using EventSharedExpenseTracker.Application;
+using EventSharedExpenseTracker.Application.Interfaces;
+using EventSharedExpenseTracker.Infrastructure;
+using EventSharedExpenseTracker.MvC.ActionFilters;
+using EventSharedExpenseTracker.MvC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+//// AZURE KEY VAULT
+//var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+//builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
 
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddScoped<CustomValidationActionFilter>();
+builder.Services.AddScoped<IRequestContext, RequestContextService>();
 
 var app = builder.Build();
 
@@ -37,7 +42,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Trip}/{action=Index}/{id?}");
 app.MapRazorPages();
 
 app.Run();

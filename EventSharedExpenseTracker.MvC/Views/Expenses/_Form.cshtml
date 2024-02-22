@@ -1,0 +1,108 @@
+﻿@model Expense
+
+@{
+    Layout = null;
+    int userId = int.TryParse(User.FindFirstValue("CustomUserId"), out int tempUserId) ? tempUserId : -1;
+    bool isCreator = (userId == Model.CreatorId || Model.CreatorId <= 0) ? true : false;
+
+    // FOR DOING DIFFERENT THINGS FOR CREATE AND EDIT
+    string action = ViewBag.Action;
+    string customTarget = (action == "Create") ? "#createExpense" : "#expense" + Model.Id;
+}
+
+<div class="col-lg-7 md-6 sm-5">
+    <form asp-action=@action>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="TripId" />
+        <input type="hidden" asp-for="CreatorId" />
+
+        <div class="form-group mb-1">
+            <input asp-for="Name" class="form-control" placeholder="Expense Name" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        <div class="row">
+            <div class="col">
+                <input asp-for="Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="col">
+                @Html.DropDownListFor(model => model.Category, new SelectList(Expense.Categories), "Select a category", new { @class = "form-control" })
+                <span asp-validation-for="Category" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="my-3">
+            <div class="row g-1">
+
+                @for (var j = 0; j < Model.Payments.Count; j++)
+                {
+                    <input type="hidden" asp-for="Payments[j].Id" />
+                    <input type="hidden" asp-for="Payments[j].ParticipantId" />
+                    <input type="hidden" asp-for="Payments[j].UserId" />
+                    <input type="hidden" asp-for="Payments[j].IsOwed" />
+
+                    if (j % 2 == 0)
+                    {
+                        <div class="col-4">
+                            <input class="form-control payment-input" asp-for="Payments[j].Ammount" type="number" inputmode="numeric" step="0.01" placeholder="paid:" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-4">
+                            <input type="checkbox" class="form-check-input btn-check" id="@("checkbox" + j)" asp-for="Payments[j].IsValid" value="true" >
+                            <label class="btn btn-outline-warning btn-block w-100" for="@("checkbox" + j)">@(Model.Payments[j].Participant.UserName)</label>
+                        </div>
+                        <div class="col-4">
+                            <input class="form-control payment-input" asp-for="Payments[j].Ammount"
+                                   value="@(Model.Payments[j].IsEquallyShared ? null : Model.Payments[j].Ammount * -1)" type="number" step="0.01" placeholder="spent:"/>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        @if (!isCreator)
+        {
+            <div>
+                <span class="text-info">You cant edit or delete expense as you didnt create it</span>
+            </div>
+        }
+         
+        <div class="btn-group">
+            @if (isCreator)
+            {
+                @*innerHTML - there are two ways:
+                    1. Save was not validated, so response (which is this), needs to go inside the targeting div, otherwise any other target on that div will not work
+                    2. Save was successful - then whole body is taken from response (because also participants sums need to be updated), and in that case it doesnt matter
+                *@
+                <button hx-post="@Url.Action(action, "Expenses", new { tripId = Model.TripId, id = Model.Id })" class="btn btn-info"
+                hx-target="body"
+                hx-swap="innerHTML">Save</button>
+            }
+
+            @*outerHTML - because im selecting the ID from response for whole page*@
+            <button hx-get="@Url.Action("Index", "Expenses", new { tripid = Model.TripId , id = Model.Id})" class="btn btn-outline-secondary"
+                    hx-target="@customTarget"
+                    hx-select="@customTarget"
+                    hx-swap="outerHTML">Cancel</button>
+
+            @if (isCreator && action == "Edit")
+            {
+
+                    <button hx-delete="@Url.Action("Delete", "Expenses", new { id = Model.Id })" class="btn btn-outline-danger"
+                            hx-confirm="Are you sure you want to delete this item?"
+                            hx-target="body">Delete</button>
+               
+            }
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+

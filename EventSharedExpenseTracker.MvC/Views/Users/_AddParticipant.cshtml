@@ -1,0 +1,15 @@
+﻿@model List<CustomUser>
+
+@{
+    Layout = null;
+    var tripId = ViewBag.TripId;
+}
+
+@foreach (var user in Model)
+{
+    <form asp-action="AddParticipant" asp-controller="Trips" asp-route-TripId="@tripId" asp-route-UserId="@user.Id" method="post">
+        <button class="btn btn-sm btn-outline-secondary text-black" type="submit" style="width: 14rem;">@user.CustomUserName</button>
+    </form>
+}
+
+

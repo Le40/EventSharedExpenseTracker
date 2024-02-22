@@ -1,0 +1,77 @@
+﻿@model IEnumerable<Trip>
+
+@{
+    ViewData["Title"] = "Index";
+
+    Random rnd = new Random();
+    int randRotate = rnd.Next(1, 5);
+}
+
+<div class="container-fluid">
+    <div class="row">
+        @*CARD FOR CREATING NEW TRIP*@
+        <div class="col-auto p-2">
+
+            <div class="card shadow bg-light border-0 rounded-0 p-2" style="min-width: 11rem; min-height:260px; max-width:15rem;">
+                <div class="bg-dark">
+                    <div id="createTrip"
+                         hx-get="@Url.Action("Create", "Trips")"
+                         hx-trigger="click once">
+
+                        <svg class="bd-placeholder-img card-img-top rounded-0" width="200" height="200" role="img">
+                            <rect width="100%" height="100%" fill="#332D2D"></rect>
+                        </svg>
+
+                        <div class="polaroid card-img-overlay text-white d-flex flex-column justify-content-center align-items-end">
+                            <h2 class="polaroid card-title m-0">+ Trip to be</h2>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @*REST OF TRIP CARDS*@
+        @foreach (var trip in Model)
+        {
+            <div class="col p-2" style="max-width:330px;">
+                <div class="card shadow bg-light border-0 rounded-0 p-2 rotated-@randRotate" style="min-width: 165px; min-height:260px; max-width:325px;">
+                    <a href="@Url.Action("Details", "Trips", new { id = trip.Id })" class="stretched-link"></a>
+                    <div class="position-relative">
+                        @*<a href="@Url.Action("Details", "Trips", new { id = item.Id })" class="stretched-link"></a>*@
+                        <div class="img-frame border border-secondary">
+                        @if (trip.ImagePath != null)
+                        {
+                            <img src="@Url.Content(trip.ImagePath)" alt="image" class="card-img-top rounded-0 zoom-on-hover" width="200" height="200" role="img" preserveAspectRatio="xMidYMid slice" style="object-fit: cover">
+                        }
+                        else
+                        {
+                            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="image"
+                                 class="card-img-top rounded-0" width="200" height="200" role="img" preserveAspectRatio="xMidYMid slice" style="object-fit: cover">
+                        }
+                        </div>
+
+                        <div class="position-absolute bottom-0 end-0 text-white p-2">
+                            <h2 class="polaroid card-title m-0">@Html.DisplayFor(modelItem => trip.Name)</h2>
+                            <h5 class="polaroid card-title m-0 text-muted">@trip.DateFrom.Year</h5>
+
+                        </div>
+                        @*applies to next div besides its origin - i hope --- now only on picture so i can flip it with css to do some cool stuff :)*@
+                        @*<a href="@Url.Action("Details", "Trips", new { id = item.Id })" class="stretched-link image-link" onclick="storeImagePosition(this)"></a>*@
+                    </div>
+
+                    <i class="text-white-50">
+                    @foreach (var p in trip.Participants)
+                    {
+                       <span class="polaroid bg-white text-dark">@p.UserName</span>
+                    }
+                    </i>
+
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+
+
