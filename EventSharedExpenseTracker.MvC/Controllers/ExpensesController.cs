@@ -8,6 +8,7 @@ using EventSharedExpenseTracker.MvC.ActionFilters;
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
 [Authorize]
+[AutoValidateAntiforgeryToken]
 public class ExpensesController : Controller
 {
     private readonly IExpenseService _expenseService;
@@ -62,7 +63,6 @@ public class ExpensesController : Controller
 
     // CREATE: POST
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [Route("Expenses/Add/")]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Create(int tripId, [Bind("Id,Name,Date,Category,TripId,CreatorId,Payments")] Expense expense)
@@ -103,7 +103,6 @@ public class ExpensesController : Controller
 
     // EDIT: POST
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [Route("Expenses/Edit/{id}/")]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Edit(int tripId, int id, [Bind("Id,Name,Date,Category,TripId, CreatorId, Payments")] Expense expense)
@@ -130,7 +129,6 @@ public class ExpensesController : Controller
 
     // DELETE: POST
     [HttpDelete]
-    [ValidateAntiForgeryToken]
     [Route("Expenses/Delete/{id}/")]
     public async Task<IActionResult> Delete(int id, int tripId)
     {

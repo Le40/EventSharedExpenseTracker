@@ -4,7 +4,7 @@
     int userId = int.TryParse(User.FindFirstValue("CustomUserId"), out int tempUserId) ? tempUserId : -1;
 }
 
-<form asp-action="Create">
+<form asp-action="Create" class="m-2">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
     <input type="hidden" asp-for="CreatorId" value="@userId" />
 

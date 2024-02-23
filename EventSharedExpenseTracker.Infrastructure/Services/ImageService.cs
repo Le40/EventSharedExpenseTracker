@@ -43,20 +43,10 @@ public class ImageService : IImageService
         }
     }
 
+
     private static async Task UploadImageAsync(Stream imageFileStream, string filePath)
     {
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await imageFileStream.CopyToAsync(stream);
-        }
-
-        // Resize and compress the uploaded image
-        ResizeAndCompressImage(filePath);
-    }
-
-    private static void ResizeAndCompressImage(string filePath)
-    {
-        using (var image = Image.Load(filePath))
+        using (var image = Image.Load(imageFileStream))
         {
             // Resize the image to fit within 1980x1080 bounds while preserving aspect ratio
             image.Mutate(x => x.Resize(new ResizeOptions
@@ -70,9 +60,46 @@ public class ImageService : IImageService
             {
                 Quality = 70 // Adjust the quality level here (0-100)
             };
-            image.Save(filePath, jpegEncoder);
+            // Save the processed image to a byte array
+            using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+            {
+                await image.SaveAsync(stream, jpegEncoder);
+            }
         }
     }
+
+
+    //private static async Task UploadImageAsync(Stream imageFileStream, string filePath)
+    //{
+    //    byte[] resizedAndCompressedImageData = ResizeAndCompressImage(imageFileStream);
+
+    //    await File.WriteAllBytesAsync(filePath, resizedAndCompressedImageData);
+    //}
+
+    //private static byte[] ResizeAndCompressImage(Stream imageFileStream)
+    //{
+    //    using (var image = Image.Load(imageFileStream))
+    //    {
+    //        // Resize the image to fit within 1980x1080 bounds while preserving aspect ratio
+    //        image.Mutate(x => x.Resize(new ResizeOptions
+    //        {
+    //            Size = new Size(1980, 1080),
+    //            Mode = ResizeMode.Max
+    //        }));
+
+    //        // Compress the image
+    //        var jpegEncoder = new JpegEncoder
+    //        {
+    //            Quality = 70 // Adjust the quality level here (0-100)
+    //        };
+    //        // Save the processed image to a byte array
+    //        using (var outputStream = new MemoryStream())
+    //        {
+    //            image.Save(outputStream, jpegEncoder);
+    //            return outputStream.ToArray();
+    //        }
+    //    }
+    //}
 
     private static string GetExtension(string contentType)
     {

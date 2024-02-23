@@ -8,6 +8,7 @@ using EventSharedExpenseTracker.MvC.ActionFilters;
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
 [Authorize]
+[AutoValidateAntiforgeryToken]
 public class TripsController : Controller
 {
     private readonly ITripService _tripService;
@@ -59,7 +60,6 @@ public class TripsController : Controller
     // CREATE: POST
     [HttpPost]
     [Route("Trips/Create")]
-    [ValidateAntiForgeryToken]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Create([Bind("Id,Name,DateFrom,DateTo,CreatorId")] Trip trip, IFormFile? imageFile)
     {
@@ -100,7 +100,6 @@ public class TripsController : Controller
     // EDIT: POST
     [HttpPost]
     [Route("Trips/Edit/{id}")]
-    [ValidateAntiForgeryToken]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DateFrom,DateTo,CreatorId,ImagePath")] Trip trip, IFormFile? imageFile)
     {
@@ -125,7 +124,6 @@ public class TripsController : Controller
 
     // DELETE: POST
     [HttpDelete]
-    [ValidateAntiForgeryToken]
     [Route("Trips/Delete/{id}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -140,7 +138,6 @@ public class TripsController : Controller
 
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [Route("Trips/{id}/AddParticipant/{friendId}")]
     public async Task<IActionResult> AddParticipant(int id, int friendId)
     {
@@ -154,7 +151,6 @@ public class TripsController : Controller
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     [Route("Trips/{id}/AddDummy/")]
     public async Task<IActionResult> AddDummy(int id, string searchString)
     {
@@ -168,7 +164,6 @@ public class TripsController : Controller
     }
 
     [HttpDelete]
-    [ValidateAntiForgeryToken]
     [Route("Trips/{id}/DeleteParticipant/{participantId}")]
     public async Task<IActionResult> DeleteParticipant(int id, int participantId)
     {

@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "secrets1": {
-      "secretStore": null,
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Web/sites/EventSharedExpenseTracker/providers/Microsoft.ServiceLinker/linkers/VaultUri_C6352E67E1",
+      "secretStore": "AzureAppSettings",
       "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.KeyVault/vaults/ESETkv",
       "type": "secrets.keyVault",
       "connectionId": "VaultUri",

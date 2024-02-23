@@ -3,13 +3,16 @@ using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Infrastructure;
 using EventSharedExpenseTracker.MvC.ActionFilters;
 using EventSharedExpenseTracker.MvC.Services;
+using Azure.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
-//// AZURE KEY VAULT
-//var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
-//builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
-
 // Add services to the container.
+
+// AZURE KEY VAULT
+var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+
+
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllersWithViews();
 
