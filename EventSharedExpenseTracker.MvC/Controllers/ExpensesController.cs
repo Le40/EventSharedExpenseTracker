@@ -19,7 +19,7 @@ public class ExpensesController : Controller
     }
 
     // EXPENSES : INDEX
-    [Route("Trips/{tripId}/Expenses/")]
+    [HttpGet("Trips/{tripId}/Expenses/")]
     public async Task<IActionResult> Index(int tripId, string sortOrder, string searchString, string creator, string categoryFilter)
     {
         ViewBag.TripId = tripId;
@@ -47,7 +47,7 @@ public class ExpensesController : Controller
     }
 
     // CREATE: GET
-    [Route("Expenses/Add/")]
+    [HttpGet("Expenses/Add/")]
     public async Task<IActionResult> Create(int tripId)
     {
         var result = await _expenseService.Create(tripId);
@@ -62,8 +62,7 @@ public class ExpensesController : Controller
     }
 
     // CREATE: POST
-    [HttpPost]
-    [Route("Expenses/Add/")]
+    [HttpPost("Expenses/Add/")]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Create(int tripId, [Bind("Id,Name,Date,Category,TripId,CreatorId,Payments")] Expense expense)
     {
@@ -87,7 +86,7 @@ public class ExpensesController : Controller
     }
 
     // EDIT: GET
-    [Route("Expenses/Edit/{id}")]
+    [HttpGet("Expenses/Edit/{id}")]
     public async Task<IActionResult> Edit(int tripId, int id)
     {
         var result = await _expenseService.Get(id,tripId);
@@ -102,8 +101,7 @@ public class ExpensesController : Controller
     }
 
     // EDIT: POST
-    [HttpPost]
-    [Route("Expenses/Edit/{id}/")]
+    [HttpPost("Expenses/Edit/{id}/")]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Edit(int tripId, int id, [Bind("Id,Name,Date,Category,TripId, CreatorId, Payments")] Expense expense)
     {
@@ -126,10 +124,8 @@ public class ExpensesController : Controller
         return RedirectToAction("Details", "Trips", new { id = expense.TripId });
     }
 
-
     // DELETE: POST
-    [HttpDelete]
-    [Route("Expenses/Delete/{id}/")]
+    [HttpDelete("Expenses/Delete/{id}/")]
     public async Task<IActionResult> Delete(int id, int tripId)
     {
         var result = await _expenseService.Delete(id);

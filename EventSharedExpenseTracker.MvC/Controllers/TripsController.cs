@@ -19,8 +19,8 @@ public class TripsController : Controller
     }
 
     // INDEX
-    [Route("Trips/")]
-    [Route("/")]
+    [HttpGet("Trips/")]
+    [HttpGet("/")]
     public async Task<IActionResult> Index(string sortOrder, string searchString, string categoryFilter)
     {
         ViewBag.DateSortParam = sortOrder == "date" ? "date_desc" : "date";
@@ -37,7 +37,7 @@ public class TripsController : Controller
     }
 
     // DETAILS
-    [Route("Trips/Details/{tripId}")]
+    [HttpGet("Trips/Details/{tripId}")]
     public async Task<IActionResult> Details(int tripId)
     {
         ViewBag.TripId = tripId;
@@ -51,15 +51,14 @@ public class TripsController : Controller
     }
 
     // CREATE: GET
-    [Route("Trips/Create")]
+    [HttpGet("Trips/Create")]
     public IActionResult Create()
     {
         return PartialView("_Create");
     }
 
     // CREATE: POST
-    [HttpPost]
-    [Route("Trips/Create")]
+    [HttpPost("Trips/Create")]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Create([Bind("Id,Name,DateFrom,DateTo,CreatorId")] Trip trip, IFormFile? imageFile)
     {
@@ -82,9 +81,8 @@ public class TripsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-
     // EDIT: GET
-    [Route("Trips/Edit/{id}")]
+    [HttpGet("Trips/Edit/{id}")]
     public async Task<IActionResult> Edit(int id)
     {
         var result = await _tripService.Get(id);
@@ -96,10 +94,8 @@ public class TripsController : Controller
         return PartialView("_Edit", result.Data);
     }
 
-
     // EDIT: POST
-    [HttpPost]
-    [Route("Trips/Edit/{id}")]
+    [HttpPost("Trips/Edit/{id}")]
     [ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DateFrom,DateTo,CreatorId,ImagePath")] Trip trip, IFormFile? imageFile)
     {
@@ -123,8 +119,7 @@ public class TripsController : Controller
     }
 
     // DELETE: POST
-    [HttpDelete]
-    [Route("Trips/Delete/{id}")]
+    [HttpDelete("Trips/Delete/{id}")]
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _tripService.Delete(id);
@@ -136,9 +131,8 @@ public class TripsController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-
-    [HttpPost]
-    [Route("Trips/{id}/AddParticipant/{friendId}")]
+    // ADD PARTICIPANT: POST
+    [HttpPost("Trips/{id}/AddParticipant/{friendId}")]
     public async Task<IActionResult> AddParticipant(int id, int friendId)
     {
         var result = await _tripService.AddParticipant(id, friendId);
@@ -150,8 +144,8 @@ public class TripsController : Controller
         return RedirectToAction("Details", "Trips", new { id });
     }
 
-    [HttpPost]
-    [Route("Trips/{id}/AddDummy/")]
+    // ADD DUMMY: POST
+    [HttpPost("Trips/{id}/AddDummy/")]
     public async Task<IActionResult> AddDummy(int id, string searchString)
     {
         var result = await _tripService.AddDummy(id, searchString);
@@ -163,8 +157,8 @@ public class TripsController : Controller
         return RedirectToAction("Details", "Trips", new { id });
     }
 
-    [HttpDelete]
-    [Route("Trips/{id}/DeleteParticipant/{participantId}")]
+    // DELETE PARTICIPANT
+    [HttpDelete("Trips/{id}/DeleteParticipant/{participantId}")]
     public async Task<IActionResult> DeleteParticipant(int id, int participantId)
     {
         var result = await _tripService.DeleteParticipant(id, participantId);
