@@ -71,7 +71,7 @@ public class ExpensesController : Controller
             expense = await _expenseService.LoadParticipants(expense);
             ViewBag.Action = "Create";
             HttpContext.Response.Headers.Append("Hx-Retarget", "#createExpense");
-            return StatusCode(400, PartialView("_Form", expense));
+            return PartialView("_Form", expense);
         }
             //return StatusCode(400, await RenderExpenseForm(expense, "#createExpense", "Create"));
 
@@ -110,7 +110,7 @@ public class ExpensesController : Controller
             expense = await _expenseService.LoadParticipants(expense);
             ViewBag.Action = "Edit";
             HttpContext.Response.Headers.Append("Hx-Retarget", "#expense" + expense.Id);
-            return StatusCode(400, PartialView("_Form", expense));
+            return PartialView("_Form", expense);
         }
             //return StatusCode(400, await RenderExpenseForm(expense, "#expense" + expense.Id, "Edit"));
 

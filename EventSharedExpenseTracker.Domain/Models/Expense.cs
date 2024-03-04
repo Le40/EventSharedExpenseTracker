@@ -13,7 +13,7 @@ public class Expense
     //[DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}")]
     public DateTime Date { get; set; } = DateTime.Now;
 
-    [Required(ErrorMessage = "The Category field is requiredsdfdsfdsf.")]
+    [Required(ErrorMessage = "The Category field is required.")]
     public string Category { get; set; }
     [StringLength(80, ErrorMessage = "The {0} must be at most {1} characters long.")]
     public string? Description { get; set; }
