@@ -9,6 +9,7 @@ using EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 using EventSharedExpenseTracker.Infrastructure.Identity;
 using EventSharedExpenseTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
+using Resend;
 
 namespace EventSharedExpenseTracker.Infrastructure;
 
@@ -25,7 +26,7 @@ public static class DIInfrastructure
             options.UseSqlite(connectionString));
 
         // IDENTITY
-        services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
         services.AddScoped<UserManager<ApplicationUser>, CustomUserManager<ApplicationUser>>();
@@ -35,6 +36,13 @@ public static class DIInfrastructure
         services.AddScoped<IImageService, ImageService>();
 
         // EMAIL SENDER
+        services.AddTransient<IEmailSender, EmailSender>();
+        //services.Configure<ResendClientOptions>(options =>
+        //{
+        //   options.ApiToken = configuration["ResendKey"];
+        //});
+
+        services.AddHttpClient<ResendClient>(); // inject HttpClient
         services.AddTransient<IEmailSender, EmailSender>();
         services.Configure<AuthMessageSenderOptions>(configuration);
 

@@ -15,6 +15,7 @@ public static class DIApplication
         services.AddScoped<IValidationService, ValidationService>();
         services.AddScoped<ITripService, TripService>();
         services.AddScoped<IExpenseService, ExpenseService>();
+        services.AddScoped<IFriendService, FriendService>();
         return services;
 
     }

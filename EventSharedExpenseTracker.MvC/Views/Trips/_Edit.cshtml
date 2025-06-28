@@ -33,7 +33,7 @@
             Save
         </button>
         <button class="btn btn-secondary btn-sm"
-                hx-post="@Url.Action("Details", "Trips", new { id = Model.Id })"
+                hx-get="@Url.Action("Details", "Trips", new { id = Model.Id })"
                 hx-target="#tripEdit"
                 hx-select="#tripEdit"
         hx-swap="outerHTML">
@@ -46,8 +46,8 @@
     </div>
 </form>
 
-@section Scripts {
+@*@section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+}*@

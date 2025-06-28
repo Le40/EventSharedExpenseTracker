@@ -55,7 +55,7 @@
                 @*--ADD PARTICIPANT--*@
                 <div class="input-group input-group-sm">
                     <input type="text" name="searchString" id="searchString" class="form-control border-info rounded-top-0 border-top-0 bg-secondary" placeholder="search users" required
-                           hx-get="@Url.Action("SearchParticipant", "TripParticipants", new { tripId = Model.Id})"
+                           hx-get="@Url.Action("Search", "Friends", new { tripId = Model.Id})"
                            hx-target="#searchParticipant"
                            hx-trigger="keyup changed delay:300ms" />
 
@@ -109,10 +109,13 @@
 
 
                                 @*<div class="card-body" ondblclick="return alert('You cant delete participant that has payments!');">*@
+                                    @*ALTERNATIVE not select, and target= body*@
                                 <div class="card-body p-1"
-                                     hx-delete=@Url.Action("DeleteParticipant", "Trips", new {id = Model.Id, participantId = participant.Id })
+                                     hx-post=@Url.Action("DeleteParticipant", "Trips", new {id = Model.Id, participantId = participant.Id })
                                      hx-trigger="dblclick[isCreator()]"
-                                     hx-target="body"
+                                     hx-select="#tripParticipants"
+                                     hx-target="#tripParticipants"
+                                     hx-swap="outerHTML"
                                      hx-confirm="@(participant.Payments.Count(p => p.IsValid) == 0 ? "Are you sure you want to delete Participant?" : "You cant delete participant that has payments")">
 
                                     <h5 class="card-text text-black">

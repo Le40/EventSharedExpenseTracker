@@ -28,6 +28,22 @@ public class UserRepository : IUserRepository
         return await query.ToListAsync();
     }
 
+    /* THIS IS SIMPLE VERSION BUT ITS REFERENCED somewhere else so i guess i am gonna use the normal one as that has search in it
+    public async Task<List<CustomUser>> GetAllAsync()
+    {
+        // DEFAULT MANDATORY FILTER
+        var query = _context.CustomUsers.AsQueryable();
+
+        return await query.ToListAsync();
+    }*/
+
+    public async Task<CustomUser?> GetUserWithFriends(int userId)
+    {
+        return await _context.CustomUsers
+            .Include(u => u.Friends)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
     public async Task<CustomUser?> GetByIdAsync(int id)
     {
         return await _context.CustomUsers.FindAsync(id);

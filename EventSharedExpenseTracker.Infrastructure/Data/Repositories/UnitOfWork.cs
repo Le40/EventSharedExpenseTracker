@@ -10,6 +10,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public IExpenseRepository Expenses { get; private set; }
     public ITripRepository Trips { get; private set; }
     public IUserRepository Users { get; private set; }
+    public IFriendshipRepository Friendships { get; private set; }
 
     public UnitOfWork(ApplicationDbContext context)
     {
@@ -18,6 +19,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         Expenses = new ExpenseRepository(_context);
         Trips = new TripRepository(_context);
         Users = new UserRepository(_context);
+        Friendships = new FriendshipRepository(_context);
     }
 
     public async Task CompleteAsync()

@@ -9,6 +9,7 @@ public class CustomUser
 
     [StringLength(10, ErrorMessage = "The {0} must be at most {1} characters long.")]
     public required string CustomUserName { get; set; }
+    //public required string Email { get; set; }
 
     //public string ApplicationUserId { get; set; }
 

@@ -65,7 +65,10 @@ public class TripsController : Controller
         if (!ModelState.IsValid)
         {
             HttpContext.Response.Headers.Append("Hx-Retarget", "#createTrip");
-            return StatusCode(400,PartialView("_Create", trip));
+            // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
+            //return StatusCode(400,PartialView("_Create", trip));
+            // htmx wont return 400+ code back to dom, so its 200 even for bad form.
+            return PartialView("_Create", trip);
         }
 
         Stream? imageStream = null;
@@ -102,7 +105,10 @@ public class TripsController : Controller
         if (!ModelState.IsValid)
         {
             HttpContext.Response.Headers.Append("Hx-Retarget", "#tripEdit");
-            return StatusCode(400, PartialView("_Edit", trip));
+            // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
+            //return StatusCode(400, PartialView("_Edit", trip));
+            // htmx wont return 400+ code back to dom, so its 200 even for bad form.
+            return PartialView("_Edit", trip);
         }
 
         Stream? imageStream = null;
@@ -158,7 +164,7 @@ public class TripsController : Controller
     }
 
     // DELETE PARTICIPANT
-    [HttpDelete("Trips/{id}/DeleteParticipant/{participantId}")]
+    [HttpPost("Trips/{id}/DeleteParticipant/{participantId}")]
     public async Task<IActionResult> DeleteParticipant(int id, int participantId)
     {
         var result = await _tripService.DeleteParticipant(id, participantId);
@@ -166,7 +172,7 @@ public class TripsController : Controller
         {
             return StatusCode(result.StatusCode, result.ErrorMessage);
         }
-
+        //return View("Details", id);
         return RedirectToAction("Details", "Trips", new { id });
     }
 }

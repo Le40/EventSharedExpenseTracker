@@ -32,6 +32,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Identity
             var customUser = new CustomUser
             {
                 CustomUserName = user.CustomUserName,
+                //Email = user.Email
                 //ApplicationUserId = user.Id
             };
 
@@ -58,6 +59,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Identity
             if (customUser != null)
             {
                 customUser.CustomUserName = user.CustomUserName;
+                //customUser.Email = user.Email;
                 _customUserRepository.Update(customUser);
             }
 

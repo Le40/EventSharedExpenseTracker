@@ -28,8 +28,12 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
             //modelBuilder.Entity<Expense>().Navigation(e => e.Creator).AutoInclude();
             modelBuilder.Entity<Payment>().Navigation(p => p.Participant).AutoInclude();
             modelBuilder.Entity<Trip>().Navigation(t => t.Participants).AutoInclude();
+            //modelBuilder.Entity<CustomUser>().Navigation(t => t.Friends).AutoInclude();
 
-            // FRIENDSHIPS
+
+            modelBuilder.Entity<Friendship>()
+                .HasKey(f => new { f.Id });
+
             modelBuilder.Entity<Friendship>()
                 .HasOne(f => f.User)
                 .WithMany(u => u.Friends)
@@ -38,9 +42,23 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
 
             modelBuilder.Entity<Friendship>()
                 .HasOne(f => f.Friend)
-                .WithMany() 
+                .WithMany()
                 .HasForeignKey(f => f.FriendId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+
+            //// FRIENDSHIPS
+            //modelBuilder.Entity<Friendship>()
+            //    .HasOne(f => f.User)
+            //    .WithMany(u => u.Friends)
+            //    .HasForeignKey(f => f.UserId)
+            //    .OnDelete(DeleteBehavior.Restrict);
+
+            //modelBuilder.Entity<Friendship>()
+            //    .HasOne(f => f.Friend)
+            //    .WithMany() 
+            //    .HasForeignKey(f => f.FriendId)
+            //    .OnDelete(DeleteBehavior.Restrict);
 
 
             // APPLICATION USER TO CUSTOM USER
