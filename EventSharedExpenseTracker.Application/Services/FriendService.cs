@@ -38,7 +38,8 @@ public class FriendService : IFriendService
         var listOfFilters = new List<Func<IQueryable<CustomUser>, IQueryable<CustomUser>>>
         {
             //FriendHelper.FriendsFilter(user.Friends),
-            FriendHelper.Search(searchString)
+            FriendHelper.Search(searchString),
+            users => users.Where(u => u.Id != userId)
         };
 
         var users = await _unitOfWork.Users.GetAllAsync(userId,
