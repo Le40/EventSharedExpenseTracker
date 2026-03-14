@@ -11,11 +11,15 @@ Used technologies:
 - Entity framework as ORM
 - Identity framework for handling users
 - MvC as presentation layer
-- htmx in the front end
-- Twilio for sending mails
+- Bootstrap and htmx in the front end
+- Twilio for sending mails (not active at the time)
 - ImageSharp for pictures upload, resize and compression
 - Azure for deployment
 
 Features to be added:
 - friends management
 - currency settings and currency conversions
+
+TESTING:
+- free to test, app doesnt currently validate emails, so fake emails are possible
+- once created, can be deleted by loging in and in profile there is tab personal data.
