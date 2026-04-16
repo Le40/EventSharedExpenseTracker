@@ -5,6 +5,8 @@
     Layout = null;
     var currentURL = Context.Request.Path.ToString().ToLower();
     int userId = int.TryParse(User.FindFirstValue("CustomUserId"), out int tempUserId) ? tempUserId : -1;
+    var creatorIsChecked = (bool)(ViewBag.Creator ?? false);
+    var creatorNextChecked = !creatorIsChecked;
 
     string borderColor = "";
 }
@@ -16,31 +18,28 @@
             @if (currentURL.Contains("/trips"))
             {
                 <button class="btn btn-sm btn-outline-warning w-100 h-100 rounded"
-                        hx-get="@Url.Action("Create", "Expenses", new {  tripId =  ViewBag.TripId })"
+                        hx-get="@Url.Action("Create", "Expenses", new { tripId = ViewBag.TripId })"
                         hx-target="#createExpense">
                     + Expense
                 </button>
             }
-            </div>
+        </div>
 
-            <div class="col ps-1">
+        <div class="col ps-1">
             <div class="btn-group align-items-end bg-dark flex-wrap">
                 <button class="btn btn-sm btn-outline-secondary"
-                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, sortOrder = ViewBag.NameSortParam, searchString = ViewBag.SearchString , creator = ViewBag.Creator, categoryFilter = ViewBag.CategoryFilter})"
-                        hx-target="#expCollection"
-                >
+                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, sortOrder = ViewBag.NameSortParam, searchString = ViewBag.SearchString, creator = ViewBag.Creator, categoryFilter = ViewBag.CategoryFilter })"
+                        hx-target="#expCollection">
                     @Html.DisplayNameFor(model => model.Name)
                 </button>
                 <button class="btn btn-sm btn-outline-secondary"
-                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, sortOrder = ViewBag.AmmSortParam, searchString= ViewBag.SearchString, creator = ViewBag.Creator, categoryFilter = ViewBag.CategoryFilter})"
-                        hx-target="#expCollection"
-                >
+                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, sortOrder = ViewBag.AmmSortParam, searchString = ViewBag.SearchString, creator = ViewBag.Creator, categoryFilter = ViewBag.CategoryFilter })"
+                        hx-target="#expCollection">
                     Amount
                 </button>
                 <button class="btn btn-sm btn-outline-secondary"
-                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, sortOrder = ViewBag.DateSortParam, searchString = ViewBag.SearchString, creator = ViewBag.Creator, categoryFilter = ViewBag.CategoryFilter})"
-                        hx-target="#expCollection"
-                >
+                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, sortOrder = ViewBag.DateSortParam, searchString = ViewBag.SearchString, creator = ViewBag.Creator, categoryFilter = ViewBag.CategoryFilter })"
+                        hx-target="#expCollection">
                     @Html.DisplayNameFor(model => model.Date)
                 </button>
 
@@ -52,17 +51,17 @@
                 <label class="btn btn-sm btn-outline-warning" for="checkbox">CreatedByMe</label>*@
 
                 <select id="categoryDropdown" name="categoryFilter" class="btn btn-sm btn-outline-secondary"
-                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId})"
+                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, creator = ViewBag.Creator })"
                         hx-target="#expCollection">
                     >
-                    <option value="">@(ViewBag.CategoryFilter == null ? "Select Category": ViewBag.CategoryFilter)</option>
+                    <option value="">@(ViewBag.CategoryFilter == null ? "Select Category" : ViewBag.CategoryFilter)</option>
                     @foreach (var category in Expense.Categories)
-                        {
-                            <option value="@category">@category</option>
-                        }
+                    {
+                        <option value="@category">@category</option>
+                    }
                     <option value="">None</option>
                 </select>
-                
+
 
                 @* <button class="btn btn-sm btn-outline-secondary" id="creator" name="creator" value="@ViewBag.Creator"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId})"
@@ -70,21 +69,36 @@
                     CreatedByMe
                 </button> *@
 
-                <input type="checkbox" class="btn-check" id="creator" name="creator" autocomplete="off" value="true">
-                <label class="btn btn-sm btn-outline-secondary" for="creator" name="creator" value="true"
+                @*<input type="checkbox" class="btn-check" id="creator" name="creator" autocomplete="off" value="true"
                        hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId})"
-                       hx-target="#expCollection">CreatedByMe</label>
+                       hx-target="#expCollection"
+                       hx-trigger="change"
+                       hx-include="#creator">
+                <label class="btn btn-sm btn-outline-secondary" for="creator">
+                    CreatedByMe
+                </label>
+                <input type="hidden" name="creator" value="false" />*@
+
+                <div id="expControls">
+                    <button type="button"
+                            class="btn btn-sm btn-outline-secondary @(creatorIsChecked ? "active" : "")"
+                            hx-get='@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, creator = creatorNextChecked, categoryFilter = ViewBag.CategoryFilter })'
+                            hx-target="#expCollection"
+                            hx-swap="outerHTML">
+                        CreatedByMe
+                    </button>
+                </div>
 
 
                 <input type="text" id="searchInput" name="searchString" autocomplete="off" placeholder="search expense" value="@ViewBag.SearchString" class="btn btn-sm btn-outline-secondary bg-secondary-subtle"
-                       hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId , categoryFilter = ViewBag.CategoryFilter})"
-                    hx-target="#expCollection"
-                    hx-trigger="keyup changed delay:500ms" />
+                       hx-get="@Url.Action("Index", "Expenses", new { tripId = ViewBag.TripId, categoryFilter = ViewBag.CategoryFilter })"
+                       hx-target="#expCollection"
+                       hx-trigger="keyup changed delay:500ms" />
 
 
             </div>
-            </div>
-      
+        </div>
+
     </div>
 
     <ul class="list-group list-group-flush">
@@ -121,28 +135,28 @@
             var payersHtml = new HtmlString(payers);
             var owersHtml = new HtmlString(owers);
 
-                @if (expense.CreatorId == userId)
-                {
-                    borderColor = "list-group-item-dark";
-                }
-                @if (expense.CreatorId == null)
-                {
-                    borderColor = "list-group-item-light";
-                }
+            @if (expense.CreatorId == userId)
+            {
+                borderColor = "list-group-item-dark";
+            }
+            @if (expense.CreatorId == null)
+            {
+                borderColor = "list-group-item-light";
+            }
 
 
             <li class="list-group-item @borderColor">
 
-                <div id="@("expense" + expense.Id)" hx-get="@Url.Action("Edit", "Expenses", new { tripId=expense.TripId, id = expense.Id })"
-                                                hx-trigger="dblclick once">
+                <div id="@("expense" + expense.Id)" hx-get="@Url.Action("Edit", "Expenses", new { tripId = expense.TripId, id = expense.Id })"
+                     hx-trigger="dblclick once">
                     <div class="row">
                         <div class="col">
                             <h5>@($"{expense.Name}")<small class="text-white-50">&nbsp;&nbsp;&nbsp;@($"{expense.Category}")</small></h5>
                         </div>
                         <div class="col text-end">
                             <i class="text-muted">@($"{expense.Date.ToShortDateString()}")</i>
-                            <i class="text-muted">@($"Created by: {expense.Creator?.CustomUserName}")</i>
-            
+                            @*<i class="text-muted">@($"Created by: {expense.Creator?.CustomUserName}")</i>*@
+
                         </div>
                     </div>
                     <div class="mb-2">

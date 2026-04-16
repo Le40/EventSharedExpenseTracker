@@ -1,8 +1,9 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Application.Authorisation;
+﻿using EventSharedExpenseTracker.Application.Authorisation;
 using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Utility;
+using EventSharedExpenseTracker.Application.Validation;
+using EventSharedExpenseTracker.Domain.Models;
 
 namespace EventSharedExpenseTracker.Application.Services;
 
@@ -11,15 +12,17 @@ public class ExpenseService : IExpenseService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthorisationServ _authorizationService;
     private readonly IRequestContext _requestContext;
+    private readonly IValidationService _validationService;
 
-    public ExpenseService(IUnitOfWork unitOfWork, IAuthorisationServ authorisationService, IRequestContext requestContext)
+    public ExpenseService(IUnitOfWork unitOfWork, IAuthorisationServ authorisationService, IRequestContext requestContext, IValidationService validationService)
     {
         _unitOfWork = unitOfWork;
         _authorizationService = authorisationService;
         _requestContext = requestContext;
+        _validationService = validationService;
     }
 
-    public async Task<ServiceResult<List<Expense>>> Index(int tripId, string sortOrder, string searchString, string creator, string categoryFilter)
+    public async Task<ServiceResult<List<Expense>>> Index(int tripId, string sortOrder, string searchString, bool creator, string categoryFilter)
     {
         int userId = _requestContext.UserId;
 
@@ -38,7 +41,9 @@ public class ExpenseService : IExpenseService
             ExpenseHelper.Search(searchString),
 
             //if (categoryFilter != null)
-            ExpenseHelper.CategoryFilter(categoryFilter)
+            ExpenseHelper.CategoryFilter(categoryFilter),
+
+            ExpenseHelper.CreatorFilter(creator, userId)
         };
 
         var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId,

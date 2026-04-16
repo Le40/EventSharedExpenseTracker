@@ -20,13 +20,14 @@ public class ExpensesController : Controller
 
     // EXPENSES : INDEX
     [HttpGet("Trips/{tripId}/Expenses/")]
-    public async Task<IActionResult> Index(int tripId, string sortOrder, string searchString, string creator, string categoryFilter)
+    public async Task<IActionResult> Index(int tripId, string sortOrder, string searchString, string categoryFilter, bool creator = false)
     {
         ViewBag.TripId = tripId;
         ViewBag.NameSortParam = sortOrder == "name" ? "name_desc" : "name";
         ViewBag.DateSortParam = sortOrder == "date" ? "date_desc" : "date";
         ViewBag.AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount";
-        ViewBag.Creator = creator == "on" ? "off" : "on";
+        //ViewBag.Creator = creator == "on" ? "off" : "on";
+        ViewBag.Creator = creator;
         ViewBag.SearchString = searchString;
         ViewBag.CategoryFilter = categoryFilter;
 
@@ -73,9 +74,9 @@ public class ExpensesController : Controller
             HttpContext.Response.Headers.Append("Hx-Retarget", "#createExpense");
             return PartialView("_Form", expense);
         }
-            //return StatusCode(400, await RenderExpenseForm(expense, "#createExpense", "Create"));
+        //return StatusCode(400, await RenderExpenseForm(expense, "#createExpense", "Create"));
 
-        var result = await _expenseService.Add(expense,tripId);
+        var result = await _expenseService.Add(expense, tripId);
 
         if (result.StatusCode != 200)
         {
@@ -89,7 +90,7 @@ public class ExpensesController : Controller
     [HttpGet("Expenses/Edit/{id}")]
     public async Task<IActionResult> Edit(int tripId, int id)
     {
-        var result = await _expenseService.Get(id,tripId);
+        var result = await _expenseService.Get(id, tripId);
         if (result.StatusCode != 200)
         {
             return StatusCode(result.StatusCode, result.ErrorMessage);
@@ -112,7 +113,7 @@ public class ExpensesController : Controller
             HttpContext.Response.Headers.Append("Hx-Retarget", "#expense" + expense.Id);
             return PartialView("_Form", expense);
         }
-            //return StatusCode(400, await RenderExpenseForm(expense, "#expense" + expense.Id, "Edit"));
+        //return StatusCode(400, await RenderExpenseForm(expense, "#expense" + expense.Id, "Edit"));
 
         var result = await _expenseService.Update(expense);
 
@@ -125,7 +126,8 @@ public class ExpensesController : Controller
     }
 
     // DELETE: POST
-    [HttpDelete("Expenses/Delete/{id}/")]
+    [HttpPost("Expenses/Delete/{id}/")]
+    // post, because with delete redirect doesnt work, post method also in the View
     public async Task<IActionResult> Delete(int id, int tripId)
     {
         var result = await _expenseService.Delete(id);

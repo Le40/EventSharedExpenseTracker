@@ -42,7 +42,7 @@ public static class DIInfrastructure
         //   options.ApiToken = configuration["ResendKey"];
         //});
 
-        services.AddHttpClient<ResendClient>(); // inject HttpClient
+        //services.AddHttpClient<ResendClient>(); // inject HttpClient
         services.AddTransient<IEmailSender, EmailSender>();
         services.Configure<AuthMessageSenderOptions>(configuration);
 

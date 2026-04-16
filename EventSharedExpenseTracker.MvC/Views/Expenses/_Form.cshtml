@@ -91,9 +91,12 @@
             @if (isCreator && action == "Edit")
             {
 
-                    <button hx-delete="@Url.Action("Delete", "Expenses", new { id = Model.Id })" class="btn btn-outline-danger"
-                            hx-confirm="Are you sure you want to delete this item?"
-                            hx-target="body">Delete</button>
+                <button hx-post="@Url.Action("Delete", "Expenses", new { id = Model.Id })" class="btn btn-outline-danger"
+                        hx-target="body"
+                        hx-push-url="true"
+                        hx-confirm="Are you sure you want to delete this item?">
+                    Delete
+                </button>
                
             }
         </div>

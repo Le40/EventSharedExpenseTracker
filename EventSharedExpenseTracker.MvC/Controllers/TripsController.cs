@@ -125,7 +125,8 @@ public class TripsController : Controller
     }
 
     // DELETE: POST
-    [HttpDelete("Trips/Delete/{id}")]
+    [HttpPost("Trips/Delete/{id}")]
+    // post, because with delete redirect doesnt work, post method also in the View
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _tripService.Delete(id);

@@ -23,9 +23,9 @@ public static class ExpenseHelper
         return query => query.Where(e => e.Category.ToLower().Contains(categoryFilter.ToLower()));
     }
 
-    public static Func<IQueryable<Expense>, IQueryable<Expense>> CreatorFilter(int creatorId)
+    public static Func<IQueryable<Expense>, IQueryable<Expense>> CreatorFilter(bool creator, int creatorId)
     {
-        if (creatorId <= 0)
+        if (!creator)
             return query => query;
 
         return query => query.Where(e => e.CreatorId == creatorId);
