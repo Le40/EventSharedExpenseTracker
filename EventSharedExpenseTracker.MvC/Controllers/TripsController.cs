@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-
+﻿using EventSharedExpenseTracker.Application.Services.Interfaces;
+using EventSharedExpenseTracker.Application.Validation;
 using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Application.Services.Interfaces;
 using EventSharedExpenseTracker.MvC.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
@@ -12,10 +13,12 @@ namespace EventSharedExpenseTracker.MvC.Controllers;
 public class TripsController : Controller
 {
     private readonly ITripService _tripService;
+    private readonly IValidationService _validationService;
 
-    public TripsController(ITripService tripService)
+    public TripsController(ITripService tripService, IValidationService validationService)
     {
         _tripService = tripService;
+        _validationService = validationService;
     }
 
     // INDEX

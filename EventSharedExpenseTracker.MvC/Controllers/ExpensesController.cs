@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
 using EventSharedExpenseTracker.MvC.ActionFilters;
+using EventSharedExpenseTracker.Application.Validation;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
@@ -12,10 +13,12 @@ namespace EventSharedExpenseTracker.MvC.Controllers;
 public class ExpensesController : Controller
 {
     private readonly IExpenseService _expenseService;
+    private readonly IValidationService _validationService;
 
-    public ExpensesController(IExpenseService expenseService)
+    public ExpensesController(IExpenseService expenseService, IValidationService validationService)
     {
         _expenseService = expenseService;
+        _validationService = validationService;
     }
 
     // EXPENSES : INDEX

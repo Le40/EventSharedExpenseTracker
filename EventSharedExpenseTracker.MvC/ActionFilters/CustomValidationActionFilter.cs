@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc.Filters;
+﻿using EventSharedExpenseTracker.Application.Validation;
 using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Application.Validation;
+using Microsoft.AspNetCore.Mvc.Filters;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EventSharedExpenseTracker.MvC.ActionFilters;
 
@@ -19,15 +20,22 @@ public class CustomValidationActionFilter : IActionFilter
             var result = _validationService.ValidateExpense(expense);
             if (!result.IsValid)
             {
-                context.ModelState.AddModelError("", result.ErrorMessage ?? string.Empty);
+                foreach (var error in result.Errors)
+                {
+                    context.ModelState.AddModelError(error.PropertyName ?? "", error.Message);
+                }
             }
         }
+
         else if (context.ActionArguments.TryGetValue("trip", out var tripObj) && tripObj is Trip trip)
         {
             var result = _validationService.ValidateTrip(trip);
             if (!result.IsValid)
             {
-                context.ModelState.AddModelError("", result.ErrorMessage ?? string.Empty);
+                foreach (var error in result.Errors)
+                {
+                    context.ModelState.AddModelError(error.PropertyName ?? "", error.Message);
+                }
             }
         }
     }

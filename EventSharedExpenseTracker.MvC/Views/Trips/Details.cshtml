@@ -20,7 +20,7 @@
 
         <div class="card shadow bg-light border-0 rounded-0 p-2 mb-3 rotated-@randRotate" style="min-height: 300px;">
             @*--PHOTO-FRAME--*@
-            <div class="img-frame border border-secondary position-relative">
+            <div class="img-frame border border-secondary position-relative" id="tripPhoto">
                 @if (Model.ImagePath != null)
                 {
                     <!-- Mobile view (width: 100%, fixed height) -->
@@ -54,7 +54,7 @@
             {
                 @*--ADD PARTICIPANT--*@
                 <div class="input-group input-group-sm">
-                    <input type="text" name="searchString" id="searchString" class="form-control border-info rounded-top-0 border-top-0 bg-secondary" placeholder="search users" required
+                    <input type="text" name="searchString" id="searchString" class="form-control border-info rounded-top-0 border-top-0 bg-secondary" placeholder="search users or dummy name" required
                            hx-get="@Url.Action("Search", "Friends", new { tripId = Model.Id})"
                            hx-target="#searchParticipant"
                            hx-trigger="keyup changed delay:300ms" />
@@ -146,6 +146,9 @@
                 </div>
             </div>
             </div>
+                <small class="text-muted">
+                    double click to delete user or edit expense
+                </small>
         </div>
     </div>
 

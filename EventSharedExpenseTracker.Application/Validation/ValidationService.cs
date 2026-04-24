@@ -4,16 +4,20 @@ namespace EventSharedExpenseTracker.Application.Validation;
 
 public class ValidationService : IValidationService
 {
-    public ValidationResult ValidateTrip(Trip trip)
+    public AppValidationResult ValidateTrip(Trip trip)
     {
+        var appValResult = new AppValidationResult();
         if (trip.DateFrom > trip.DateTo)
-            return new ValidationResult { IsValid = false, ErrorMessage = "Trip can't end before it begins." };
+            appValResult.AddError("Trip can't end before it begins.", nameof(trip.DateTo));
+        //return new AppValidationResult { IsValid = false, ErrorMessage = "Trip can't end before it begins." };
 
-        return new ValidationResult { IsValid = true };
+        //return new AppValidationResult { IsValid = true };
+        return appValResult;
     }
 
-    public ValidationResult ValidateExpense(Expense expense)
+    public AppValidationResult ValidateExpense(Expense expense)
     {
+        var appValResult = new AppValidationResult();
         ValidatePayments(expense);
 
         var paymentsPaid = expense.Payments.Where(p => !p.IsOwed);
@@ -28,16 +32,20 @@ public class ValidationService : IValidationService
         paymentsOwed.ToList().ForEach(p => p.Ammount *= -1); // set owed to be negative, cause from form it is positive.
 
         if (sumPaid == 0)
-            return new ValidationResult { IsValid = false, ErrorMessage = "Paid amount cant be 0." };
+            appValResult.AddError("Paid amount cant be 0.");
+        //return new AppValidationResult { IsValid = false, ErrorMessage = "Paid amount cant be 0." };
 
         if (sumDifference < 0)
-            return new ValidationResult { IsValid = false, ErrorMessage = "Spent amount is more than Paid." };
+            appValResult.AddError("Spent amount is more than Paid.");
+            //return new AppValidationResult { IsValid = false, ErrorMessage = "Spent amount is more than Paid." };
 
         if (sumDifference > 0 && sharedCount == 0)
-            return new ValidationResult { IsValid = false, ErrorMessage = "Paid amount is more than Spent." };
+            appValResult.AddError("Paid amount is more than Spent.");
+            //return new AppValidationResult { IsValid = false, ErrorMessage = "Paid amount is more than Spent." };
 
         expense.AmountSum = sumPaid;
-        return new ValidationResult { IsValid = true };
+        return appValResult;
+        //return new AppValidationResult { IsValid = true };
     }
 
     private static void ValidatePayments(Expense expense)
