@@ -101,7 +101,7 @@
                 <div class="row no-gutters">
                     @foreach (var participant in Model.Participants)
                     {
-                        double? paymSum = participant.Payments.Sum(p => p.Ammount);
+                        decimal? paymSum = participant.Payments.Sum(p => p.Ammount);
                         string cardBg = participant.UserId == null ? "bg-white border-info" : "bg-white";
 
                             <div class="col-auto p-0">

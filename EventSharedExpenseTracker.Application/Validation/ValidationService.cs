@@ -23,9 +23,9 @@ public class ValidationService : IValidationService
         var paymentsPaid = expense.Payments.Where(p => !p.IsOwed);
         var paymentsOwed = expense.Payments.Where(p => p.IsOwed);
 
-        double sumPaid = paymentsPaid.Sum(p => p.Ammount ?? 0);
-        double sumOwed = paymentsOwed.Sum(p => p.Ammount ?? 0);
-        double sumDifference = sumPaid - sumOwed;
+        decimal sumPaid = paymentsPaid.Sum(p => p.Ammount ?? 0);
+        decimal sumOwed = paymentsOwed.Sum(p => p.Ammount ?? 0);
+        decimal sumDifference = sumPaid - sumOwed;
 
         int sharedCount = CountAndUpdateSharedPayments(sumDifference, paymentsOwed);
 
@@ -60,14 +60,14 @@ public class ValidationService : IValidationService
     }
 
 
-    private static int CountAndUpdateSharedPayments(double sumDifference, IEnumerable<Payment> paymentsOwed)
+    private static int CountAndUpdateSharedPayments(decimal sumDifference, IEnumerable<Payment> paymentsOwed)
     {
         var sharedPayments = paymentsOwed.Where(p => p.IsValid && p.Ammount == null).ToList();
         int sharedCount = sharedPayments.Count;
 
         if (sharedCount > 0)
         {
-            double sharedAmount = sumDifference / sharedCount;
+            decimal sharedAmount = sumDifference / sharedCount;
             foreach (var payment in sharedPayments)
             {
                 payment.Ammount = sharedAmount;

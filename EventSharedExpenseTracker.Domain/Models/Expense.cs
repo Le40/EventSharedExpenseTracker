@@ -26,7 +26,7 @@ public class Expense
 
     public List<Payment> Payments { get; set; } = new();
 
-    public double? AmountSum { get; set; }
+    public decimal? AmountSum { get; set; }
 
     public static List<string> Categories { get; } = new List<string>
     {

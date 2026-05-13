@@ -9,10 +9,22 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 // AZURE KEY VAULT
-var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+/*var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
 if (builder.Environment.IsProduction())
 {
     builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+}*/
+
+if (builder.Environment.IsProduction())
+{
+    var vaultUri = Environment.GetEnvironmentVariable("VaultUri");
+
+    if (!string.IsNullOrWhiteSpace(vaultUri))
+    {
+        builder.Configuration.AddAzureKeyVault(
+            new Uri(vaultUri),
+            new DefaultAzureCredential());
+    }
 }
 
 
