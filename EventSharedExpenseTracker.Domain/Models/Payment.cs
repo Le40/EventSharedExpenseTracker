@@ -8,7 +8,7 @@ public class Payment
 
     [DataType(DataType.Currency)]
     [DisplayFormat(DataFormatString = "{0:C2}")]
-    public decimal? Ammount { get; set; }
+    public decimal Ammount { get; set; }
     public bool IsValid { get; set; }
     public bool IsOwed { get; set; }
     public bool IsEquallyShared { get; set; }

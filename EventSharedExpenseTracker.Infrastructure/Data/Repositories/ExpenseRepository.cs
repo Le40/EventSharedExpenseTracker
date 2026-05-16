@@ -19,7 +19,8 @@ public class ExpenseRepository : IExpenseRepository
         params Func<IQueryable<Expense>, IQueryable<Expense>>[] filters)
     {
         // DEFAULT MANDATORY FILTER
-        var query = _context.Expenses.Where(e => e.TripId == tripId);
+        var query = _context.Expenses
+            .Where(e => e.TripId == tripId);
 
         foreach (var filter in filters)
         {

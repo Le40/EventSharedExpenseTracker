@@ -1,10 +1,10 @@
-﻿@model IEnumerable<Trip>
+﻿@using EventSharedExpenseTracker.MvC.ViewModels.Trips 
+@model IEnumerable<TripIndexItemViewModel>
 
 @{
     ViewData["Title"] = "Index";
 
     Random rnd = new Random();
-    int randRotate = rnd.Next(1, 5);
 }
 
 <div class="container-fluid">
@@ -35,6 +35,7 @@
         @*REST OF TRIP CARDS*@
         @foreach (var trip in Model)
         {
+            int randRotate = rnd.Next(1, 5);
             <div class="col p-2" style="max-width:330px;">
                 <div class="card shadow bg-light border-0 rounded-0 p-2 rotated-@randRotate" style="min-width: 165px; min-height:260px; max-width:325px;">
                     <a href="@Url.Action("Details", "Trips", new { id = trip.Id })" class="stretched-link"></a>
@@ -62,9 +63,9 @@
                     </div>
 
                     <i class="text-white-50">
-                    @foreach (var p in trip.Participants)
+                    @foreach (var name in trip.ParticipantNames)
                     {
-                       <span class="polaroid bg-white text-dark">@p.UserName</span>
+                       <span class="polaroid bg-white text-dark">@name</span>
                     }
                     </i>
 

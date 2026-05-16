@@ -1,4 +1,7 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Application.Dtos;
+using EventSharedExpenseTracker.Application.Services.Interfaces;
+using EventSharedExpenseTracker.Domain.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.Application.Validation;
 
@@ -17,6 +20,8 @@ public record AppValidationError(string? PropertyName, string Message);
 
 public interface IValidationService
 {
-    AppValidationResult ValidateExpense(Expense expense);
-    AppValidationResult ValidateTrip(Trip trip);
+    //AppValidationResult ValidateExpense(Expense expense);
+    Result<ExpenseCommand> ProcessForSaving(ExpenseCommand command);
+    Result ValidateTrip(TripCommand command);
+    //AppValidationResult ValidateTrip(Trip trip);
 }

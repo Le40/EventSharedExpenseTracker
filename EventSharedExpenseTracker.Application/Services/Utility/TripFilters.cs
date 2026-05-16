@@ -2,7 +2,7 @@
 
 namespace EventSharedExpenseTracker.Application.Services.Utility;
 
-public static class TripHelper
+public static class TripFilters
 {
     public static Func<IQueryable<Trip>, IQueryable<Trip>> Search(string searchString)
     {

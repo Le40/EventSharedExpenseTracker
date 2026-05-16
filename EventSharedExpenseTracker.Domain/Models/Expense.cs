@@ -24,16 +24,16 @@ public class Expense
     public int TripId { get; set; }
     public Trip? Trip { get; set; }
 
-    public List<Payment> Payments { get; set; } = new();
+    public List<Payment> Payments { get; set; } = [];
 
-    public decimal? AmountSum { get; set; }
+    public decimal AmountSum { get; set; }
 
-    public static List<string> Categories { get; } = new List<string>
-    {
+    public static List<string> Categories { get; } =
+    [
         "FOOD",
         "TRAVEL",
         "PROGRAM",
         "ROOM",
         "OTHER"
-    };
+    ];
 }

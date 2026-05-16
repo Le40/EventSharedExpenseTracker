@@ -1,0 +1,23 @@
+﻿namespace EventSharedExpenseTracker.Application.Dtos
+{
+    public class ExpenseQuery
+    {
+        public int Id { get; set; }
+        public bool CanEdit { get; set; }
+
+        public string Name { get; set; } = "";
+        public DateTime Date { get; set; }
+        public string Category { get; set; } = "";
+        public string? Description { get; set; }
+        public List<PaymentQuery> Payments { get; set; } = [];
+    }
+
+    public class PaymentQuery
+    {
+        public string ParticipantName { get; set; } = "";
+        public decimal Amount { get; set; }
+        public bool IsOwed { get; set; }
+        public bool IsEquallyShared { get; set; }
+    }
+}
+

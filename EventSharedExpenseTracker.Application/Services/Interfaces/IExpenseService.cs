@@ -1,14 +1,13 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Application.Dtos;
+using EventSharedExpenseTracker.Domain.Models;
 
 namespace EventSharedExpenseTracker.Application.Services.Interfaces;
 
 public interface IExpenseService
 {
-    Task<ServiceResult<List<Expense>>> Index(int tripId, string sortOrder, string searchString, bool creator, string categoryFilter);
-    Task<ServiceResult<Expense>> Create(int tripId);
-    Task<ServiceResult<Expense>> Add(Expense expense, int tripId);
-    Task<ServiceResult<Expense>> Get(int id, int tripId);
-    Task<ServiceResult<Expense>> Update(Expense expense);
-    Task<ServiceResult<Expense>> Delete(int id);
-    Task<Expense> LoadParticipants(Expense expense);
+    Task<Result<List<ExpenseQuery>>> Index(int tripId, string sortOrder, string searchString, bool creator, string categoryFilter);
+    Task<Result<Expense>> Add(ExpenseCommand command, int tripId);
+    Task<Result<ExpenseCommand>> GetForUpdate(int id);
+    Task<Result<Expense>> Update(ExpenseCommand command);
+    Task<Result> Delete(int id);
 }

@@ -1,8 +1,11 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Application.Authorisation;
+﻿using EventSharedExpenseTracker.Application.Authorisation;
+using EventSharedExpenseTracker.Application.Dtos;
 using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Utility;
+using EventSharedExpenseTracker.Application.Validation;
+using EventSharedExpenseTracker.Domain.Models;
+using Mapster;
 
 namespace EventSharedExpenseTracker.Application.Services;
 
@@ -12,74 +15,78 @@ public class TripService : ITripService
     private readonly IAuthorisationServ _authorizationService;
     private readonly IRequestContext _requestContext;
     private readonly IImageService _imageService;
+    private readonly IValidationService _validationService;
 
-    public TripService(IUnitOfWork unitOfWork, IAuthorisationServ authorisationService, IRequestContext requestContext, IImageService imageService)
+    public TripService(IUnitOfWork unitOfWork, IAuthorisationServ authorisationService, IRequestContext requestContext, IImageService imageService, IValidationService validationService)
     {
         _unitOfWork = unitOfWork;
         _authorizationService = authorisationService;
         _requestContext = requestContext;
         _imageService = imageService;
+        _validationService = validationService;
     }
 
-
-    public async Task<ServiceResult<List<Trip>>> Index(string sortOrder, string searchString, string categoryFilter)
+    public async Task<Result<List<TripQuery>>> Index(string? sortOrder, string? searchString, string? categoryFilter)
     {
         int userId = _requestContext.UserId;
 
-        var orderBy = TripHelper.GetOrderByExpression(sortOrder);
+        var orderBy = TripFilters.GetOrderByExpression(sortOrder);
 
         var listOfFilters = new List<Func<IQueryable<Trip>, IQueryable<Trip>>>
         {
-            TripHelper.Search(searchString),
-            //TripHelper.CategoryFilter(categoryFilter)
+            TripFilters.Search(searchString),
+            //TripFilters.CategoryFilter(categoryFilter)
         };
 
         var trips = await _unitOfWork.Trips.GetAllFromUserAsync(userId,
             orderBy: orderBy,
             filters: listOfFilters.ToArray());
 
-        return new ServiceResult<List<Trip>>(trips, 200);
+        var queries = trips.Select(t => new TripQuery
+        {
+            Id = t.Id,
+            Name = t.Name,
+            DateFrom = t.DateFrom,
+            DateTo = t.DateTo,
+            ImagePath = t.ImagePath,
+            ParticipantNames = t.Participants
+                .Select(p => p.UserName)
+                .ToList()
+        }).ToList();
+            
+        return Result<List<TripQuery>>.Ok(queries);
     }
 
-    public async Task<ServiceResult<Trip>> Details(int id)
+    public async Task<Result<Trip>> Details(int id)
     {
+        int userId = _requestContext.UserId;
+
         var trip = await _unitOfWork.Trips.GetByIdWithExpenses(id);
         if (trip == null)
-            return new ServiceResult<Trip>("Needed resource not found.", 404);
+            return Result<Trip>.Fail(AppErrors.NotFound<Trip>());
 
-        var userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToView(trip, userId))
-            return new ServiceResult<Trip>("Insufficient permissions.", 403);
+            return Result<Trip>.Fail(AppErrors.Forbidden<Trip>());
 
-        return new ServiceResult<Trip>(trip, 200);
+        return Result<Trip>.Ok(trip);
     }
 
-    public async Task<ServiceResult<Trip>> Get(int id)
+    public async Task<Result<Trip>> Add(TripCommand command, Stream? imageFileStream)
     {
-        var trip = await _unitOfWork.Trips.GetByIdAsync(id);
+        var validationResult = _validationService.ValidateTrip(command);
+        if (!validationResult.IsSuccess)
+            return Result<Trip>.Fail(validationResult.Errors);
 
-        if (trip == null)
-            return new ServiceResult<Trip>("Needed resource not found.", 404);
+        var trip = command.Adapt<Trip>();
+        int userId = _requestContext.UserId;
+        trip.CreatorId = userId;
 
-        var userId = _requestContext.UserId;
-        if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return new ServiceResult<Trip>("Insufficient permissions.", 403);
-
-        return new ServiceResult<Trip>(trip, 200);
-    }
-
-    public async Task<ServiceResult<Trip>> Add(Trip trip, Stream? imageFileStream)
-    {
         if (imageFileStream != null)
-            trip.ImagePath = await _imageService.UpdateImageAsync(imageFileStream, string.Empty);
-
-        if (_requestContext.UserId <= 0)
-            return new ServiceResult<Trip>("Insufficient permissions.", 403);
+            trip.ImagePath = await _imageService.SaveImageAsync(imageFileStream, string.Empty);
 
         var participant = new TripParticipant()
         {
             UserId = _requestContext.UserId,
-            TripId = trip.Id,
             UserName = _requestContext.UserName
         };
 
@@ -87,40 +94,70 @@ public class TripService : ITripService
         _unitOfWork.Trips.Add(trip);
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Trip>("Success", 200);
+        return Result<Trip>.Ok(trip);
     }
 
-    public async Task<ServiceResult<Trip>> Update(Trip trip, Stream? imageFileStream)
+    public async Task<Result<TripCommand>> GetForUpdate(int id)
     {
-        if (imageFileStream != null)
-            trip.ImagePath = await _imageService.UpdateImageAsync(imageFileStream, trip.ImagePath ?? string.Empty);
+        var userId = _requestContext.UserId;
+        var trip = await _unitOfWork.Trips.GetByIdAsync(id);
 
-        int userId = _requestContext.UserId;
+        if (trip == null)
+            return Result<TripCommand>.Fail(AppErrors.NotFound<Trip>());
+
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return new ServiceResult<Trip>("Insufficient permissions.", 403);
+            return Result<TripCommand>.Fail(AppErrors.Forbidden<Trip>());
 
-        _unitOfWork.Trips.Update(trip);
-        await _unitOfWork.CompleteAsync();
-        return new ServiceResult<Trip>("Success", 200);
+        var command = trip.Adapt<TripCommand>();
+
+        return Result<TripCommand>.Ok(command);
     }
 
-    public async Task<ServiceResult<Trip>> Delete(int id)
+    public async Task<Result<Trip>> Update(TripCommand command, Stream? imageFileStream)
+    {
+        int userId = _requestContext.UserId;
+        var existingTrip = await _unitOfWork.Trips.GetByIdAsync(command.Id);
+        if (existingTrip == null)
+            return Result<Trip>.Fail(AppErrors.NotFound<Trip>());
+
+        if (!_authorizationService.AuthorisedToEdit(existingTrip, userId))
+            return Result<Trip>.Fail(AppErrors.Forbidden<Trip>());
+
+        var validationResult = _validationService.ValidateTrip(command);
+        if (!validationResult.IsSuccess)
+            return Result<Trip>.Fail(validationResult.Errors);
+
+        command.Adapt(existingTrip);
+
+        if (imageFileStream != null)
+            existingTrip.ImagePath = await _imageService.SaveImageAsync(imageFileStream, existingTrip.ImagePath ?? string.Empty);
+
+
+        //_unitOfWork.Trips.Update(existingTrip);
+        await _unitOfWork.CompleteAsync();
+        return Result<Trip>.Ok(existingTrip);
+    }
+
+    public async Task<Result> Delete(int id)
     {
         var trip = await _unitOfWork.Trips.GetByIdAsync(id);
 
         if (trip == null)
-            return new ServiceResult<Trip>("Needed resource not found.", 404);
+            return Result.Fail(AppErrors.NotFound<Trip>());
 
         int userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return new ServiceResult<Trip>("Insufficient permissions.", 403);
+            return Result.Fail(AppErrors.Forbidden<Trip>());
 
-        if (trip.ImagePath != null)
-            _imageService.DeleteImageFile(trip.ImagePath);
+        var imagePath = trip.ImagePath;
 
         _unitOfWork.Trips.Delete(trip);
         await _unitOfWork.CompleteAsync();
-        return new ServiceResult<Trip>("Success", 200);
+
+        if(imagePath != null)
+            _imageService.DeleteImageFile(imagePath);
+
+        return Result.Success();
     }
 
     public async Task<ServiceResult<Trip>> AddParticipant(int tripId, int friendId)

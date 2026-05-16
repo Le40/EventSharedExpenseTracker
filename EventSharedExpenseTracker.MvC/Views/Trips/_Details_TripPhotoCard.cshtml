@@ -1,0 +1,31 @@
+﻿@using EventSharedExpenseTracker.MvC.ViewModels.Trips
+@model TripDetailsViewModel
+
+@*--PHOTO-FRAME--*@
+<div class="img-frame border border-secondary position-relative" id="tripPhoto">
+    @if (Model.ImagePath != null)
+    {
+        <!-- Mobile view (width: 100%, fixed height) -->
+        <img src="@Url.Content(Model.ImagePath)" alt="image" class="card-img-top rounded-0 img-fluid d-lg-none" style="min-height: 220px; max-height: 325px; object-fit: cover;">
+
+        <!-- Desktop view (fixed width, height: 100%) -->
+        <img src="@Url.Content(Model.ImagePath)" alt="image" class="card-img-top rounded-0 img-fluid d-none d-lg-block" style="min-height: 400px; max-height: 450px; object-fit: cover;">
+    }
+    else
+    {
+        <!-- Mobile view (width: 100%, fixed height) -->
+        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+             class="card-img-top rounded-0 img-fluid d-lg-none" style="min-height: 220px; max-height: 325px; object-fit: cover;">
+
+        <!-- Desktop view (fixed width, height: 100%) -->
+        <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80"
+             class="card-img-top rounded-0 img-fluid d-none d-lg-block" style="min-height: 400px; max-height: 450px; object-fit: cover;">
+    }
+    @*--PHOTO - INFO--*@
+    <div id="tripEdit" class="position-absolute bottom-0 end-0 p-3 text-white">
+
+        <h1 class="display-4 align-end text-white polaroid">@Html.DisplayFor(modelItem => Model.Name)</h1>
+        <small class="text-white polaroid">@Html.DisplayFor(model => model.DateFrom) -  @Html.DisplayFor(model => model.DateTo)</small>
+
+    </div>
+</div>

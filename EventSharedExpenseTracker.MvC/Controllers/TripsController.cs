@@ -1,87 +1,127 @@
-﻿using EventSharedExpenseTracker.Application.Services.Interfaces;
-using EventSharedExpenseTracker.Application.Validation;
-using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.MvC.ActionFilters;
+﻿using EventSharedExpenseTracker.Application.Dtos;
+using EventSharedExpenseTracker.Application.Dtos.Mappers;
+using EventSharedExpenseTracker.Application.Interfaces;
+using EventSharedExpenseTracker.Application.Services.Interfaces;
+using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
+using EventSharedExpenseTracker.MvC.ViewModels.Trips;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
 [Authorize]
 [AutoValidateAntiforgeryToken]
-public class TripsController : Controller
+public class TripsController : BaseController
 {
     private readonly ITripService _tripService;
-    private readonly IValidationService _validationService;
+    private readonly IRequestContext _requestContext;
 
-    public TripsController(ITripService tripService, IValidationService validationService)
+    public TripsController(ITripService tripService, IRequestContext requestContext)
     {
         _tripService = tripService;
-        _validationService = validationService;
+        _requestContext = requestContext;
     }
 
     // INDEX
     [HttpGet("Trips/")]
     [HttpGet("/")]
-    public async Task<IActionResult> Index(string sortOrder, string searchString, string categoryFilter)
+    public async Task<IActionResult> Index(string? sortOrder, string? searchString, string? categoryFilter)
     {
         ViewBag.DateSortParam = sortOrder == "date" ? "date_desc" : "date";
         ViewBag.SearchString = searchString;
         ViewBag.CategoryFilter = categoryFilter;
 
         var result = await _tripService.Index(sortOrder, searchString, categoryFilter);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
 
-        return View(result.Data);
+        var models = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>());
+
+        return View(models);
     }
 
     // DETAILS
-    [HttpGet("Trips/Details/{tripId}")]
-    public async Task<IActionResult> Details(int tripId)
+    [HttpGet("Trips/Details/{id}")]
+    public async Task<IActionResult> Details([FromRoute] int id)
     {
-        ViewBag.TripId = tripId;
-        var result = await _tripService.Details(tripId);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        var userId = _requestContext.UserId;
 
-        return View(result.Data);
+        //ViewBag.TripId = tripId;
+        var result = await _tripService.Details(id);
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
+
+        var trip = result.Value;
+        var canEdit = trip.CreatorId == userId;
+
+        var queries = trip.Expenses.Select(e => ExpenseMapper.MapToQuery(e, userId)).ToList();
+
+        var model = new TripDetailsViewModel
+        {
+            Id = trip.Id,
+            CanEdit = canEdit,
+            Name = trip.Name,
+            DateFrom = trip.DateFrom,
+            DateTo = trip.DateTo,
+            ImagePath = trip.ImagePath,
+
+            Participants = trip.Participants
+                .Select(p => new TripParticipantViewModel
+                {
+                    Id = p.Id,
+                    UserName = p.UserName,
+                    PaymentSum = p.Payments.Sum(x => x.Ammount),
+                    PaymentCount = p.Payments.Count()
+                })
+                .ToList(),
+
+            ExpenseIndex = new ExpenseIndexViewModel
+            {
+                TripId = trip.Id,
+                Expenses = queries.Select(ExpenseFormMapper.FromQuery).ToList(),
+                Creator = false,
+                CurrentSort = null,
+                NameSortParam = "name",
+                DateSortParam = "date",
+                AmmSortParam = "amount"
+            }
+        };
+        return View(model);
     }
 
     // CREATE: GET
     [HttpGet("Trips/Create")]
     public IActionResult Create()
     {
-        return PartialView("_Create");
+        return PartialView("_Create", new TripFormViewModel());
     }
 
     // CREATE: POST
     [HttpPost("Trips/Create")]
-    [ServiceFilter(typeof(CustomValidationActionFilter))]
-    public async Task<IActionResult> Create([Bind("Id,Name,DateFrom,DateTo,CreatorId")] Trip trip, IFormFile? imageFile)
+    //[ServiceFilter(typeof(CustomValidationActionFilter))]
+    public async Task<IActionResult> Create(TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
-        {
-            HttpContext.Response.Headers.Append("Hx-Retarget", "#createTrip");
-            // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
-            //return StatusCode(400,PartialView("_Create", trip));
-            // htmx wont return 400+ code back to dom, so its 200 even for bad form.
-            return PartialView("_Create", trip);
-        }
+            return ReturnCreateForm(model);
 
-        Stream? imageStream = null;
-        if (imageFile != null)
-            imageStream = imageFile.OpenReadStream();
+        await using var imageStream = imageFile?.OpenReadStream();
+
+        var command = model.Adapt<TripCommand>();
   
-        var result = await _tripService.Add(trip, imageStream);
-        if (result.StatusCode != 200)
+        var result = await _tripService.Add(command, imageStream);
+        if (!result.IsSuccess)
         {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
+            var validationErrors = result.Errors
+                .Where(e => e.Type == ErrorType.Validation)
+                .ToList();
+
+            if (validationErrors.Any())
+            {
+                AddErrorsToModelState(validationErrors);
+                return ReturnCreateForm(model);
+            }
+            return HandleServiceErrors(result.Errors);
         }
 
         return RedirectToAction(nameof(Index));
@@ -91,40 +131,45 @@ public class TripsController : Controller
     [HttpGet("Trips/Edit/{id}")]
     public async Task<IActionResult> Edit(int id)
     {
-        var result = await _tripService.Get(id);
-        if (result.StatusCode != 200)
+        var result = await _tripService.GetForUpdate(id);
+        if (!result.IsSuccess)
         {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
+            return HandleServiceErrors(result.Errors);
         }
 
-        return PartialView("_Edit", result.Data);
+        var vm = result.Value.Adapt<TripFormViewModel>();
+
+        return PartialView("_Edit", vm);
     }
 
     // EDIT: POST
     [HttpPost("Trips/Edit/{id}")]
-    [ServiceFilter(typeof(CustomValidationActionFilter))]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DateFrom,DateTo,CreatorId,ImagePath")] Trip trip, IFormFile? imageFile)
+    //[ServiceFilter(typeof(CustomValidationActionFilter))]
+    public async Task<IActionResult> Edit([FromRoute] int id, TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
+            return ReturnEditForm(model);
+
+        await using var imageStream = imageFile?.OpenReadStream();
+        model.Id = id;
+        var command = model.Adapt<TripCommand>();
+
+        var result = await _tripService.Update(command, imageStream);
+        if (!result.IsSuccess)
         {
-            HttpContext.Response.Headers.Append("Hx-Retarget", "#tripEdit");
-            // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
-            //return StatusCode(400, PartialView("_Edit", trip));
-            // htmx wont return 400+ code back to dom, so its 200 even for bad form.
-            return PartialView("_Edit", trip);
+            var validationErrors = result.Errors
+                .Where(e => e.Type == ErrorType.Validation)
+                .ToList();
+
+            if (validationErrors.Any())
+            {
+                AddErrorsToModelState(validationErrors);
+                return ReturnEditForm(model);
+            }
+            return HandleServiceErrors(result.Errors);
         }
 
-        Stream? imageStream = null;
-        if (imageFile != null)
-            imageStream = imageFile.OpenReadStream();
-
-        var result = await _tripService.Update(trip, imageStream);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
-
-        return RedirectToAction(nameof(Details), new { id = trip.Id });
+        return RedirectToAction(nameof(Details), new { id = model.Id });
     }
 
     // DELETE: POST
@@ -133,10 +178,8 @@ public class TripsController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var result = await _tripService.Delete(id);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
 
         return RedirectToAction(nameof(Index));
     }
@@ -178,5 +221,23 @@ public class TripsController : Controller
         }
         //return View("Details", id);
         return RedirectToAction("Details", "Trips", new { id });
+    }
+
+    private IActionResult ReturnCreateForm(TripFormViewModel model)
+    {
+        HttpContext.Response.Headers.Append("Hx-Retarget", "#createTrip");
+        // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
+        //return StatusCode(400,PartialView("_Create", trip));
+        // htmx wont return 400+ code back to dom, so its 200 even for bad form.
+        return PartialView("_Create", model);
+    }
+
+    private IActionResult ReturnEditForm(TripFormViewModel model)
+    {
+        HttpContext.Response.Headers.Append("Hx-Retarget", "#tripEdit");
+        // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
+        //return StatusCode(400, PartialView("_Edit", trip));
+        // htmx wont return 400+ code back to dom, so its 200 even for bad form.
+        return PartialView("_Edit", model);
     }
 }

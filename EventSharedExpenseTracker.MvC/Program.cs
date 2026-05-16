@@ -4,6 +4,7 @@ using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Infrastructure;
 using EventSharedExpenseTracker.MvC.ActionFilters;
 using EventSharedExpenseTracker.MvC.Services;
+using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -34,8 +35,9 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddScoped<CustomValidationActionFilter>();
+//builder.Services.AddScoped<CustomValidationActionFilter>();
 builder.Services.AddScoped<IRequestContext, RequestContextService>();
+builder.Services.AddScoped<ExpenseFormFactory>();
 
 var app = builder.Build();
 

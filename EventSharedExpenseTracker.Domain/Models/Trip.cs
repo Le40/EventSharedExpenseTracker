@@ -9,11 +9,9 @@ public class Trip
     public required string Name { get; set; }
 
     [DataType(DataType.Date)]
-    [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}")]
     public DateTime DateFrom { get; set; }
 
     [DataType(DataType.Date)]
-    [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}")]
     public DateTime DateTo { get; set; }
     public required int CreatorId { get; set; }
     public CustomUser? Creator { get; set; }

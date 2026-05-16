@@ -66,3 +66,8 @@ body {
 .img-frame {
     overflow: hidden;
 }
+
+.muted-placeholder::placeholder {
+    color: #6c757d;
+    opacity: 0.6;
+}

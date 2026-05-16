@@ -5,9 +5,9 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace EventSharedExpenseTracker.MvC.ActionFilters;
 
-public class CustomValidationActionFilter : IActionFilter
+/*public class CustomValidationActionFilter : IActionFilter
 {
-    private readonly IValidationService _validationService;
+    /*private readonly IValidationService _validationService;
 
     public CustomValidationActionFilter(IValidationService validationService)
     {
@@ -43,4 +43,4 @@ public class CustomValidationActionFilter : IActionFilter
     public void OnActionExecuted(ActionExecutedContext context)
     {
     }
-}
+}*/

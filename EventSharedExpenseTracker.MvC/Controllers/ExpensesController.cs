@@ -1,131 +1,147 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
-
-using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
-using EventSharedExpenseTracker.MvC.ActionFilters;
-using EventSharedExpenseTracker.Application.Validation;
+using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
 [Authorize]
 [AutoValidateAntiforgeryToken]
-public class ExpensesController : Controller
+public class ExpensesController : BaseController
 {
     private readonly IExpenseService _expenseService;
-    private readonly IValidationService _validationService;
+    private readonly IRequestContext _requestContext;
+    private readonly ExpenseFormFactory _expenseFormFactory;
 
-    public ExpensesController(IExpenseService expenseService, IValidationService validationService)
+    public ExpensesController(IExpenseService expenseService,  IRequestContext requestContext, ExpenseFormFactory expenseFormFactory)
     {
         _expenseService = expenseService;
-        _validationService = validationService;
+        _requestContext = requestContext;
+        _expenseFormFactory = expenseFormFactory;
     }
 
     // EXPENSES : INDEX
     [HttpGet("Trips/{tripId}/Expenses/")]
-    public async Task<IActionResult> Index(int tripId, string sortOrder, string searchString, string categoryFilter, bool creator = false)
+    public async Task<IActionResult> Index(int tripId, string? sortOrder, string? searchString, string? categoryFilter, bool creator = false)
     {
-        ViewBag.TripId = tripId;
+        /*ViewBag.TripId = tripId;
         ViewBag.NameSortParam = sortOrder == "name" ? "name_desc" : "name";
         ViewBag.DateSortParam = sortOrder == "date" ? "date_desc" : "date";
         ViewBag.AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount";
         //ViewBag.Creator = creator == "on" ? "off" : "on";
         ViewBag.Creator = creator;
         ViewBag.SearchString = searchString;
-        ViewBag.CategoryFilter = categoryFilter;
+        ViewBag.CategoryFilter = categoryFilter;*/
 
         var result = await _expenseService.Index(tripId, sortOrder, searchString, creator, categoryFilter);
-        if (result.StatusCode != 200)
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
+
+        var vm = new ExpenseIndexViewModel
         {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+            Expenses = result.Value!.Select(e => ExpenseFormMapper.FromQuery(e)).ToList(),
+            TripId = tripId,
+            SearchString = searchString,
+            CategoryFilter = categoryFilter,
+            Creator = creator,
+            CurrentSort = sortOrder,
+            NameSortParam = sortOrder == "name" ? "name_desc" : "name",
+            DateSortParam = sortOrder == "date" ? "date_desc" : "date",
+            AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount"
+        };
 
-        var expenses = result.Data;
+        // if the request is from htmx, return the partial view, otherwise return the full view
+        // meaning it wants to filter, search or sort.
+        if (Request.Headers["HX-Target"].Any())
+            return PartialView("_Index", vm);
 
-        string? hxHeader = Request.Headers["HX-Target"];
-
-        if (hxHeader != null)
-            return PartialView("_Index", expenses);
-
-        return View(expenses);
+        return View(vm);
     }
 
     // CREATE: GET
-    [HttpGet("Expenses/Add/")]
-    public async Task<IActionResult> Create(int tripId)
+    [HttpGet("Trips/{tripId}/Expenses/Add/")]
+    public async Task<IActionResult> Create([FromRoute] int tripId)
     {
-        var result = await _expenseService.Create(tripId);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        var result = await _expenseFormFactory.BuildCreateAsync(tripId);
+
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
 
         ViewBag.Action = "Create";
-        return PartialView("_Form", result.Data);
-        //return await RenderExpenseForm(result.Data, "", "Create");
+        return PartialView("_Form", result.Value);
     }
 
     // CREATE: POST
-    [HttpPost("Expenses/Add/")]
-    [ServiceFilter(typeof(CustomValidationActionFilter))]
-    public async Task<IActionResult> Create(int tripId, [Bind("Id,Name,Date,Category,TripId,CreatorId,Payments")] Expense expense)
+    [HttpPost("Trips/{tripId}/Expenses/Add/")]
+    public async Task<IActionResult> Create([FromRoute] int tripId, ExpenseViewModel model)
     {
         if (!ModelState.IsValid)
+            return ReturnCreateForm(model);
+
+        var expenseCommand = ExpenseFormMapper.ToCommand(model, tripId);//, _requestContext.UserId
+
+        var result = await _expenseService.Add(expenseCommand, tripId);
+
+        if (!result.IsSuccess)
         {
-            expense = await _expenseService.LoadParticipants(expense);
-            ViewBag.Action = "Create";
-            HttpContext.Response.Headers.Append("Hx-Retarget", "#createExpense");
-            return PartialView("_Form", expense);
+            var validationErrors = result.Errors
+                .Where(e => e.Type == ErrorType.Validation)
+                .ToList();
+
+            if (validationErrors.Any())
+            {
+                AddErrorsToModelState(validationErrors);
+                return ReturnCreateForm(model);
+            }
+
+            return HandleServiceErrors(result.Errors);
         }
-        //return StatusCode(400, await RenderExpenseForm(expense, "#createExpense", "Create"));
 
-        var result = await _expenseService.Add(expense, tripId);
-
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
-
-        return RedirectToAction("Details", "Trips", new { id = expense.TripId });
+        return RedirectToAction("Details", "Trips", new { id = expenseCommand.TripId });
     }
 
     // EDIT: GET
     [HttpGet("Expenses/Edit/{id}")]
-    public async Task<IActionResult> Edit(int tripId, int id)
+    public async Task<IActionResult> Edit(int id)
     {
-        var result = await _expenseService.Get(id, tripId);
-        if (result.StatusCode != 200)
+        var result = await _expenseFormFactory.BuildEditAsync(id);
+        if (!result.IsSuccess)
         {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
+            return HandleServiceErrors(result.Errors);
         }
 
         ViewBag.Action = "Edit";
-        return PartialView("_Form", result.Data);
-        //return await RenderExpenseForm(result.Data, "", "Edit");
+        return PartialView("_Form", result.Value);
     }
 
     // EDIT: POST
     [HttpPost("Expenses/Edit/{id}/")]
-    [ServiceFilter(typeof(CustomValidationActionFilter))]
-    public async Task<IActionResult> Edit(int tripId, int id, [Bind("Id,Name,Date,Category,TripId, CreatorId, Payments")] Expense expense)
+    public async Task<IActionResult> Edit(int id, ExpenseViewModel model)
     {
         if (!ModelState.IsValid)
+            return ReturnEditForm(model);
+
+        var expenseCommand = ExpenseFormMapper.ToCommand(model, model.TripId);//, _requestContext.UserId
+
+        var result = await _expenseService.Update(expenseCommand);
+
+        if (!result.IsSuccess)
         {
-            expense = await _expenseService.LoadParticipants(expense);
-            ViewBag.Action = "Edit";
-            HttpContext.Response.Headers.Append("Hx-Retarget", "#expense" + expense.Id);
-            return PartialView("_Form", expense);
+            var validationErrors = result.Errors
+                .Where(e => e.Type == ErrorType.Validation)
+                .ToList();
+
+            if (validationErrors.Any())
+            {
+                AddErrorsToModelState(validationErrors);
+                return ReturnEditForm(model);
+            }
+
+            return HandleServiceErrors(result.Errors);
         }
-        //return StatusCode(400, await RenderExpenseForm(expense, "#expense" + expense.Id, "Edit"));
 
-        var result = await _expenseService.Update(expense);
-
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
-
-        return RedirectToAction("Details", "Trips", new { id = expense.TripId });
+        return RedirectToAction("Details", "Trips", new { id = expenseCommand.TripId });
     }
 
     // DELETE: POST
@@ -134,26 +150,23 @@ public class ExpensesController : Controller
     public async Task<IActionResult> Delete(int id, int tripId)
     {
         var result = await _expenseService.Delete(id);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
 
-        return RedirectToAction("Details", "Trips", new { tripId = tripId });
+        return RedirectToAction("Details", "Trips", new { id = tripId });
     }
 
-    //private async Task<IActionResult> RenderExpenseForm(Expense expense, string hxTargetElement, string action)
-    //{
-    //    if (expense.Payments[0].Participant == null)
-    //    {
-    //        expense = await _expenseService.LoadParticipants(expense);
-    //    }
+    private IActionResult ReturnCreateForm(ExpenseViewModel model)
+    {
+        ViewBag.Action = "Create";
+        Response.Headers.Append("Hx-Retarget", "#createExpense");
+        return PartialView("_Form", model);
+    }
 
-    //    ViewBag.Action = action;
-    //    if (hxTargetElement != "")
-    //    {
-    //        HttpContext.Response.Headers.Append("Hx-Retarget", hxTargetElement);
-    //    }
-    //    return PartialView("~/Views/Partials/_expenseForm.cshtml", expense);
-    //}
+    private IActionResult ReturnEditForm(ExpenseViewModel model)
+    {
+        ViewBag.Action = "Edit";
+        Response.Headers.Append("Hx-Retarget", "#expense" + model.Id);
+        return PartialView("_Form", model);
+    }
 }

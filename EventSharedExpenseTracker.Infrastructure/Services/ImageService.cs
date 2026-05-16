@@ -8,7 +8,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Services;
 
 public class ImageService : IImageService
 {
-    public async Task<string> UpdateImageAsync(Stream imageFileStream, string currentImagePath)
+    public async Task<string> SaveImageAsync(Stream imageFileStream, string currentImagePath)
     {
         if (imageFileStream == null || imageFileStream.Length == 0)
         {

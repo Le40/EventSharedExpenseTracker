@@ -2,11 +2,11 @@
 
 namespace EventSharedExpenseTracker.Application.Services.Utility;
 
-public static class ExpenseHelper
+public static class ExpenseFilters
 {
     public static Func<IQueryable<Expense>, IQueryable<Expense>> Search(string searchString)
     {
-        if (searchString == null)
+        if (string.IsNullOrWhiteSpace(searchString))
             return query => query;
 
         return query => query.Where(e =>
@@ -17,18 +17,24 @@ public static class ExpenseHelper
 
     public static Func<IQueryable<Expense>, IQueryable<Expense>> CategoryFilter(string categoryFilter)
     {
-        if (categoryFilter == null)
+        if (string.IsNullOrWhiteSpace(categoryFilter))
             return query => query;
 
-        return query => query.Where(e => e.Category.ToLower().Contains(categoryFilter.ToLower()));
+        return query => query.Where(e => e.Category == categoryFilter);
     }
 
-    public static Func<IQueryable<Expense>, IQueryable<Expense>> CreatorFilter(bool creator, int creatorId)
+    public static Func<IQueryable<Expense>, IQueryable<Expense>> CreatorFilter(bool creator, int userId)
     {
-        if (!creator)
+        /*if (!creator)
             return query => query;
 
-        return query => query.Where(e => e.CreatorId == creatorId);
+        return query => query.Where(e => e.CreatorId == creatorId);*/
+
+        if (creator)
+        {
+            return query => query.Where(e => e.CreatorId == userId);
+        }
+        return query => query;
     }
 
     public static Func<IQueryable<Expense>, IOrderedQueryable<Expense>> GetOrderByExpression(string sortOrder)

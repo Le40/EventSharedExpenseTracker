@@ -1,0 +1,45 @@
+﻿@using EventSharedExpenseTracker.MvC.ViewModels.Expenses
+
+@model List<ExpenseParticipantViewModel>
+
+<div class="my-3">
+    <div class="row g-1">
+
+        @for (var j = 0; j < Model.Count; j++)
+        {
+            <input type="hidden" asp-for="@Model[j].ParticipantId" />
+            <input type="hidden" asp-for="@Model[j].ParticipantName" />
+
+            <div class="col-4">
+                <input class="form-control payment-input muted-placeholder"
+                       asp-for="@Model[j].PaidAmount"
+                       type="number"
+                       inputmode="numeric"
+                       step="0.01"
+                       placeholder="paid:" />
+                <span asp-validation-for="@Model[j].PaidAmount" class="text-danger"></span>
+            </div>
+
+            <div class="col-4">
+                <input type="checkbox"
+                       class="form-check-input btn-check"
+                       id="@($"checkbox{j}")"
+                       asp-for="@Model[j].IsOwedSelected" />
+
+                <label class="btn btn-outline-warning btn-block w-100"
+                       for="@($"checkbox{j}")">
+                    @Model[j].ParticipantName
+                </label>
+            </div>
+
+            <div class="col-4">
+                <input class="form-control payment-input muted-placeholder"
+                       asp-for="@Model[j].OwedAmount"
+                       type="number"
+                       step="0.01"
+                       placeholder="spent:" />
+                <span asp-validation-for="@Model[j].OwedAmount" class="text-danger"></span>
+            </div>
+        }
+    </div>
+</div>

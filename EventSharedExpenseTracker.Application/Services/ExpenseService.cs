@@ -1,9 +1,12 @@
 ﻿using EventSharedExpenseTracker.Application.Authorisation;
+using EventSharedExpenseTracker.Application.Dtos;
 using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Utility;
 using EventSharedExpenseTracker.Application.Validation;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.Application.Dtos.Mappers;
+using Mapster;
 
 namespace EventSharedExpenseTracker.Application.Services;
 
@@ -22,7 +25,7 @@ public class ExpenseService : IExpenseService
         _validationService = validationService;
     }
 
-    public async Task<ServiceResult<List<Expense>>> Index(int tripId, string sortOrder, string searchString, bool creator, string categoryFilter)
+    /*public async Task<ServiceResult<List<Expense>>> Index(int tripId, string sortOrder, string searchString, bool creator, string categoryFilter)
     {
         int userId = _requestContext.UserId;
 
@@ -51,138 +54,120 @@ public class ExpenseService : IExpenseService
             filters: listOfFilters.ToArray());
 
         return new ServiceResult<List<Expense>> (expenses, 200);
-    }
-
-
-    public async Task<ServiceResult<Expense>> Create(int tripId)
+    }*/
+    public async Task<Result<List<ExpenseQuery>>> Index(int tripId, string? sortOrder, string? searchString, bool creator, string? categoryFilter)
     {
         int userId = _requestContext.UserId;
 
         var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
         if (trip == null)
-            return new ServiceResult<Expense>("Needed resource not found.", 404);
+            return Result<List<ExpenseQuery>>.Fail(AppErrors.NotFound<Trip>());
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
-            return new ServiceResult<Expense>("Insufficient permissions.", 403);
+            return Result<List<ExpenseQuery>>.Fail(AppErrors.Forbidden<Trip>());
 
-        var orderedParticipants = trip.Participants
-            .OrderBy(p => p.UserId == userId ? 0 : 1)
-            .ThenBy(p => p.UserName)
-            .ToList();
+        var orderBy = ExpenseFilters.GetOrderByExpression(sortOrder);
 
-        var expense = new Expense
+        var listOfFilters = new List<Func<IQueryable<Expense>, IQueryable<Expense>>>
         {
-            CreatorId = userId,
-            TripId = trip.Id
+            ExpenseFilters.Search(searchString!),
+            ExpenseFilters.CategoryFilter(categoryFilter!),
+            ExpenseFilters.CreatorFilter(creator, userId)
         };
 
-        foreach (var participant in orderedParticipants)
-        {
-            // for each participant create two payments for paid and one for owed payments
-            foreach (bool isOwed in new[] { false, true })
-            {
-                var payment = new Payment
-                {
-                    UserId = participant.UserId,
-                    ParticipantId = participant.Id,
-                    Participant = participant,
-                    IsOwed = isOwed,
-                    //UserName = participant.UserName
-                };
-                expense.Payments.Add(payment);
-            }
-        }
+        var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId,
+            orderBy: orderBy,
+            filters: listOfFilters.ToArray());
 
-        return new ServiceResult<Expense>(expense, 200);
+        var items = expenses.Select(e => ExpenseMapper.MapToQuery(e, userId)).ToList();
+
+        return Result<List<ExpenseQuery>>.Ok(items);
     }
 
-    public async Task<ServiceResult<Expense>> Add(Expense expense, int tripId)
+    public async Task<Result<Expense>> Add(ExpenseCommand command, int tripId)
     {
         int userId = _requestContext.UserId;
 
         var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
         if (trip == null)
-            return new ServiceResult<Expense>("Needed resource not found.", 404);
+            return Result<Expense>.Fail(AppErrors.NotFound<Trip>());
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
-            return new ServiceResult<Expense>("Insufficient permissions.", 403);
+            return Result<Expense>.Fail(AppErrors.Forbidden<Trip>());
+
+        var validationResult = _validationService.ProcessForSaving(command);
+
+        if (!validationResult.IsSuccess)
+            return Result<Expense>.Fail(validationResult.Errors);
+
+        var processedCommand = validationResult.Value!;
+
+        //var expense = processedCommand.Adapt<Expense>();
+        var expense = ExpenseMapper.MapToExpense(processedCommand, tripId, userId);
 
         _unitOfWork.Expenses.Add(expense);
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Expense>("Success", 200);
+        return Result<Expense>.Ok(expense);
     }
 
-    public async Task<ServiceResult<Expense>> Get(int id, int tripId)
+    public async Task<Result<ExpenseCommand>> GetForUpdate(int id)
     {
         int userId = _requestContext.UserId;
 
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (expense == null)
-            return new ServiceResult<Expense>("Needed resource not found.", 404);
+            return Result<ExpenseCommand>.Fail(AppErrors.NotFound<Expense>());
 
-        if (!_authorizationService.AuthorisedToEdit(expense, userId))
-            return new ServiceResult<Expense>("Insufficient permissions.", 403);
+        var canEdit = _authorizationService.AuthorisedToEdit(expense, userId);
 
-        if (expense.TripId != tripId)
-            return new ServiceResult<Expense>("Bad Request", 400);
+        //var command = expense.Adapt<ExpenseCommand>();
+        var command = ExpenseMapper.MapToCommand(expense, canEdit);
 
-        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
-        if (trip == null)
-            return new ServiceResult<Expense>("Needed resource not found.", 404);
-
-        expense.Payments = expense.Payments
-            .GroupBy(p => p.ParticipantId) // Group payments by user ID
-            .OrderByDescending(group => group.Max(p => p?.Ammount ?? 0)) // Order the groups based on the highest amount within each group
-            .SelectMany(group => group.OrderByDescending(p => p?.Ammount ?? 0)) // Take the two highest payments for each user
-            .ToList();
-
-        return new ServiceResult<Expense>(expense, 200);
+        return Result<ExpenseCommand>.Ok(command);
     }
 
-    public async Task<ServiceResult<Expense>> Update(Expense expense)
+    public async Task<Result<Expense>> Update(ExpenseCommand command)
     {
         int userId = _requestContext.UserId;
 
-        if(!_authorizationService.AuthorisedToEdit(expense, userId))
-            return new ServiceResult<Expense>("Insufficient permissions.", 403);
+        var existingExpense = await _unitOfWork.Expenses.GetByIdAsync(command.Id);
+        if (existingExpense == null)
+            return Result<Expense>.Fail(AppErrors.NotFound<Expense>());
 
-        var trip = await _unitOfWork.Trips.GetByIdAsync(expense.TripId);
-        if (trip == null)
-            return new ServiceResult<Expense>("Needed resource not found.", 404);
+        if (!_authorizationService.AuthorisedToEdit(existingExpense, userId))
+            return Result<Expense>.Fail(AppErrors.Forbidden<Expense>());
 
-        _unitOfWork.Expenses.Update(expense);
+        var validationResult = _validationService.ProcessForSaving(command);
+
+        if (!validationResult.IsSuccess)
+            return Result<Expense>.Fail(validationResult.Errors);
+
+        var processedCommand = validationResult.Value!;
+
+        //processedCommand.Adapt(existingExpense);
+        ExpenseMapper.ApplyToExpense(existingExpense, processedCommand);
+
+        //_unitOfWork.Expenses.Update(existingExpense);
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Expense>("Success", 200);
+        return Result<Expense>.Ok(existingExpense);
     }
 
-
-    public async Task<ServiceResult<Expense>> Delete (int id)
+    public async Task<Result> Delete(int id)
     {
         int userId = _requestContext.UserId;
 
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (expense == null)
-            return new ServiceResult<Expense>("Needed resource not found.", 404);
+            return Result.Fail(AppErrors.NotFound<Expense>());
 
         if (!_authorizationService.AuthorisedToEdit(expense, userId))
-            return new ServiceResult<Expense>("Insufficient permissions.", 403);
+            return Result.Fail(AppErrors.Forbidden<Expense>());
 
         _unitOfWork.Expenses.Delete(expense);
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Expense>("Success", 200);
-    }
-
-
-    public async Task<Expense> LoadParticipants(Expense expense)
-    {
-        var trip = await _unitOfWork.Trips.GetByIdAsync(expense.TripId);
-        foreach (var payment in expense.Payments)
-        {
-            payment.Participant = trip?.Participants.FirstOrDefault(p => p.Id == payment.ParticipantId);
-        }
-        return expense;
+        return Result.Success();
     }
 }

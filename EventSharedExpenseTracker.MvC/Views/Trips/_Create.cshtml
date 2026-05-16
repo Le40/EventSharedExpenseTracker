@@ -1,4 +1,5 @@
-﻿@model Trip
+﻿@using EventSharedExpenseTracker.MvC.ViewModels.Trips
+@model TripFormViewModel
 @{
     Layout = null;
     int userId = int.TryParse(User.FindFirstValue("CustomUserId"), out int tempUserId) ? tempUserId : -1;
@@ -6,7 +7,7 @@
 
 <form asp-action="Create" class="m-2">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-    <input type="hidden" asp-for="CreatorId" value="@userId" />
+    @*<input type="hidden" asp-for="CreatorId" value="@userId" />*@
 
     <div class="form-group">
         <input asp-for="Name" class="form-control form-control-sm" placeholder="Trip name" />
@@ -37,9 +38,3 @@
         <a href="@Url.Action("Index", "Trips")" class="btn btn-outline-secondary btn-sm">Cancel</a>
     </div>
 </form>
-
-@*@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}*@
