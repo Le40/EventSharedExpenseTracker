@@ -16,12 +16,12 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public DateTime DateTo { get; set; }
         public string? ImagePath { get; set; }
 
+        public List<TripDetailsParticipantViewModel> Participants { get; set; } = new();
         public ExpenseIndexViewModel ExpenseIndex { get; set; } = new();
 
-        public List<TripParticipantViewModel> Participants { get; set; } = new();
     }
 
-    public class TripParticipantViewModel
+    public class TripDetailsParticipantViewModel
     {
         public int Id { get; set; }
         public string UserName { get; set; } = "";

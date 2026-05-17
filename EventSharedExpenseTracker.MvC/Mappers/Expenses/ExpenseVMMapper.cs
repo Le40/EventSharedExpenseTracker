@@ -1,9 +1,10 @@
 ﻿using EventSharedExpenseTracker.Application.Dtos;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
-namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
+namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
 {
-    public static class ExpenseFormMapper
+    public static class ExpenseVMMapper
     {
         public static ExpenseListItemViewModel FromQuery(ExpenseQuery query)
         {
@@ -24,7 +25,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
                 }).ToList()
             };
         }
-        public static ExpenseCommand ToCommand(ExpenseViewModel model, int tripId) //, int userId
+        public static ExpenseCommand ToCommand(ExpenseFormViewModel model, int tripId) //, int userId
         {
             var expenseCommand = new ExpenseCommand
             {
@@ -64,9 +65,9 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
             return expenseCommand;
         }
 
-        public static ExpenseViewModel FromCommand(
+        public static ExpenseFormViewModel FromCommand(
             ExpenseCommand command,
-            IEnumerable<TripParticipant> tripParticipants)
+            IEnumerable<TripParticipantQuery> tripParticipants)
         {
             var paidByParticipant = command.Payments
                 .Where(p => !p.IsOwed)
@@ -76,7 +77,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
                 .Where(p => p.IsOwed)
                 .ToDictionary(p => p.ParticipantId);
 
-            var expenseViewModel = new ExpenseViewModel
+            var expenseViewModel = new ExpenseFormViewModel
             {
                 Id = command.Id,
                 TripId = command.TripId,
@@ -94,7 +95,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
                 owedByParticipant.TryGetValue(participant.Id, out var owed);
 
                 expenseViewModel.Participants.Add(
-                    new ExpenseParticipantViewModel
+                    new ExpenseFormParticipantViewModel
                     {
                         ParticipantId = participant.Id,
                         ParticipantName = participant.UserName,

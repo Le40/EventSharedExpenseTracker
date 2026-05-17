@@ -2,6 +2,8 @@
 using EventSharedExpenseTracker.Application.Dtos.Mappers;
 using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
+using EventSharedExpenseTracker.MvC.Mappers.Expenses;
+using EventSharedExpenseTracker.MvC.Mappers.Trips;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
 using Mapster;
@@ -36,7 +38,7 @@ public class TripsController : BaseController
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
-        var models = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>());
+        var models = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList();
 
         return View(models);
     }
@@ -52,41 +54,11 @@ public class TripsController : BaseController
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
-        var trip = result.Value;
-        var canEdit = trip.CreatorId == userId;
+        var tripDetailsQuery = result.Value!;
 
-        var queries = trip.Expenses.Select(e => ExpenseMapper.MapToQuery(e, userId)).ToList();
-
-        var model = new TripDetailsViewModel
-        {
-            Id = trip.Id,
-            CanEdit = canEdit,
-            Name = trip.Name,
-            DateFrom = trip.DateFrom,
-            DateTo = trip.DateTo,
-            ImagePath = trip.ImagePath,
-
-            Participants = trip.Participants
-                .Select(p => new TripParticipantViewModel
-                {
-                    Id = p.Id,
-                    UserName = p.UserName,
-                    PaymentSum = p.Payments.Sum(x => x.Ammount),
-                    PaymentCount = p.Payments.Count()
-                })
-                .ToList(),
-
-            ExpenseIndex = new ExpenseIndexViewModel
-            {
-                TripId = trip.Id,
-                Expenses = queries.Select(ExpenseFormMapper.FromQuery).ToList(),
-                Creator = false,
-                CurrentSort = null,
-                NameSortParam = "name",
-                DateSortParam = "date",
-                AmmSortParam = "amount"
-            }
-        };
+        var model = TripDetailsMapper.FromQuery(tripDetailsQuery);
+        model.ExpenseIndex.TripId = id;
+      
         return View(model);
     }
 
@@ -189,10 +161,8 @@ public class TripsController : BaseController
     public async Task<IActionResult> AddParticipant(int id, int friendId)
     {
         var result = await _tripService.AddParticipant(id, friendId);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
 
         return RedirectToAction("Details", "Trips", new { id });
     }
@@ -202,10 +172,8 @@ public class TripsController : BaseController
     public async Task<IActionResult> AddDummy(int id, string searchString)
     {
         var result = await _tripService.AddDummy(id, searchString);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
 
         return RedirectToAction("Details", "Trips", new { id });
     }
@@ -215,10 +183,8 @@ public class TripsController : BaseController
     public async Task<IActionResult> DeleteParticipant(int id, int participantId)
     {
         var result = await _tripService.DeleteParticipant(id, participantId);
-        if (result.StatusCode != 200)
-        {
-            return StatusCode(result.StatusCode, result.ErrorMessage);
-        }
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
         //return View("Details", id);
         return RedirectToAction("Details", "Trips", new { id });
     }

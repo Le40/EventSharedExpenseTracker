@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 {
-    public class ExpenseViewModel
+    public class ExpenseFormViewModel
     {
         public int Id { get; set; }
         public int TripId { get; set; }
@@ -22,12 +22,12 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         [StringLength(80, ErrorMessage = "The {0} must be at most {1} characters long.")]
         public string? Description { get; set; }
 
-        public List<ExpenseParticipantViewModel> Participants { get; set; } = new();
+        public List<ExpenseFormParticipantViewModel> Participants { get; set; } = new();
 
         public List<string> Categories { get; set; } = Expense.Categories;
     }
 
-    public class ExpenseParticipantViewModel
+    public class ExpenseFormParticipantViewModel
     {
         public int ParticipantId { get; set; }
         public string ParticipantName { get; set; } = "";

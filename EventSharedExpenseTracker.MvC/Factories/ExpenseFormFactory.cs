@@ -1,8 +1,10 @@
 ﻿using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.MvC.Mappers.Expenses;
+using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
-namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
+namespace EventSharedExpenseTracker.MvC.Factories
 {
     public class ExpenseFormFactory
     {
@@ -20,22 +22,23 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
             _expenseService = expenseService;
         }
 
-        public async Task<Result<ExpenseViewModel>> BuildCreateAsync(int tripId)
+        public async Task<Result<ExpenseFormViewModel>> BuildCreateAsync(int tripId)
         {
             var tripResult = await _tripService.Details(tripId);
 
             if (!tripResult.IsSuccess)
-                return Result<ExpenseViewModel>.Fail(tripResult.Errors);
+                return Result<ExpenseFormViewModel>.Fail(tripResult.Errors);
 
             var userId = _requestContext.UserId;
+            string userName = _requestContext.UserName;
 
             var orderedParticipants = tripResult.Value!.Participants
             //var orderedParticipants = tripResult.Data!.Participants
-                .OrderBy(p => p.UserId == userId ? 0 : 1)
+                .OrderBy(p => p.UserName == userName ? 0 : 1)
                 .ThenBy(p => p.UserName)
                 .ToList();
 
-            var model = new ExpenseViewModel
+            var model = new ExpenseFormViewModel
             {
                 //CreatorId = userId,
                 CanEdit = true,
@@ -43,7 +46,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
                 Categories = Expense.Categories,
 
                 Participants = orderedParticipants.Select(p =>
-                    new ExpenseParticipantViewModel
+                    new ExpenseFormParticipantViewModel
                     {
                         ParticipantId = p.Id,
                         ParticipantName = p.UserName,
@@ -53,27 +56,27 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
                     }).ToList()
             };
 
-            return Result<ExpenseViewModel>.Ok(model);
+            return Result<ExpenseFormViewModel>.Ok(model);
         }
 
-        public async Task<Result<ExpenseViewModel>> BuildEditAsync(int expenseId)
+        public async Task<Result<ExpenseFormViewModel>> BuildEditAsync(int expenseId)
         {
             var commandResult = await _expenseService.GetForUpdate(expenseId);
             if (!commandResult.IsSuccess)
-                return Result<ExpenseViewModel>.Fail(commandResult.Errors);
+                return Result<ExpenseFormViewModel>.Fail(commandResult.Errors);
                 
             var command = commandResult.Value!;
 
             var tripResult = await _tripService.Details(command.TripId);
 
             if (!tripResult.IsSuccess)
-                return Result<ExpenseViewModel>.Fail(tripResult.Errors);
+                return Result<ExpenseFormViewModel>.Fail(tripResult.Errors);
 
             var userId = _requestContext.UserId;
 
-            var model = ExpenseFormMapper.FromCommand(command, tripResult.Value!.Participants);
+            var model = ExpenseVMMapper.FromCommand(command, tripResult.Value!.Participants);
 
-            return Result<ExpenseViewModel>.Ok(model);
+            return Result<ExpenseFormViewModel>.Ok(model);
         }
     }
 }

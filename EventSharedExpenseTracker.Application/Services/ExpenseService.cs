@@ -25,36 +25,6 @@ public class ExpenseService : IExpenseService
         _validationService = validationService;
     }
 
-    /*public async Task<ServiceResult<List<Expense>>> Index(int tripId, string sortOrder, string searchString, bool creator, string categoryFilter)
-    {
-        int userId = _requestContext.UserId;
-
-        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
-        if (trip == null)
-            return new ServiceResult<List<Expense>>("Needed resource not found.", 404);
-
-        if (!_authorizationService.AuthorisedToView(trip, userId))
-            return new ServiceResult<List<Expense>>("Insufficient permissions.", 403);
-
-        var orderBy = ExpenseHelper.GetOrderByExpression(sortOrder);
-
-        var listOfFilters = new List<Func<IQueryable<Expense>, IQueryable<Expense>>>
-        {
-            //if (searchString != null)
-            ExpenseHelper.Search(searchString),
-
-            //if (categoryFilter != null)
-            ExpenseHelper.CategoryFilter(categoryFilter),
-
-            ExpenseHelper.CreatorFilter(creator, userId)
-        };
-
-        var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId,
-            orderBy: orderBy,
-            filters: listOfFilters.ToArray());
-
-        return new ServiceResult<List<Expense>> (expenses, 200);
-    }*/
     public async Task<Result<List<ExpenseQuery>>> Index(int tripId, string? sortOrder, string? searchString, bool creator, string? categoryFilter)
     {
         int userId = _requestContext.UserId;
@@ -75,6 +45,8 @@ public class ExpenseService : IExpenseService
             ExpenseFilters.CreatorFilter(creator, userId)
         };
 
+        // Done like this, so only necessary amount of row is queried from db.
+        // And to not have dependency on EF core in application.
         var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId,
             orderBy: orderBy,
             filters: listOfFilters.ToArray());

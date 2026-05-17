@@ -1,28 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-
-namespace EventSharedExpenseTracker.Application.Services.Interfaces;
-
-public class ServiceResult<T>
-{
-
-
-
-    public int StatusCode { get; set; }
-    public T? Data { get; set; }
-    public string? ErrorMessage { get; set; }
-
-    public ServiceResult(T data, int statusCode)
-    {
-        Data = data;
-        StatusCode = statusCode;
-    }
-
-    public ServiceResult(string errorMessage, int statusCode)
-    {
-        ErrorMessage = errorMessage;
-        StatusCode = statusCode;
-    }
-}
+﻿namespace EventSharedExpenseTracker.Application.Services.Interfaces;
 
 public record Result
 {
@@ -108,6 +84,13 @@ public static class AppErrors
         Message = $"Insufficient permissions."
     };
 
+    public static AppError Conflict<T>() => new()
+    {
+        Type = ErrorType.Conflict,
+        Code = $"{typeof(T).Name}.Conflict",
+        Message = $"Bad Request."
+    };
+
     public static AppError Validation<T>(string message, string? propertyName = null) => new()
     {
         Type = ErrorType.Validation,
@@ -115,4 +98,5 @@ public static class AppErrors
         Message = message,
         PropertyName = propertyName
     };
+
 }

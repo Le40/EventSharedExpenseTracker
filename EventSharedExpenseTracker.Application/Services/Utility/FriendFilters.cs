@@ -2,7 +2,7 @@
 
 namespace EventSharedExpenseTracker.Application.Services.Utility;
 
-public static class FriendHelper
+public static class FriendFilters
 {
     public static Func<IQueryable<CustomUser>, IQueryable<CustomUser>> Search(string searchString)
     {

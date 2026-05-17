@@ -3,8 +3,8 @@ using EventSharedExpenseTracker.Application;
 using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Infrastructure;
 using EventSharedExpenseTracker.MvC.ActionFilters;
+using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Services;
-using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.

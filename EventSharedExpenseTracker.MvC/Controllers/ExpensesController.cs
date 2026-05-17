@@ -1,5 +1,7 @@
 ﻿using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
+using EventSharedExpenseTracker.MvC.Factories;
+using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +42,7 @@ public class ExpensesController : BaseController
 
         var vm = new ExpenseIndexViewModel
         {
-            Expenses = result.Value!.Select(e => ExpenseFormMapper.FromQuery(e)).ToList(),
+            Expenses = result.Value!.Select(e => ExpenseVMMapper.FromQuery(e)).ToList(),
             TripId = tripId,
             SearchString = searchString,
             CategoryFilter = categoryFilter,
@@ -61,7 +63,7 @@ public class ExpensesController : BaseController
 
     // CREATE: GET
     [HttpGet("Trips/{tripId}/Expenses/Add/")]
-    public async Task<IActionResult> Create([FromRoute] int tripId)
+    public async Task<IActionResult> Create(int tripId)
     {
         var result = await _expenseFormFactory.BuildCreateAsync(tripId);
 
@@ -74,12 +76,12 @@ public class ExpensesController : BaseController
 
     // CREATE: POST
     [HttpPost("Trips/{tripId}/Expenses/Add/")]
-    public async Task<IActionResult> Create([FromRoute] int tripId, ExpenseViewModel model)
+    public async Task<IActionResult> Create([FromRoute] int tripId, ExpenseFormViewModel model)
     {
         if (!ModelState.IsValid)
             return ReturnCreateForm(model);
 
-        var expenseCommand = ExpenseFormMapper.ToCommand(model, tripId);//, _requestContext.UserId
+        var expenseCommand = ExpenseVMMapper.ToCommand(model, tripId);//, _requestContext.UserId
 
         var result = await _expenseService.Add(expenseCommand, tripId);
 
@@ -117,12 +119,12 @@ public class ExpensesController : BaseController
 
     // EDIT: POST
     [HttpPost("Expenses/Edit/{id}/")]
-    public async Task<IActionResult> Edit(int id, ExpenseViewModel model)
+    public async Task<IActionResult> Edit(int id, ExpenseFormViewModel model)
     {
         if (!ModelState.IsValid)
             return ReturnEditForm(model);
 
-        var expenseCommand = ExpenseFormMapper.ToCommand(model, model.TripId);//, _requestContext.UserId
+        var expenseCommand = ExpenseVMMapper.ToCommand(model, model.TripId);//, _requestContext.UserId
 
         var result = await _expenseService.Update(expenseCommand);
 
@@ -156,14 +158,14 @@ public class ExpensesController : BaseController
         return RedirectToAction("Details", "Trips", new { id = tripId });
     }
 
-    private IActionResult ReturnCreateForm(ExpenseViewModel model)
+    private IActionResult ReturnCreateForm(ExpenseFormViewModel model)
     {
         ViewBag.Action = "Create";
         Response.Headers.Append("Hx-Retarget", "#createExpense");
         return PartialView("_Form", model);
     }
 
-    private IActionResult ReturnEditForm(ExpenseViewModel model)
+    private IActionResult ReturnEditForm(ExpenseFormViewModel model)
     {
         ViewBag.Action = "Edit";
         Response.Headers.Append("Hx-Retarget", "#expense" + model.Id);

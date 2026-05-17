@@ -18,74 +18,6 @@ public class ValidationService : IValidationService
         return Result.Success();
     }
 
-
-        /*var appValResult = new AppValidationResult();
-        if (trip.DateFrom > trip.DateTo)
-            appValResult.AddError("Trip can't end before it begins.", nameof(trip.DateTo));
-        //return new AppValidationResult { IsValid = false, ErrorMessage = "Trip can't end before it begins." };
-
-        //return new AppValidationResult { IsValid = true };
-        return appValResult;
-    }*/
-
-    /*public AppValidationResult ValidateExpense(Expense expense)
-    {
-        var appValResult = new AppValidationResult();
-        ValidatePayments(expense);
-
-        var paymentsPaid = expense.Payments.Where(p => !p.IsOwed);
-        var paymentsOwed = expense.Payments.Where(p => p.IsOwed);
-
-        decimal sumPaid = paymentsPaid.Sum(p => p.Ammount);
-        decimal sumOwed = paymentsOwed.Sum(p => p.Ammount);
-        decimal sumDifference = sumPaid - sumOwed;
-
-        int sharedCount = CountAndUpdateSharedPayments(sumDifference, paymentsOwed);
-
-        paymentsOwed.ToList().ForEach(p => p.Ammount *= -1); // set owed to be negative, cause from form it is positive.
-
-        if (sumPaid == 0)
-            appValResult.AddError("Paid amount cant be 0.");
-        //return new AppValidationResult { IsValid = false, ErrorMessage = "Paid amount cant be 0." };
-
-        if (sumDifference < 0)
-            appValResult.AddError("Spent amount is more than Paid.");
-            //return new AppValidationResult { IsValid = false, ErrorMessage = "Spent amount is more than Paid." };
-
-        if (sumDifference > 0 && sharedCount == 0)
-            appValResult.AddError("Paid amount is more than Spent.");
-            //return new AppValidationResult { IsValid = false, ErrorMessage = "Paid amount is more than Spent." };
-
-        expense.AmountSum = sumPaid;
-        return appValResult;
-        //return new AppValidationResult { IsValid = true };
-    }*/
-
-
-    /*public Result<Expense> ProcessForSaving(Expense expense)
-    {
-        var paidPayments = expense.Payments.Where(p => !p.IsOwed).ToList();
-        var owedPayments = expense.Payments.Where(p => p.IsOwed).ToList();
-        // only zero amount and equally shared payments are considered as equally shared. 
-        // because user can set amount and also mark as equally shared, in this case its better to keep the amount.
-        var sharedPayments = owedPayments.Where(p.IsEquallyShared && p.Ammount == null).ToList();
-
-        var totals = CalculateTotals(paidPayments, owedPayments, sharedPayments);
-
-        var validationErrors = ValidateExpenseTotals(totals);
-
-        if (validationErrors.Any())
-            return Result<Expense>.Fail(validationErrors);
-
-        ApplySharedOwedAmounts(sharedPayments, totals.SumDifference);
-
-        ConvertOwedAmountsToNegative(owedPayments);
-
-        expense.AmountSum = totals.SumPaid;
-
-        return Result<Expense>.Ok(expense);
-    }*/
-
     public Result<ExpenseCommand> ProcessForSaving(ExpenseCommand command)
     {
         // any owed payment with amount cannot be equally shared.
@@ -183,34 +115,4 @@ public class ValidationService : IValidationService
         decimal SumOwed,
         decimal RemainingAmountToShare,
         int SharedCount);
-
-    /*private static void ValidatePayments(Expense expense)
-    {
-        foreach (var p in expense.Payments)
-        {
-            // set 0 to null
-            p.Ammount = (p.Ammount == 0) ? null : p.Ammount;
-            // all not null are valid, but all valid payments are not null
-            p.IsValid = (p.Ammount) != null ? true : p.IsValid;
-        }
-    }
-
-
-    private static int CountAndUpdateSharedPayments(decimal sumDifference, IEnumerable<Payment> paymentsOwed)
-    {
-        var sharedPayments = paymentsOwed.Where(p => p.IsValid && p.Ammount == null).ToList();
-        int sharedCount = sharedPayments.Count;
-
-        if (sharedCount > 0)
-        {
-            decimal sharedAmount = sumDifference / sharedCount;
-            foreach (var payment in sharedPayments)
-            {
-                payment.Ammount = sharedAmount;
-                payment.IsEquallyShared = (sharedCount != 1);
-            }
-        }
-
-        return sharedCount;
-    }*/
 }

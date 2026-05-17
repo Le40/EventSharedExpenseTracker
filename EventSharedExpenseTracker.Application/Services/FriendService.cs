@@ -19,18 +19,18 @@ public class FriendService : IFriendService
         _requestContext = requestContext;
     }
 
-    public async Task<ServiceResult<List<Friendship>>> Index()
+    public async Task<Result<List<Friendship>>> Index()
     {
         int userId = _requestContext.UserId;
 
         var user = await _unitOfWork.Users.GetUserWithFriends(userId);
         if (user == null)
-            return new ServiceResult<List<Friendship>>("Needed resource not found.", 404);
+            return Result<List<Friendship>>.Fail(AppErrors.NotFound<CustomUser>());
 
-        return new ServiceResult<List<Friendship>>(user.Friends, 200);
+        return Result<List<Friendship>>.Ok(user.Friends);
     }
 
-    public async Task<ServiceResult<List<CustomUser>>> Search(string searchString)
+    public async Task<Result<List<CustomUser>>> Search(string searchString)
     {
         int userId = _requestContext.UserId;
         var user = await _unitOfWork.Users.GetUserWithFriends(userId);
@@ -38,25 +38,25 @@ public class FriendService : IFriendService
         var listOfFilters = new List<Func<IQueryable<CustomUser>, IQueryable<CustomUser>>>
         {
             //FriendHelper.FriendsFilter(user.Friends),
-            FriendHelper.Search(searchString),
+            FriendFilters.Search(searchString),
             users => users.Where(u => u.Id != userId)
         };
 
         var users = await _unitOfWork.Users.GetAllAsync(userId,
             filters: listOfFilters.ToArray());
 
-        return new ServiceResult<List<CustomUser>>(users, 200);
+        return Result<List<CustomUser>>.Ok(users);
     }
 
 
-    public async Task<ServiceResult<Friendship>> Invite(int friendId)
+    public async Task<Result<Friendship>> Invite(int friendId)
     {
         int userId = _requestContext.UserId;
 
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
         var friend = await _unitOfWork.Users.GetByIdAsync(friendId);
         if (friend == null || user == null)
-            return new ServiceResult<Friendship>("Needed resource not found.", 404);
+            return Result<Friendship>.Fail(AppErrors.NotFound<Friendship>());
 
         var friendship = new Friendship
         {
@@ -68,16 +68,16 @@ public class FriendService : IFriendService
         _unitOfWork.Friendships.Create(friendship);
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Friendship>("Success", 200);
+        return Result<Friendship>.Ok(friendship);
     }
 
-    public async Task<ServiceResult<Friendship>> Accept(int friendshipId)
+    public async Task<Result<Friendship>> Accept(int friendshipId)
     {
         int userId = _requestContext.UserId;
 
         var friendship = await _unitOfWork.Friendships.GetByIdAsync(friendshipId);
         if (friendship == null)
-            return new ServiceResult<Friendship>("Needed resource not found.", 404);
+            return Result<Friendship>.Fail(AppErrors.NotFound<Friendship>());
 
         friendship.IsConfirmed = true;
         _unitOfWork.Friendships.Update(friendship);
@@ -92,34 +92,34 @@ public class FriendService : IFriendService
 
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Friendship>("Success", 200);
+        return Result<Friendship>.Ok(friendshipBack);
     }
 
-    public async Task<ServiceResult<Friendship>> Decline(int friendshipId)
+    public async Task<Result> Decline(int friendshipId)
     {
         int userId = _requestContext.UserId;
 
         var friendship = await _unitOfWork.Friendships.GetByIdAsync(friendshipId);
         if (friendship == null)
-            return new ServiceResult<Friendship>("Needed resource not found.", 404);
+            return Result.Fail(AppErrors.NotFound<Friendship>());
 
         _unitOfWork.Friendships.Delete(friendship);
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Friendship>("Success", 200);
+        return Result.Success();
     }
 
-    public async Task<ServiceResult<Friendship>> Delete(int friendshipId)
+    public async Task<Result> Delete(int friendshipId)
     {
         int userId = _requestContext.UserId;
 
         var friendship = await _unitOfWork.Friendships.GetByIdAsync(friendshipId);
         if (friendship == null)
-            return new ServiceResult<Friendship>("Needed resource not found.", 404);
+            return Result.Fail(AppErrors.NotFound<Friendship>());
 
         _unitOfWork.Friendships.Delete(friendship);
         await _unitOfWork.CompleteAsync();
 
-        return new ServiceResult<Friendship>("Success", 200);
+        return Result.Success();
     }
 }
