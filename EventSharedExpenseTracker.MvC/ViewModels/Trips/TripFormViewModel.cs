@@ -7,10 +7,10 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public int Id { get; set; }
         public string Name { get; set; }
         [DataType(DataType.Date)]
-        public DateTime DateFrom { get; set; }
+        public DateTime DateFrom { get; set; } = DateTime.Today;
 
         [DataType(DataType.Date)]
-        public DateTime DateTo { get; set; }
+        public DateTime DateTo { get; set; } = DateTime.Today;
         //public bool CanEdit { get; set; }
         public string? ImagePath { get; set; }
     }

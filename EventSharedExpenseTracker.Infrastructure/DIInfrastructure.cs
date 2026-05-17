@@ -51,6 +51,7 @@ public static class DIInfrastructure
         services.AddScoped<ITripRepository, TripRepository>();
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IFriendshipRepository, FriendshipRepository>();
 
         return services;
     }

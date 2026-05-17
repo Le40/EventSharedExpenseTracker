@@ -24,11 +24,6 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         Trips = tripRepository;
         Users = userRepository;
         Friendships= friendshipRepository;
-
-        Expenses = new ExpenseRepository(_context);
-        Trips = new TripRepository(_context);
-        Users = new UserRepository(_context);
-        Friendships = new FriendshipRepository(_context);
     }
 
     public async Task CompleteAsync()

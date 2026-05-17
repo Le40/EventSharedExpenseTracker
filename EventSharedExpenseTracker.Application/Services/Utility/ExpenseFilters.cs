@@ -13,9 +13,9 @@ public static class ExpenseFilters
 
         // possibly remove .ToLower() for performance gains. For now just to be sure it works with every db.
         return query => query.Where(e =>
-            e.Name.ToLower().Contains(searchString) ||
-            e.Category.ToLower().Contains(searchString) ||
-            e.Description != null && e.Description.ToLower().Contains(searchString);
+            e.Name.Contains(searchString) ||
+            e.Category.Contains(searchString) ||
+            e.Description != null && e.Description.Contains(searchString));
     }
 
     public static Func<IQueryable<Expense>, IQueryable<Expense>> CategoryFilter(string categoryFilter)

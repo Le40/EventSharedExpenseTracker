@@ -100,7 +100,7 @@ public class ExpensesController : BaseController
             return HandleServiceErrors(result.Errors);
         }
 
-        return RedirectToAction("Details", "Trips", new { id = expenseCommand.TripId });
+        return RedirectToAction("Details", "Trips", new { id = tripId });
     }
 
     // EDIT: GET
@@ -143,7 +143,7 @@ public class ExpensesController : BaseController
             return HandleServiceErrors(result.Errors);
         }
 
-        return RedirectToAction("Details", "Trips", new { id = expenseCommand.TripId });
+        return RedirectToAction("Details", "Trips", new { id = result.Value!.TripId });
     }
 
     // DELETE: POST
