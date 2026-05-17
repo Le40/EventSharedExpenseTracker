@@ -11,7 +11,7 @@ public static class DIApplication
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<IAuthorisationServ, AuthorisationServ>();
+        services.AddScoped<IAuthorisationService, AuthorisationSerice>();
         services.AddScoped<IValidationService, ValidationService>();
         services.AddScoped<ITripService, TripService>();
         services.AddScoped<IExpenseService, ExpenseService>();

@@ -12,9 +12,18 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     public IUserRepository Users { get; private set; }
     public IFriendshipRepository Friendships { get; private set; }
 
-    public UnitOfWork(ApplicationDbContext context)
+    public UnitOfWork(
+        ApplicationDbContext context, 
+        IExpenseRepository expenseRepository, 
+        ITripRepository tripRepository, 
+        IUserRepository userRepository, 
+        IFriendshipRepository friendshipRepository)
     {
         _context = context;
+        Expenses = expenseRepository;
+        Trips = tripRepository;
+        Users = userRepository;
+        Friendships= friendshipRepository;
 
         Expenses = new ExpenseRepository(_context);
         Trips = new TripRepository(_context);
@@ -26,7 +35,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     {
         await _context.SaveChangesAsync();  
     }
-
+    // DI, so it shouldnt be needed this, as DI container should handle dispose.
     public void Dispose()
     {
         _context.Dispose();

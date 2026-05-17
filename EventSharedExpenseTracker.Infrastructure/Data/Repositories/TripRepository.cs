@@ -19,7 +19,9 @@ public class TripRepository : ITripRepository
         params Func<IQueryable<Trip>, IQueryable<Trip>>[] filters)
     {
         // DEFAULT MANDATORY FILTER
-        var query = _context.Trips.Where(t => t.Participants.Any(p => p.UserId == userId));
+        var query = _context.Trips
+            .Include(t => t.Participants)
+            .Where(t => t.Participants.Any(p => p.UserId == userId));
 
         foreach (var filter in filters)
         {

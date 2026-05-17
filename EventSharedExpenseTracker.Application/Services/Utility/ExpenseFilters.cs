@@ -9,10 +9,13 @@ public static class ExpenseFilters
         if (string.IsNullOrWhiteSpace(searchString))
             return query => query;
 
+        searchString = searchString.Trim().ToLower();
+
+        // possibly remove .ToLower() for performance gains. For now just to be sure it works with every db.
         return query => query.Where(e =>
-            e.Name.ToLower().Contains(searchString.ToLower()) ||
-            e.Category.ToLower().Contains(searchString.ToLower()) ||
-            e.Description != null && e.Description.ToLower().Contains(searchString.ToLower()));
+            e.Name.ToLower().Contains(searchString) ||
+            e.Category.ToLower().Contains(searchString) ||
+            e.Description != null && e.Description.ToLower().Contains(searchString);
     }
 
     public static Func<IQueryable<Expense>, IQueryable<Expense>> CategoryFilter(string categoryFilter)

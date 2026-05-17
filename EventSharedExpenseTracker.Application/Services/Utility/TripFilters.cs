@@ -9,18 +9,13 @@ public static class TripFilters
         if (searchString == null)
             return query => query;
 
+        searchString = searchString.Trim().ToLower();
+
         return query => query.Where(t =>
-            t.Name.ToLower().Contains(searchString.ToLower()));
+            t.Name.ToLower().Contains(searchString));
     }
 
-    //public static Func<IQueryable<Trip>, IQueryable<Trip>> CategoryFilter(string categoryFilter)
-    //{
-    //    if (categoryFilter == null)
-    //        return query => query;
-
-    //   return query => query.Where(t => t.Category.ToLower().Contains(categoryFilter.ToLower()));
-    //}
-
+  
     public static Func<IQueryable<Trip>, IQueryable<Trip>> CreatorFilter(int creatorId)
     {
         if (creatorId <= 0)

@@ -13,11 +13,11 @@ namespace EventSharedExpenseTracker.Application.Services;
 public class ExpenseService : IExpenseService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthorisationServ _authorizationService;
+    private readonly IAuthorisationService _authorizationService;
     private readonly IRequestContext _requestContext;
     private readonly IValidationService _validationService;
 
-    public ExpenseService(IUnitOfWork unitOfWork, IAuthorisationServ authorisationService, IRequestContext requestContext, IValidationService validationService)
+    public ExpenseService(IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext, IValidationService validationService)
     {
         _unitOfWork = unitOfWork;
         _authorizationService = authorisationService;

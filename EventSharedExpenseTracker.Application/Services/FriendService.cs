@@ -9,10 +9,10 @@ namespace EventSharedExpenseTracker.Application.Services;
 public class FriendService : IFriendService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthorisationServ _authorizationService;
+    private readonly IAuthorisationService _authorizationService;
     private readonly IRequestContext _requestContext;
 
-    public FriendService(IUnitOfWork unitOfWork, IAuthorisationServ authorisationService, IRequestContext requestContext)
+    public FriendService(IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext)
     {
         _unitOfWork = unitOfWork;
         _authorizationService = authorisationService;

@@ -20,6 +20,8 @@ public class ExpenseRepository : IExpenseRepository
     {
         // DEFAULT MANDATORY FILTER
         var query = _context.Expenses
+            .Include(e => e.Payments)
+                .ThenInclude(p => p.Participant)
             .Where(e => e.TripId == tripId);
 
         foreach (var filter in filters)
@@ -29,12 +31,14 @@ public class ExpenseRepository : IExpenseRepository
 
         query = orderBy(query);
 
-        return await query.ToListAsync();
+        return await query.AsNoTracking().ToListAsync();
     }
 
     public async Task<Expense?> GetByIdAsync(int id)
     {
-        return await _context.Expenses.FindAsync(id);
+        return await _context.Expenses
+            .Include(e => e.Payments)
+            .FindAsync(id));
     }
 
     public void Add(Expense expense)

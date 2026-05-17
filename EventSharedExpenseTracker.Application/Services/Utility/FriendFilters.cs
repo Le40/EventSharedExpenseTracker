@@ -9,8 +9,10 @@ public static class FriendFilters
         if (searchString == null)
             return query => query;
 
+        searchString = searchString.Trim().ToLower();
+
         return query => query.Where(e =>
-            e.CustomUserName.ToLower().Contains(searchString.ToLower())); //||
+            e.CustomUserName.ToLower().Contains(searchString)); //||
             //e.Email.ToLower().Contains(searchString.ToLower()));
     }
 

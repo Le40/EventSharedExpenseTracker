@@ -13,12 +13,12 @@ namespace EventSharedExpenseTracker.Application.Services;
 public class TripService : ITripService
 {
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthorisationServ _authorizationService;
+    private readonly IAuthorisationService _authorizationService;
     private readonly IRequestContext _requestContext;
     private readonly IImageService _imageService;
     private readonly IValidationService _validationService;
 
-    public TripService(IUnitOfWork unitOfWork, IAuthorisationServ authorisationService, IRequestContext requestContext, IImageService imageService, IValidationService validationService)
+    public TripService(IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext, IImageService imageService, IValidationService validationService)
     {
         _unitOfWork = unitOfWork;
         _authorizationService = authorisationService;

@@ -2,7 +2,7 @@
 
 namespace EventSharedExpenseTracker.Application.Authorisation;
 
-public class AuthorisationServ : IAuthorisationServ
+public class AuthorisationSerice : IAuthorisationService
 {
     public bool AuthorisedToView(Trip trip, int userId)
     {
