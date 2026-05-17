@@ -9,14 +9,14 @@
                 name="searchString" 
                 id="searchString"
                 hx-get="@Url.Action("Search", "Friends", new { tripId = Model.Id })"
-                hx-target="#searchParticipant"
+                hx-target="#@Model.EIdSearchParticipants"
                 hx-trigger="keyup changed delay:300ms" />
 
         <button type="button"
                 class="btn btn-sm btn-outline-info border-info rounded-top-0 border-top-0"
                 hx-post="@Url.Action("AddDummy", "Trips", new { id = Model.Id })"
-                hx-target="#tripParticipants"
-                hx-select="#tripParticipants"
+                hx-target="#@Model.EIdTripParticipants"
+                hx-select="#@Model.EIdTripParticipants"
                 hx-include="#searchString">
             Add Dummy
         </button>
@@ -25,7 +25,7 @@
         <button type="button" 
                 class="btn btn-sm btn-outline-secondary border-top-0 rounded-top-0"
                 hx-get="@Url.Action("Edit", "Trips", new { id = Model.Id })"
-                hx-target="#tripEdit">
+                hx-target="#@Model.EIdEditTrip">
             Edit
         </button>
         <button type="button"

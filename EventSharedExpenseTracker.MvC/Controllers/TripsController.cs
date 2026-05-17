@@ -1,8 +1,6 @@
 ﻿using EventSharedExpenseTracker.Application.Dtos;
-using EventSharedExpenseTracker.Application.Dtos.Mappers;
 using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Application.Services.Interfaces;
-using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
@@ -38,7 +36,11 @@ public class TripsController : BaseController
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
-        var models = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList();
+        var models = new TripIndexViewModel
+        {
+            Creator = true,
+            Trips = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList()
+        };
 
         return View(models);
     }
@@ -49,7 +51,6 @@ public class TripsController : BaseController
     {
         var userId = _requestContext.UserId;
 
-        //ViewBag.TripId = tripId;
         var result = await _tripService.Details(id);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
@@ -66,7 +67,7 @@ public class TripsController : BaseController
     [HttpGet("Trips/Create")]
     public IActionResult Create()
     {
-        return PartialView("_Create", new TripFormViewModel());
+        return PartialView("_TripFormCreate", new TripFormViewModel());
     }
 
     // CREATE: POST
@@ -75,7 +76,7 @@ public class TripsController : BaseController
     public async Task<IActionResult> Create(TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
-            return ReturnCreateForm(model);
+            return RenderTripForm(model, TripFormMode.Create);
 
         await using var imageStream = imageFile?.OpenReadStream();
 
@@ -91,7 +92,7 @@ public class TripsController : BaseController
             if (validationErrors.Any())
             {
                 AddErrorsToModelState(validationErrors);
-                return ReturnCreateForm(model);
+                return RenderTripForm(model, TripFormMode.Create);
             }
             return HandleServiceErrors(result.Errors);
         }
@@ -109,9 +110,9 @@ public class TripsController : BaseController
             return HandleServiceErrors(result.Errors);
         }
 
-        var vm = result.Value.Adapt<TripFormViewModel>();
+        var model = result.Value.Adapt<TripFormViewModel>();
 
-        return PartialView("_Edit", vm);
+        return RenderTripForm(model, TripFormMode.Edit);
     }
 
     // EDIT: POST
@@ -120,7 +121,7 @@ public class TripsController : BaseController
     public async Task<IActionResult> Edit([FromRoute] int id, TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
-            return ReturnEditForm(model);
+            return RenderTripForm(model, TripFormMode.Edit);
 
         await using var imageStream = imageFile?.OpenReadStream();
         model.Id = id;
@@ -136,7 +137,7 @@ public class TripsController : BaseController
             if (validationErrors.Any())
             {
                 AddErrorsToModelState(validationErrors);
-                return ReturnEditForm(model);
+                return RenderTripForm(model, TripFormMode.Edit);
             }
             return HandleServiceErrors(result.Errors);
         }
@@ -189,21 +190,16 @@ public class TripsController : BaseController
         return RedirectToAction("Details", "Trips", new { id });
     }
 
-    private IActionResult ReturnCreateForm(TripFormViewModel model)
+    private PartialViewResult RenderTripForm(TripFormViewModel model, TripFormMode mode)
     {
-        HttpContext.Response.Headers.Append("Hx-Retarget", "#createTrip");
-        // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
-        //return StatusCode(400,PartialView("_Create", trip));
-        // htmx wont return 400+ code back to dom, so its 200 even for bad form.
-        return PartialView("_Create", model);
-    }
-
-    private IActionResult ReturnEditForm(TripFormViewModel model)
-    {
-        HttpContext.Response.Headers.Append("Hx-Retarget", "#tripEdit");
         // Retarget, so if form is not valid it will target just #createTrip in View to return validation errors, but if its valid it will return whole body with new trip.
         //return StatusCode(400, PartialView("_Edit", trip));
         // htmx wont return 400+ code back to dom, so its 200 even for bad form.
-        return PartialView("_Edit", model);
+
+        model.Mode = mode;
+
+        Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
+        return PartialView($"_TripForm{mode}", model);
     }
 }
+

@@ -1,14 +1,24 @@
 ﻿using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.MvC.Common;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 {
     public class ExpenseFormViewModel
     {
+        public enum ExpenseFormMode
+        {
+            Create,
+            Edit
+        }
+
         public int Id { get; set; }
         public int TripId { get; set; }
-
-        public bool CanEdit { get; set; }
+        // for determining which version of the form to use.
+        public ExpenseFormMode Mode { get; set; }
+        public string ElementId => Mode == ExpenseFormMode.Create ? UiIds.CreateExpense : UiIds.EditExpense(Id);
+        public bool FormIsEdit => Mode == ExpenseFormMode.Edit;
+        public bool CanUserEdit { get; set; }
 
         [StringLength(25, ErrorMessage = "The {0} must be at most {1} characters long.")]
         public string Name { get; set; }

@@ -1,0 +1,41 @@
+﻿@using EventSharedExpenseTracker.MvC.ViewModels.Expenses
+@model ExpenseFormViewModel
+
+
+<div class="btn-group">
+    @if (Model.CanUserEdit)
+    {
+        @*innerHTML - there are two ways:
+                    1. Save was not validated, so response (which is this), needs to go inside the targeting div, otherwise any other target on that div will not work
+                    2. Save was successful - then whole body is taken from response (because also participants sums need to be updated), and in that case it doesnt matter
+                *@
+        <button type="submit" class="btn btn-info"
+                hx-post="@Url.Action(Model.Mode.ToString(), "Expenses", new { tripId = Model.TripId, id = Model.Id })"
+                hx-target="body"
+                hx-swap="innerHTML">
+            Save
+        </button>
+    }
+
+    @*outerHTML - because im selecting the ID from response for whole page*@
+    <button type="button" class="btn btn-outline-secondary"
+            hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, id = Model.Id })"
+            hx-target="#@Model.ElementId"
+            hx-select="#@Model.ElementId"
+            hx-swap="outerHTML">
+        Cancel
+    </button>
+
+    @if (Model.CanUserEdit && Model.FormIsEdit)
+    {
+
+        <button type="button" class="btn btn-outline-danger"
+                hx-post="@Url.Action("Delete", "Expenses", new { id = Model.Id, tripId = Model.TripId })"
+                hx-target="body"
+                hx-push-url="true"
+                hx-confirm="Are you sure you want to delete this item?">
+            Delete
+        </button>
+
+    }
+</div>

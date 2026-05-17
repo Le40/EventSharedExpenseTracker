@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
+﻿using EventSharedExpenseTracker.MvC.Common;
+using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
 {
@@ -9,6 +10,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public bool Creator { get; set; }
         public string? DateSortParam { get; set; }
         public string? CurrentSort { get; set; }
+
+        public string EIdCreateTrip => UiIds.CreateTrip;
 
         public IEnumerable<TripIndexItemViewModel> Trips { get; set; } = [];
     }

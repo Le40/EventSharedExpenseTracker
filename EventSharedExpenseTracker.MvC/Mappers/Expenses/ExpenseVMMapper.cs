@@ -8,21 +8,33 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
     {
         public static ExpenseListItemViewModel FromQuery(ExpenseQuery query)
         {
+            var paidPayments = query.Payments.Where(p => !p.IsOwed).Select(p => new PaymentDisplayViewModel
+            {
+                ParticipantName = p.ParticipantName,
+                Amount = p.Amount,
+                IsOwed = p.IsOwed,
+                IsEquallyShared = p.IsEquallyShared
+            }).ToList();
+
+            var owedPayments = query.Payments.Where(p => p.IsOwed).Select(p => new PaymentDisplayViewModel
+            {
+                ParticipantName = p.ParticipantName,
+                Amount = p.Amount,
+                IsOwed = p.IsOwed,
+                IsEquallyShared = p.IsEquallyShared
+            }).ToList();
+
+
             return new ExpenseListItemViewModel
             {
                 Id = query.Id,
                 Name = query.Name,
                 Category = query.Category,
                 Date = query.Date,
-                //AmountSum = query.,
                 CanEdit = query.CanEdit,
-                Payments = query.Payments.Select(p => new PaymentDisplayViewModel
-                {
-                    ParticipantName = p.ParticipantName,
-                    Amount = p.Amount,
-                    IsOwed = p.IsOwed,
-                    IsEquallyShared = p.IsEquallyShared
-                }).ToList()
+                PaidPayments = paidPayments,
+                OwedPayments = owedPayments,
+                TotalPaid = paidPayments.Sum(p => p.Amount)
             };
         }
         public static ExpenseCommand ToCommand(ExpenseFormViewModel model, int tripId) //, int userId
@@ -81,7 +93,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
             {
                 Id = command.Id,
                 TripId = command.TripId,
-                CanEdit = command.CanEdit,
+                CanUserEdit = command.CanEdit,
 
                 Name = command.Name,
                 Date = command.Date,

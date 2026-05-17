@@ -14,21 +14,25 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
             return new TripDetailsViewModel
             {
                 Id = query.Id,
-                CanEdit = query.CanEdit,
+                CanUserEdit = query.CanEdit,
                 Name = query.Name,
                 DateFrom = query.DateFrom,
                 DateTo = query.DateTo,
                 ImagePath = query.ImagePath,
 
-                Participants = query.Participants
-                    .Select(p => new TripDetailsParticipantViewModel
-                    {
-                        Id = p.Id,
-                        UserName = p.UserName,
-                        PaymentSum = p.PaymentSum,
-                        PaymentCount = p.PaymentCount
-                    })
-                    .ToList(),
+                TripParticipants = new TripDetailsParticipantsViewModel {
+                    TripId = query.Id,
+                    CanUserEdit = query.CanEdit,
+                    Participants = query.Participants
+                        .Select(p => new TripDetailsParticipantViewModel
+                        {
+                            Id = p.Id,
+                            UserName = p.UserName,
+                            PaymentSum = p.PaymentSum,
+                            PaymentCount = p.PaymentCount
+                        })
+                        .ToList()
+                },
 
                 ExpenseIndex = new ExpenseIndexViewModel
                 {

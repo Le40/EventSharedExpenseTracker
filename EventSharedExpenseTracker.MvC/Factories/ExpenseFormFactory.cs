@@ -41,7 +41,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
             var model = new ExpenseFormViewModel
             {
                 //CreatorId = userId,
-                CanEdit = true,
+                CanUserEdit = true,
                 TripId = tripId,
                 Categories = Expense.Categories,
 

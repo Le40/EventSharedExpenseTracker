@@ -16,21 +16,21 @@
         <div class="card shadow bg-light border-0 rounded-0 p-2 mb-3 rotated-@randRotate" style="min-height: 300px;">
 
             @*PHOTO CARD*@
-            <partial name="_Details_TripPhotoCard" model="Model" />
+            <partial name="_TripDetails_Card" model="Model" />
 
             @*TRIP CONTROLS*@
-            @if (Model.CanEdit)
+            @if (Model.CanUserEdit)
             {
-                <partial name="_Details_TripControls" model="Model" />
+                <partial name="_TripDetails_Controls" model="Model" />
             }
 
-            <div id="searchParticipant" class="d-flex flex-wrap gap-1 mt-2">
+            <div id="@Model.EIdSearchParticipants" class="d-flex flex-wrap gap-1 mt-2">
                 @*DIV FOR SEARCH RESULTS*@
             </div>
 
             @*PARTICIPANTS*@
-            <partial name="_Details_TripParticipants" model="Model" />
-            
+            <partial name="_TripDetails_Participants" model="Model.TripParticipants" />
+      Trip      
             <small class="text-muted">
                double click to delete user or edit expense
             </small>
@@ -41,7 +41,7 @@
     @*COL OF EXPENSES*@
     <div class="col" style="min-width: 330px; min-height: 750px; max-height: 750px;overflow-y: auto;">
         <section>
-                <partial name="~/Views/Expenses/_Index.cshtml"model="Model.ExpenseIndex" />
+                <partial name="~/Views/Expenses/_ExpenseIndex.cshtml" model="Model.ExpenseIndex" />
         </section>
     </div>
 </div>

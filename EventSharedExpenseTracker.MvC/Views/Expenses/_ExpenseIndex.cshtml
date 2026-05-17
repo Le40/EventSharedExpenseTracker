@@ -3,24 +3,17 @@
 
 @{
     Layout = null;
-    var currentURL = Context.Request.Path.ToString().ToLower();
-    /*int userId = int.TryParse(User.FindFirstValue("CustomUserId"), out int tempUserId) ? tempUserId : -1;
-    var creatorIsChecked = (bool)(ViewBag.Creator ?? false);
-    var creatorNextChecked = !creatorIsChecked;*/    
 }
 
-<div id="expCollection" onload="autoFocus()">
+<div id="@Model.EIdExpenseCollection" onload="autoFocus()">
     <div class="row bg-dark sticky-top">
         <div class="col col-2 pe-1">
             @* ADD EXPENSE *@
-            @if (currentURL.Contains("/trips"))
-            {
-                <button class="btn btn-sm btn-outline-warning w-100 h-100 rounded"
-                        hx-get="@Url.Action("Create", "Expenses", new { tripId = Model.TripId })"
-                        hx-target="#createExpense">
-                    + Expense
-                </button>
-            }
+            <button class="btn btn-sm btn-outline-warning w-100 h-100 rounded"
+                    hx-get="@Url.Action("Create", "Expenses", new { tripId = Model.TripId })"
+                    hx-target="#@Model.EIdCreateExpense">
+                + Expense
+            </button>
         </div>
 
         <div class="col ps-1">
@@ -28,25 +21,25 @@
                 @*SORT BY NAME*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.NameSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
-                        hx-target="#expCollection">
+                        hx-target="#@Model.EIdExpenseCollection">
                     Name
                 </button>
                 @*SORT BY AMOUNT - sqlite not working*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.AmmSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
-                        hx-target="#expCollection">
+                        hx-target="#@Model.EIdExpenseCollection">
                     Amount
                 </button>
                 @*SORT BY DATE*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.DateSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
-                        hx-target="#expCollection">
+                        hx-target="#@Model.EIdExpenseCollection">
                     Date
                 </button>
                 @*FILTER BY CATEGORY*@
                 <select id="categoryDropdown" name="categoryFilter" class="btn btn-sm btn-outline-secondary"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, searchString = Model.SearchString, creator = Model.Creator })"
-                        hx-target="#expCollection">
+                        hx-target="#@Model.EIdExpenseCollection">
 
                     <option value="">@(Model.CategoryFilter == null ? "Select Category" : Model.CategoryFilter)</option>
                     @foreach (var category in Expense.Categories)
@@ -60,7 +53,7 @@
                     <button type="button"
                             class="btn btn-sm btn-outline-secondary @(Model.Creator ? "active" : "")"
                             hx-get='@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, searchString = Model.SearchString, creator = !Model.Creator, categoryFilter = Model.CategoryFilter })'
-                            hx-target="#expCollection"
+                            hx-target="#@Model.EIdExpenseCollection"
                             hx-swap="outerHTML">
                         CreatedByMe
                     </button>
@@ -68,7 +61,7 @@
                 @*SEARCH*@
                 <input type="text" id="searchInput" name="searchString" autocomplete="off" placeholder="search expense" value="@Model.SearchString" class="btn btn-sm btn-outline-secondary bg-secondary-subtle"
                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
-                       hx-target="#expCollection"
+                       hx-target="#@Model.EIdExpenseCollection"
                        hx-trigger="keyup changed delay:500ms" 
                  />
             </div>
@@ -77,19 +70,14 @@
     </div>
 
     <ul class="list-group list-group-flush">
-        <li class="list-group-item" id="createExpense">
+        <li class="list-group-item" id="@Model.EIdCreateExpense">
 
         </li>
 
         @foreach (var expense in Model.Expenses)
         {
-            var paidPayments = expense.Payments.Where(p => !p.IsOwed).ToList();
-            var owedPayments = expense.Payments.Where(p => p.IsOwed).ToList();
-
-            var expenseSum = paidPayments.Sum(p => p.Amount);
-
             <li class="list-group-item">
-                <div id="expense@(expense.Id)"
+                <div id="@expense.EIdEditExpense"
                     hx-get="@Url.Action("Edit", "Expenses", new { tripId = Model.TripId, id = expense.Id })"
                     hx-trigger="dblclick once">
 
@@ -108,10 +96,10 @@
                     </div>
 
                     <div class="mb-2">
-                        <b>@(expenseSum.ToString("C"))</b>
+                        <b>@(expense.TotalPaid.ToString("C"))</b>
                         <i class="text-white-50">
                             -
-                            @foreach (var payment in paidPayments)
+                            @foreach (var payment in expense.PaidPayments)
                             {
                                 <span class="border border-light-subtle rounded bg-dark text-white-50">
                                     @payment.ParticipantName
@@ -122,7 +110,7 @@
                     </div>
                     <i class="text-white-50">
                         <small>
-                            @foreach (var payment in owedPayments)
+                            @foreach (var payment in expense.OwedPayments)
                             {
                                 <span class="border border-light-subtle rounded bg-danger-subtle text-white-50">
                                     @payment.ParticipantName

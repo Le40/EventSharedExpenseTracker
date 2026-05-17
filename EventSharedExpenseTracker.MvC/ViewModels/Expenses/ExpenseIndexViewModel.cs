@@ -1,10 +1,15 @@
 ﻿using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.MvC.Common;
+using System.Runtime.CompilerServices;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 {
     public class ExpenseIndexViewModel
     {
         public int TripId { get; set; }
+
+        public string EIdCreateExpense => UiIds.CreateExpense;
+        public string EIdExpenseCollection => UiIds.ExpenseCollection;
 
         public string? SearchString { get; set; }
         public string? CategoryFilter { get; set; }
@@ -21,16 +26,16 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
     public class ExpenseListItemViewModel
     {
         public int Id { get; set; }
+        public bool CanEdit { get; set; }
+        public string EIdEditExpense => UiIds.EditExpense(Id);
         public string Name { get; set; } = "";
         public string Category { get; set; } = "";
-
         public DateTime Date { get; set; }
 
-        public decimal AmountSum { get; set; }
+        public decimal TotalPaid { get; set; }
 
-        public bool CanEdit { get; set; }
-
-        public List<PaymentDisplayViewModel> Payments { get; set; } = [];
+        public List<PaymentDisplayViewModel> PaidPayments { get; set; } = [];
+        public List<PaymentDisplayViewModel> OwedPayments { get; set; } = [];
     }
 
     public class PaymentDisplayViewModel

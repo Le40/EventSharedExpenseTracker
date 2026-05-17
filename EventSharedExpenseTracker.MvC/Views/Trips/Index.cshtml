@@ -1,9 +1,8 @@
 ﻿@using EventSharedExpenseTracker.MvC.ViewModels.Trips 
-@model IEnumerable<TripIndexItemViewModel>
+@model TripIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
-
     Random rnd = new Random();
 }
 
@@ -15,7 +14,7 @@
             <div class="card shadow bg-light border-0 rounded-0 p-2" style="min-width: 11rem; min-height:260px; max-width:15rem;">
                 <div class="bg-dark">
 
-                    <div id="createTrip"
+                    <div id="@Model.EIdCreateTrip"
                          hx-get="@Url.Action("Create", "Trips")"
                          hx-trigger="click once">
 
@@ -33,7 +32,7 @@
         </div>
 
         @*REST OF TRIP CARDS*@
-        @foreach (var trip in Model)
+        @foreach (var trip in Model.Trips)
         {
             int randRotate = rnd.Next(1, 5);
             <div class="col p-2" style="max-width:330px;">

@@ -1,27 +1,15 @@
 ﻿@using EventSharedExpenseTracker.MvC.ViewModels.Expenses
-
 @model ExpenseFormViewModel
 
 @{
     Layout = null;
-    @*int userId = int.TryParse(User.FindFirstValue("CustomUserId"), out int tempUserId) ? tempUserId : -1;*@
-    bool canEdit = Model.CanEdit;
-    @*(userId == Model.CreatorId || Model.CreatorId <= 0) ? true : false;*@
-
-    // FOR DOING DIFFERENT THINGS FOR CREATE AND EDIT
-    string action = ViewBag.Action;
-    string customTarget = action == "Create"
-        ? "#createExpense" 
-        : $"#expense{Model.Id}";
-    // in case of create targets empty div at the start of list of expenses
-    // identifies the div where update form should be placed by expense id.
 }
 
 <div class="col-lg-7 md-6 sm-5">
-    <form asp-action="@action">
+    <form asp-action="@Model.Mode.ToString()">
         <input type="hidden" asp-for="Id" /> @*Needed because in edit i need to send id in the model to POST*@
         @*<input type="hidden" asp-for="CreatorId" />*@
-        <input type="hidden" asp-for="CanEdit" />
+        <input type="hidden" asp-for="CanUserEdit" />
         <input type="hidden" asp-for="TripId" />
 
         <div class="form-group mb-1">
@@ -43,10 +31,10 @@
         @*PARTIAL PARTICIPANTS ROWS*@
         <div class="my-3">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <partial name="_FormParticipantRows" for="Participants" /> @*for="Participants" is important to keep bindings of payments in partial view*@
+            <partial name="_ExpenseForm_ParticipantRows" for="Participants" /> @*for="Participants" is important to keep bindings of payments in partial view*@
         </div>
 
-        @if (!canEdit)
+        @if (!Model.CanUserEdit)
         {
             <div>
                 <span class="text-info">You cant edit or delete expense as you didnt create it</span>
@@ -54,14 +42,14 @@
         }
          
         <div class="btn-group">
-            @if (canEdit)
+            @if (Model.CanUserEdit)
             {
                 @*innerHTML - there are two ways:
                     1. Save was not validated, so response (which is this), needs to go inside the targeting div, otherwise any other target on that div will not work
                     2. Save was successful - then whole body is taken from response (because also participants sums need to be updated), and in that case it doesnt matter
                 *@
                 <button type="submit" class="btn btn-info"
-                        hx-post="@Url.Action(action, "Expenses", new { tripId = Model.TripId, id = Model.Id })"
+                        hx-post="@Url.Action(Model.Mode.ToString(), "Expenses", new { tripId = Model.TripId, id = Model.Id })"
                         hx-target="body"
                         hx-swap="innerHTML">
                     Save
@@ -71,13 +59,13 @@
             @*outerHTML - because im selecting the ID from response for whole page*@
             <button type="button" class="btn btn-outline-secondary"
                     hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId , id = Model.Id})" 
-                    hx-target="@customTarget"
-                    hx-select="@customTarget"
+                    hx-target="#@Model.ElementId"
+                    hx-select="#@Model.ElementId"
                     hx-swap="outerHTML">
                 Cancel
             </button>
 
-            @if (canEdit && action == "Edit")
+            @if (Model.CanUserEdit && Model.FormIsEdit)
             {
 
                 <button type="button" class="btn btn-outline-danger"

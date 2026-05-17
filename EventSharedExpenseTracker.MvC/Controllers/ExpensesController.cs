@@ -5,6 +5,7 @@ using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static EventSharedExpenseTracker.MvC.ViewModels.Expenses.ExpenseFormViewModel;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
@@ -27,15 +28,6 @@ public class ExpensesController : BaseController
     [HttpGet("Trips/{tripId}/Expenses/")]
     public async Task<IActionResult> Index(int tripId, string? sortOrder, string? searchString, string? categoryFilter, bool creator = false)
     {
-        /*ViewBag.TripId = tripId;
-        ViewBag.NameSortParam = sortOrder == "name" ? "name_desc" : "name";
-        ViewBag.DateSortParam = sortOrder == "date" ? "date_desc" : "date";
-        ViewBag.AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount";
-        //ViewBag.Creator = creator == "on" ? "off" : "on";
-        ViewBag.Creator = creator;
-        ViewBag.SearchString = searchString;
-        ViewBag.CategoryFilter = categoryFilter;*/
-
         var result = await _expenseService.Index(tripId, sortOrder, searchString, creator, categoryFilter);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
@@ -53,11 +45,10 @@ public class ExpensesController : BaseController
             AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount"
         };
 
-        // if the request is from htmx, return the partial view, otherwise return the full view
-        // meaning it wants to filter, search or sort.
-        if (Request.Headers["HX-Target"].Any())
-            return PartialView("_Index", vm);
-
+        // if the request is from htmx, return the partial view
+        if (Request.Headers["HX-Request"] == "true")
+            return PartialView("_ExpenseIndex", vm);
+        // normal view if in future standalone expense page.
         return View(vm);
     }
 
@@ -70,8 +61,8 @@ public class ExpensesController : BaseController
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
-        ViewBag.Action = "Create";
-        return PartialView("_Form", result.Value);
+        var model = result.Value;
+        return RenderExpenseForm(model!, ExpenseFormMode.Create);
     }
 
     // CREATE: POST
@@ -79,7 +70,7 @@ public class ExpensesController : BaseController
     public async Task<IActionResult> Create([FromRoute] int tripId, ExpenseFormViewModel model)
     {
         if (!ModelState.IsValid)
-            return ReturnCreateForm(model);
+            return RenderExpenseForm(model, ExpenseFormMode.Create);
 
         var expenseCommand = ExpenseVMMapper.ToCommand(model, tripId);//, _requestContext.UserId
 
@@ -94,7 +85,7 @@ public class ExpensesController : BaseController
             if (validationErrors.Any())
             {
                 AddErrorsToModelState(validationErrors);
-                return ReturnCreateForm(model);
+                return RenderExpenseForm(model, ExpenseFormMode.Create);
             }
 
             return HandleServiceErrors(result.Errors);
@@ -113,8 +104,8 @@ public class ExpensesController : BaseController
             return HandleServiceErrors(result.Errors);
         }
 
-        ViewBag.Action = "Edit";
-        return PartialView("_Form", result.Value);
+        var model = result.Value;
+        return RenderExpenseForm(model!, ExpenseFormMode.Edit);
     }
 
     // EDIT: POST
@@ -122,7 +113,7 @@ public class ExpensesController : BaseController
     public async Task<IActionResult> Edit(int id, ExpenseFormViewModel model)
     {
         if (!ModelState.IsValid)
-            return ReturnEditForm(model);
+            return RenderExpenseForm(model, ExpenseFormMode.Edit);
 
         var expenseCommand = ExpenseVMMapper.ToCommand(model, model.TripId);//, _requestContext.UserId
 
@@ -137,7 +128,7 @@ public class ExpensesController : BaseController
             if (validationErrors.Any())
             {
                 AddErrorsToModelState(validationErrors);
-                return ReturnEditForm(model);
+                return RenderExpenseForm(model, ExpenseFormMode.Edit);
             }
 
             return HandleServiceErrors(result.Errors);
@@ -158,17 +149,11 @@ public class ExpensesController : BaseController
         return RedirectToAction("Details", "Trips", new { id = tripId });
     }
 
-    private IActionResult ReturnCreateForm(ExpenseFormViewModel model)
+    private PartialViewResult RenderExpenseForm(ExpenseFormViewModel model, ExpenseFormMode mode)
     {
-        ViewBag.Action = "Create";
-        Response.Headers.Append("Hx-Retarget", "#createExpense");
-        return PartialView("_Form", model);
-    }
+        model.Mode = mode;
 
-    private IActionResult ReturnEditForm(ExpenseFormViewModel model)
-    {
-        ViewBag.Action = "Edit";
-        Response.Headers.Append("Hx-Retarget", "#expense" + model.Id);
-        return PartialView("_Form", model);
+        Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
+        return PartialView("_ExpenseForm", model);
     }
 }
