@@ -7,6 +7,7 @@ using EventSharedExpenseTracker.MvC.ViewModels.Trips;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using static EventSharedExpenseTracker.MvC.ViewModels.Expenses.ExpenseFormViewModel;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
@@ -83,17 +84,12 @@ public class TripsController : BaseController
         var command = model.Adapt<TripCommand>();
   
         var result = await _tripService.Add(command, imageStream);
+
         if (!result.IsSuccess)
         {
-            var validationErrors = result.Errors
-                .Where(e => e.Type == ErrorType.Validation)
-                .ToList();
-
-            if (validationErrors.Any())
-            {
-                AddErrorsToModelState(validationErrors);
+            if (TryAddValidationErrorsToModelState(result.Errors))
                 return RenderTripForm(model, TripFormMode.Create);
-            }
+
             return HandleServiceErrors(result.Errors);
         }
 
@@ -126,17 +122,12 @@ public class TripsController : BaseController
         await using var imageStream = imageFile?.OpenReadStream();
         var command = model.Adapt<TripCommand>();
         var result = await _tripService.Update(id, command, imageStream);
+
         if (!result.IsSuccess)
         {
-            var validationErrors = result.Errors
-                .Where(e => e.Type == ErrorType.Validation)
-                .ToList();
+            if (TryAddValidationErrorsToModelState(result.Errors))
+                return RenderTripForm(model, TripFormMode.Create);
 
-            if (validationErrors.Any())
-            {
-                AddErrorsToModelState(validationErrors);
-                return RenderTripForm(model, TripFormMode.Edit);
-            }
             return HandleServiceErrors(result.Errors);
         }
 

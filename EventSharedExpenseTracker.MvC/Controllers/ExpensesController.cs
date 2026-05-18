@@ -78,15 +78,8 @@ public class ExpensesController : BaseController
 
         if (!result.IsSuccess)
         {
-            var validationErrors = result.Errors
-                .Where(e => e.Type == ErrorType.Validation)
-                .ToList();
-
-            if (validationErrors.Any())
-            {
-                AddErrorsToModelState(validationErrors);
+            if (TryAddValidationErrorsToModelState(result.Errors))
                 return RenderExpenseForm(model, ExpenseFormMode.Create);
-            }
 
             return HandleServiceErrors(result.Errors);
         }
@@ -121,15 +114,8 @@ public class ExpensesController : BaseController
 
         if (!result.IsSuccess)
         {
-            var validationErrors = result.Errors
-                .Where(e => e.Type == ErrorType.Validation)
-                .ToList();
-
-            if (validationErrors.Any())
-            {
-                AddErrorsToModelState(validationErrors);
-                return RenderExpenseForm(model, ExpenseFormMode.Edit);
-            }
+            if (TryAddValidationErrorsToModelState(result.Errors))
+                return RenderExpenseForm(model, ExpenseFormMode.Create);
 
             return HandleServiceErrors(result.Errors);
         }
