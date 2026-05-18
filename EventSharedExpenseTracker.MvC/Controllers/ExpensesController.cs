@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
@@ -77,12 +78,7 @@ public class ExpensesController : BaseController
         var result = await _expenseService.Add(expenseCommand, tripId);
 
         if (!result.IsSuccess)
-        {
-            if (TryAddValidationErrorsToModelState(result.Errors))
-                return RenderExpenseForm(model, ExpenseFormMode.Create);
-
-            return HandleServiceErrors(result.Errors);
-        }
+            return ReturnFormOrError(result, model, ExpenseFormMode.Create);
 
         return RedirectToAction("Details", "Trips", new { id = tripId });
     }
@@ -113,13 +109,8 @@ public class ExpensesController : BaseController
         var result = await _expenseService.Update(id, expenseCommand);
 
         if (!result.IsSuccess)
-        {
-            if (TryAddValidationErrorsToModelState(result.Errors))
-                return RenderExpenseForm(model, ExpenseFormMode.Create);
-
-            return HandleServiceErrors(result.Errors);
-        }
-
+            return ReturnFormOrError(result, model, ExpenseFormMode.Edit);
+ 
         return RedirectToAction("Details", "Trips", new { id = result.Value!.TripId });
     }
 
@@ -133,6 +124,14 @@ public class ExpensesController : BaseController
             return HandleServiceErrors(result.Errors);
 
         return RedirectToAction("Details", "Trips", new { id = tripId });
+    }
+
+    private IActionResult ReturnFormOrError(Result result, ExpenseFormViewModel model, ExpenseFormMode mode)
+    {
+        if (TryAddValidationErrorsToModelState(result.Errors))
+            return RenderExpenseForm(model, mode);
+
+        return HandleServiceErrors(result.Errors);
     }
 
     private PartialViewResult RenderExpenseForm(ExpenseFormViewModel model, ExpenseFormMode mode)

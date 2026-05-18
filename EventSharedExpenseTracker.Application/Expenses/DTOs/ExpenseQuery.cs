@@ -1,6 +1,6 @@
 ﻿namespace EventSharedExpenseTracker.Application.Expenses.DTOs
 {
-    public class ExpenseQuery
+    public record ExpenseQuery
     {
         public int Id { get; set; }
         public int TripId { get; set; }
@@ -13,7 +13,7 @@
         public List<PaymentQuery> Payments { get; set; } = [];
     }
 
-    public class PaymentQuery
+    public record PaymentQuery
     {
         public int Id { get; set; }
         public int ParticipantId { get; set; }

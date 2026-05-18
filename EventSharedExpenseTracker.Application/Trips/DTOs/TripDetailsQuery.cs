@@ -2,7 +2,7 @@
 
 namespace EventSharedExpenseTracker.Application.Trips.DTOs
 {
-    public class TripDetailsQuery
+    public record TripDetailsQuery
     {
         public int Id { get; set; }
 
@@ -20,13 +20,13 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         public List<ExpenseQuery> Expenses { get; set; } = [];
     }
 
-    public class TripQueryParticipant
+    public record TripQueryParticipant
     {
         public int Id { get; set; }
         public string UserName { get; set; }
     }
 
-    public class TripDetailsQueryarticipant : TripQueryParticipant
+    public record TripDetailsQueryarticipant : TripQueryParticipant
     {
         public bool IsDummy { get; set; }
         public decimal PaymentSum { get; set; }

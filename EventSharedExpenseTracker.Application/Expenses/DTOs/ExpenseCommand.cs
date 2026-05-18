@@ -1,6 +1,6 @@
 ﻿namespace EventSharedExpenseTracker.Application.Expenses.DTOs
 {
-    public class ExpenseCommand
+    public record ExpenseCommand
     {
         public string Name { get; set; } = "";
         public DateTime Date { get; set; }
@@ -10,7 +10,7 @@
         public List<PaymentCommand> Payments { get; set; } = [];
     }
 
-    public class PaymentCommand
+    public record PaymentCommand
     {
         public int Id { get; set; } // for updates, not needed for creates
         public int ParticipantId { get; set; }

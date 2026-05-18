@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
@@ -85,12 +86,7 @@ public class TripsController : BaseController
         var result = await _tripService.Add(command, imageStream);
 
         if (!result.IsSuccess)
-        {
-            if (TryAddValidationErrorsToModelState(result.Errors))
-                return RenderTripForm(model, TripFormMode.Create);
-
-            return HandleServiceErrors(result.Errors);
-        }
+            return ReturnFormOrError(result, model, TripFormMode.Create);
 
         return RedirectToAction(nameof(Index));
     }
@@ -122,12 +118,7 @@ public class TripsController : BaseController
         var result = await _tripService.Update(id, command, imageStream);
 
         if (!result.IsSuccess)
-        {
-            if (TryAddValidationErrorsToModelState(result.Errors))
-                return RenderTripForm(model, TripFormMode.Create);
-
-            return HandleServiceErrors(result.Errors);
-        }
+            return ReturnFormOrError(result, model, TripFormMode.Edit);
 
         return RedirectToAction(nameof(Details), new { id = model.Id });
     }
@@ -174,6 +165,14 @@ public class TripsController : BaseController
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
         return RedirectToAction("Details", "Trips", new { id });
+    }
+
+    private IActionResult ReturnFormOrError(Result result, TripFormViewModel model, TripFormMode mode)
+    {
+        if (TryAddValidationErrorsToModelState(result.Errors))
+            return RenderTripForm(model, mode);
+
+        return HandleServiceErrors(result.Errors);
     }
 
     private PartialViewResult RenderTripForm(TripFormViewModel model, TripFormMode mode)
