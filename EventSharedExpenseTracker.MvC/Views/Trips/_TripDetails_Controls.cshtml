@@ -17,7 +17,8 @@
                 hx-post="@Url.Action("AddDummy", "Trips", new { id = Model.Id })"
                 hx-target="#@Model.EIdTripParticipants"
                 hx-select="#@Model.EIdTripParticipants"
-                hx-include="#searchString">
+                hx-include="#searchString"
+                hx-on::after-request="document.getElementById('searchString').value = ''">
             Add Dummy
         </button>
 

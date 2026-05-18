@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+using EventSharedExpenseTracker.Application.Common.Interfaces;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 

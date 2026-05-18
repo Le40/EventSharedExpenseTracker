@@ -1,6 +1,6 @@
-﻿using EventSharedExpenseTracker.Application.Dtos;
-using EventSharedExpenseTracker.Application.Interfaces;
-using EventSharedExpenseTracker.Application.Services.Interfaces;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Trips;
+using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
@@ -59,7 +59,7 @@ public class TripsController : BaseController
         var tripDetailsQuery = result.Value!;
 
         var model = TripDetailsMapper.FromQuery(tripDetailsQuery);
-        model.ExpenseIndex.TripId = id;
+        //model.ExpenseIndex.TripId = id;
       
         return View(model);
     }
@@ -73,7 +73,6 @@ public class TripsController : BaseController
 
     // CREATE: POST
     [HttpPost("Trips/Create")]
-    //[ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Create(TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
@@ -113,7 +112,6 @@ public class TripsController : BaseController
 
     // EDIT: POST
     [HttpPost("Trips/Edit/{id}")]
-    //[ServiceFilter(typeof(CustomValidationActionFilter))]
     public async Task<IActionResult> Edit([FromRoute] int id, TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
@@ -175,7 +173,6 @@ public class TripsController : BaseController
         var result = await _tripService.DeleteParticipant(id, participantId);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
-        //return View("Details", id);
         return RedirectToAction("Details", "Trips", new { id });
     }
 

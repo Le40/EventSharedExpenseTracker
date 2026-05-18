@@ -1,4 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Dtos;
+﻿using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
@@ -27,6 +27,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                         .Select(p => new TripDetailsParticipantViewModel
                         {
                             Id = p.Id,
+                            IsDummy = p.IsDummy,
                             UserName = p.UserName,
                             PaymentSum = p.PaymentSum,
                             PaymentCount = p.PaymentCount

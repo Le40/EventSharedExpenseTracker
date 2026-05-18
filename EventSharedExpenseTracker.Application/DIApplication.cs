@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-
-using EventSharedExpenseTracker.Application.Authorisation;
-using EventSharedExpenseTracker.Application.Validation;
-using EventSharedExpenseTracker.Application.Services;
-using EventSharedExpenseTracker.Application.Services.Interfaces;
+using EventSharedExpenseTracker.Application.Expenses;
+using EventSharedExpenseTracker.Application.Trips;
+using EventSharedExpenseTracker.Application.Friends;
+using EventSharedExpenseTracker.Application.Common.Validation;
+using EventSharedExpenseTracker.Application.Common.Authorisation;
 
 namespace EventSharedExpenseTracker.Application;
 

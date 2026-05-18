@@ -2,14 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
-
-using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 using EventSharedExpenseTracker.Infrastructure.Identity;
 using EventSharedExpenseTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Resend;
+using EventSharedExpenseTracker.Application.Common.Interfaces;
 
 namespace EventSharedExpenseTracker.Infrastructure;
 

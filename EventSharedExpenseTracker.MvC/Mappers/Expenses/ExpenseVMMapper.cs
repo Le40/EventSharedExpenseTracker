@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Dtos;
+﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
+using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 

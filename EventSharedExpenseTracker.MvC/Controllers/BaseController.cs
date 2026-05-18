@@ -1,4 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Services.Interfaces;
+﻿using EventSharedExpenseTracker.Application.Common.Results;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventSharedExpenseTracker.MvC.Controllers

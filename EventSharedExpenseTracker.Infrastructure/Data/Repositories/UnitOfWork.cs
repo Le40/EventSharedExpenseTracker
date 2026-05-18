@@ -1,4 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Interfaces;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;

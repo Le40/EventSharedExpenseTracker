@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using EventSharedExpenseTracker.Application.Interfaces;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.Application.Common.Interfaces;
 
 namespace EventSharedExpenseTracker.Infrastructure.Identity
 {

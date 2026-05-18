@@ -1,8 +1,7 @@
 using Azure.Identity;
 using EventSharedExpenseTracker.Application;
-using EventSharedExpenseTracker.Application.Interfaces;
+using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Infrastructure;
-using EventSharedExpenseTracker.MvC.ActionFilters;
 using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Services;
 

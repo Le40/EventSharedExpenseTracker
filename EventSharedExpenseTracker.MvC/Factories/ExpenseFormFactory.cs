@@ -1,5 +1,7 @@
-﻿using EventSharedExpenseTracker.Application.Interfaces;
-using EventSharedExpenseTracker.Application.Services.Interfaces;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Common.Results;
+using EventSharedExpenseTracker.Application.Expenses;
+using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;

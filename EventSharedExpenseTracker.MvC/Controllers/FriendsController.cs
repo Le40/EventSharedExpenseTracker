@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-
-using EventSharedExpenseTracker.Application.Services.Interfaces;
+using EventSharedExpenseTracker.Application.Friends;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 

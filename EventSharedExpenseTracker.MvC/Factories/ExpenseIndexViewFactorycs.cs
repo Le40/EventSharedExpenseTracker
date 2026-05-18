@@ -1,8 +1,6 @@
-﻿using EventSharedExpenseTracker.Application.Dtos.Mappers;
-using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.MvC.Mappers.Expenses;
+﻿using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
-using EventSharedExpenseTracker.Application.Dtos;
+using EventSharedExpenseTracker.Application.Expenses.DTOs;
 
 namespace EventSharedExpenseTracker.MvC.Factories
 {
@@ -11,7 +9,6 @@ namespace EventSharedExpenseTracker.MvC.Factories
         public static ExpenseIndexViewModel Create(
             int tripId,
             IEnumerable<ExpenseQuery> queries,
-            int userId,
             string? sortOrder = null,
             string? searchString = null,
             string? categoryFilter = null,

@@ -2,7 +2,7 @@
 using SixLabors.ImageSharp.Processing;
 using SixLabors.ImageSharp.Formats;
 using SixLabors.ImageSharp.Formats.Jpeg;
-using EventSharedExpenseTracker.Application.Interfaces;
+using EventSharedExpenseTracker.Application.Common.Interfaces;
 
 namespace EventSharedExpenseTracker.Infrastructure.Services;
 

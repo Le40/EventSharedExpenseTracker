@@ -1,4 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Interfaces;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
 using System.Security.Claims;
 
 namespace EventSharedExpenseTracker.MvC.Services;

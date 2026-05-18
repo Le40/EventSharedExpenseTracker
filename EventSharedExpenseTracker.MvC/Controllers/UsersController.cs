@@ -1,8 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Authorisation;
-using EventSharedExpenseTracker.Application.Interfaces;
-using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Infrastructure.Identity;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
