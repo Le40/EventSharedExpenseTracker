@@ -19,17 +19,19 @@ namespace EventSharedExpenseTracker.Application.Dtos
 
         public string? ImagePath { get; set; }
 
-        public List<TripParticipantQuery> Participants { get; set; } = [];
+        public List<TripDetailsQueryarticipant> Participants { get; set; } = [];
 
         public List<ExpenseQuery> Expenses { get; set; } = [];
     }
 
-    public class TripParticipantQuery
+    public class TripQueryParticipant
     {
         public int Id { get; set; }
+        public string UserName { get; set; }
+    }
 
-        public string UserName { get; set; } = "";
-
+    public class TripDetailsQueryarticipant : TripQueryParticipant
+    {
         public decimal PaymentSum { get; set; }
 
         public int PaymentCount { get; set; }

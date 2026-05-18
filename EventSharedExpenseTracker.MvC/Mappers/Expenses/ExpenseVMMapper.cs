@@ -82,7 +82,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
 
         public static ExpenseFormViewModel FromQuery(
             ExpenseQuery command,
-            IEnumerable<TripParticipantQuery> tripParticipants)
+            IEnumerable<TripQueryParticipant> tripParticipants)
         {
             var paidByParticipant = command.Payments
                 .Where(p => !p.IsOwed)

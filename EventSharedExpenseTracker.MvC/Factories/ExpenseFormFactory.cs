@@ -24,7 +24,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
 
         public async Task<Result<ExpenseFormViewModel>> BuildCreateAsync(int tripId)
         {
-            var tripResult = await _tripService.Details(tripId);
+            var tripResult = await _tripService.GetParticipants(tripId);
 
             if (!tripResult.IsSuccess)
                 return Result<ExpenseFormViewModel>.Fail(tripResult.Errors);
@@ -32,8 +32,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
             var userId = _requestContext.UserId;
             string userName = _requestContext.UserName;
 
-            var orderedParticipants = tripResult.Value!.Participants
-            //var orderedParticipants = tripResult.Data!.Participants
+            var orderedParticipants = tripResult.Value!
                 .OrderBy(p => p.UserName == userName ? 0 : 1)
                 .ThenBy(p => p.UserName)
                 .ToList();
@@ -61,20 +60,20 @@ namespace EventSharedExpenseTracker.MvC.Factories
 
         public async Task<Result<ExpenseFormViewModel>> BuildEditAsync(int expenseId)
         {
-            var commandResult = await _expenseService.GetExpenseForm(expenseId);
-            if (!commandResult.IsSuccess)
-                return Result<ExpenseFormViewModel>.Fail(commandResult.Errors);
+            var queryResult = await _expenseService.GetExpenseForm(expenseId);
+            if (!queryResult.IsSuccess)
+                return Result<ExpenseFormViewModel>.Fail(queryResult.Errors);
                 
-            var command = commandResult.Value!;
+            var query = queryResult.Value!;
 
-            var tripResult = await _tripService.Details(command.TripId);
+            var tripResult = await _tripService.GetParticipants(query.TripId);
 
             if (!tripResult.IsSuccess)
                 return Result<ExpenseFormViewModel>.Fail(tripResult.Errors);
 
             var userId = _requestContext.UserId;
 
-            var model = ExpenseVMMapper.FromQuery(command, tripResult.Value!.Participants);
+            var model = ExpenseVMMapper.FromQuery(query, tripResult.Value!);
 
             return Result<ExpenseFormViewModel>.Ok(model);
         }

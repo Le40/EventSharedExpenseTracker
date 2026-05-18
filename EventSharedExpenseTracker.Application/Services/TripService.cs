@@ -7,6 +7,7 @@ using EventSharedExpenseTracker.Application.Services.Utility;
 using EventSharedExpenseTracker.Application.Validation;
 using EventSharedExpenseTracker.Domain.Models;
 using Mapster;
+using System.Collections.Generic;
 
 namespace EventSharedExpenseTracker.Application.Services;
 
@@ -71,14 +72,6 @@ public class TripService : ITripService
             .ToList();
 
         var query = TripMapper.ToDetailsQuery(trip, canEdit, expenses);
-
-
-
-
-
-        //bool canEdit = _authorizationService.AuthorisedToEdit(trip, userId);
-
-        //var query = TripMapper.ToDetailsQuery(trip, canEdit, userId);
 
         return Result<TripDetailsQuery>.Ok(query);
     }
@@ -170,6 +163,22 @@ public class TripService : ITripService
             _imageService.DeleteImageFile(imagePath);
 
         return Result.Success();
+    }
+
+    public async Task<Result<List<TripDetailsQueryarticipant>>> GetParticipants(int id)
+    {
+        var userId = _requestContext.UserId;
+        var trip = await _unitOfWork.Trips.GetByIdAsync(id);
+
+        if (trip == null)
+            return Result<List<TripDetailsQueryarticipant>>.Fail(AppErrors.NotFound<Trip>());
+
+        if (!_authorizationService.AuthorisedToView(trip, userId))
+            return Result<List<TripDetailsQueryarticipant>>.Fail(AppErrors.Forbidden<Trip>());
+
+        var query = trip.Participants.Adapt<List<TripDetailsQueryarticipant>>();
+
+        return Result<List<TripDetailsQueryarticipant>>.Ok(query);
     }
 
     public async Task<Result<Trip>> AddParticipant(int tripId, int friendId)

@@ -21,10 +21,4 @@ namespace EventSharedExpenseTracker.Application.Dtos
 
         public List<string> ParticipantNames { get; set; } = [];
     }
-
-    public class TripQueryParticipant
-    {
-        public int Id { get; set; }
-        public string UserName { get; set; }
-    }
 }

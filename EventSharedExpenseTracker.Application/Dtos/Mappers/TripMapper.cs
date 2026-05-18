@@ -19,7 +19,7 @@ namespace EventSharedExpenseTracker.Application.Dtos.Mappers
                 ImagePath = trip.ImagePath,
 
                 Participants = trip.Participants
-                    .Select(p => new TripParticipantQuery
+                    .Select(p => new TripDetailsQueryarticipant
                     {
                         Id = p.Id,
                         UserName = p.UserName,
