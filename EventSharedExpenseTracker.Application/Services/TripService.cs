@@ -48,7 +48,7 @@ public class TripService : ITripService
 
         var queries = trips.Select(t => TripMapper.ToQuery(t)).ToList();
             
-        return Result<List<TripQuery>>.Ok(queries);
+        return queries;
     }
 
     public async Task<Result<TripDetailsQuery>> Details(int id)
@@ -57,10 +57,10 @@ public class TripService : ITripService
 
         var trip = await _unitOfWork.Trips.GetByIdWithExpenses(id);
         if (trip == null)
-            return Result<TripDetailsQuery>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
-            return Result<TripDetailsQuery>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         bool canEdit = _authorizationService.AuthorisedToEdit(trip, userId);
 
@@ -73,7 +73,7 @@ public class TripService : ITripService
 
         var query = TripMapper.ToDetailsQuery(trip, canEdit, expenses);
 
-        return Result<TripDetailsQuery>.Ok(query);
+        return query;
     }
 
     public async Task<Result<Trip>> Add(TripCommand command, Stream? imageFileStream)
@@ -99,7 +99,7 @@ public class TripService : ITripService
         _unitOfWork.Trips.Add(trip);
         await _unitOfWork.CompleteAsync();
 
-        return Result<Trip>.Ok(trip);
+        return trip;
     }
 
     public async Task<Result<TripQuery>> GetTripForm(int id)
@@ -108,14 +108,14 @@ public class TripService : ITripService
         var trip = await _unitOfWork.Trips.GetByIdAsync(id);
 
         if (trip == null)
-            return Result<TripQuery>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return Result<TripQuery>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         var query = trip.Adapt<TripQuery>();
 
-        return Result<TripQuery>.Ok(query);
+        return query;
     }
 
     public async Task<Result<Trip>> Update(int id, TripCommand command, Stream? imageFileStream)
@@ -123,10 +123,10 @@ public class TripService : ITripService
         int userId = _requestContext.UserId;
         var existingTrip = await _unitOfWork.Trips.GetByIdAsync(id);
         if (existingTrip == null)
-            return Result<Trip>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToEdit(existingTrip, userId))
-            return Result<Trip>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         var validationResult = _validationService.ValidateTrip(command);
         if (!validationResult.IsSuccess)
@@ -140,7 +140,7 @@ public class TripService : ITripService
 
         //_unitOfWork.Trips.Update(existingTrip);
         await _unitOfWork.CompleteAsync();
-        return Result<Trip>.Ok(existingTrip);
+        return existingTrip;
     }
 
     public async Task<Result> Delete(int id)
@@ -148,11 +148,11 @@ public class TripService : ITripService
         var trip = await _unitOfWork.Trips.GetByIdAsync(id);
 
         if (trip == null)
-            return Result.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         int userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return Result.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         var imagePath = trip.ImagePath;
 
@@ -162,7 +162,7 @@ public class TripService : ITripService
         if(imagePath != null)
             _imageService.DeleteImageFile(imagePath);
 
-        return Result.Success();
+        return Result.Ok();
     }
 
     public async Task<Result<List<TripDetailsQueryarticipant>>> GetParticipants(int id)
@@ -171,14 +171,14 @@ public class TripService : ITripService
         var trip = await _unitOfWork.Trips.GetByIdAsync(id);
 
         if (trip == null)
-            return Result<List<TripDetailsQueryarticipant>>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
-            return Result<List<TripDetailsQueryarticipant>>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         var query = trip.Participants.Adapt<List<TripDetailsQueryarticipant>>();
 
-        return Result<List<TripDetailsQueryarticipant>>.Ok(query);
+        return query;
     }
 
     public async Task<Result<Trip>> AddParticipant(int tripId, int friendId)
@@ -186,16 +186,16 @@ public class TripService : ITripService
         var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
 
         if (trip == null)
-            return Result<Trip>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         var userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return Result<Trip>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         // CHECK IF FRIENDSHIP IS CONFIRMED AND EXISTS - LOAD FRIENDSHIP?
         var friend = await _unitOfWork.Users.GetByIdAsync(friendId);
         if (friend == null)
-            return Result<Trip>.Fail(AppErrors.NotFound<CustomUser>());
+            return AppErrors.NotFound<CustomUser>();
 
         // CHECK IF NOT ALREADY A PARTICIPANT
         // CHECK IF USER IS FRIEND WITH THIS FRIEND
@@ -210,21 +210,21 @@ public class TripService : ITripService
 
         trip.Participants.Add(participant);
         await _unitOfWork.CompleteAsync();
-        return Result<Trip>.Ok(trip);
+        return trip;
     }
 
     public async Task<Result<Trip>> AddDummy(int id, string participantName)
     {
         var trip = await _unitOfWork.Trips.GetByIdAsync(id);
         if (trip == null)
-            return Result<Trip>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         var userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return Result<Trip>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         if (trip.Participants.Any(p => p.UserName == participantName))
-            return Result<Trip>.Fail(AppErrors.Conflict<TripParticipant>());
+            return AppErrors.Conflict<TripParticipant>();
 
         var participant = new TripParticipant()
         {
@@ -235,22 +235,22 @@ public class TripService : ITripService
         trip.Participants.Add(participant);
         await _unitOfWork.CompleteAsync();
 
-        return Result<Trip>.Ok(trip);
+        return trip;
     }
 
     public async Task<Result> DeleteParticipant(int id, int participantId)
     {
         var trip = await _unitOfWork.Trips.GetByIdWithExpenses(id);
         if (trip == null)
-            return Result.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         var userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return Result.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         var participant = trip.Participants.FirstOrDefault(p => p.Id == participantId);
         if (participant == null)
-            return Result.Fail(AppErrors.NotFound<TripParticipant>());
+            return AppErrors.NotFound<TripParticipant>();
 
         // maybe into validation action filter?? to add model error?
         var payments = participant.Payments.Where(p => p.Ammount != null).ToList();
@@ -260,6 +260,6 @@ public class TripService : ITripService
         trip.Participants.Remove(participant);
         await _unitOfWork.CompleteAsync();
 
-        return Result.Success();
+        return Result.Ok();
     }
 }

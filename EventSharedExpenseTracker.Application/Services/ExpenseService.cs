@@ -31,10 +31,10 @@ public class ExpenseService : IExpenseService
 
         var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
         if (trip == null)
-            return Result<List<ExpenseQuery>>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
-            return Result<List<ExpenseQuery>>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         var orderBy = ExpenseFilters.GetOrderByExpression(sortOrder);
 
@@ -56,7 +56,7 @@ public class ExpenseService : IExpenseService
             return ExpenseMapper.ToQuery(e, canEditExpense);
             }).ToList();
 
-        return Result<List<ExpenseQuery>>.Ok(items);
+        return items;
     }
 
     public async Task<Result<Expense>> Add(ExpenseCommand command, int tripId)
@@ -65,10 +65,10 @@ public class ExpenseService : IExpenseService
 
         var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
         if (trip == null)
-            return Result<Expense>.Fail(AppErrors.NotFound<Trip>());
+            return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
-            return Result<Expense>.Fail(AppErrors.Forbidden<Trip>());
+            return AppErrors.Forbidden<Trip>();
 
         var validationResult = _validationService.ProcessForSaving(command);
 
@@ -83,7 +83,7 @@ public class ExpenseService : IExpenseService
         _unitOfWork.Expenses.Add(expense);
         await _unitOfWork.CompleteAsync();
 
-        return Result<Expense>.Ok(expense);
+        return expense;
     }
 
     public async Task<Result<ExpenseQuery>> GetExpenseForm(int id)
@@ -92,14 +92,14 @@ public class ExpenseService : IExpenseService
 
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (expense == null)
-            return Result<ExpenseQuery>.Fail(AppErrors.NotFound<Expense>());
+            return AppErrors.NotFound<Expense>();
 
         var canEdit = _authorizationService.AuthorisedToEdit(expense, userId);
 
         //var command = expense.Adapt<ExpenseCommand>();
         var query = ExpenseMapper.ToQuery(expense, canEdit);
 
-        return Result<ExpenseQuery>.Ok(query);
+        return query;
     }
 
     public async Task<Result<Expense>> Update(int id, ExpenseCommand command)
@@ -108,10 +108,10 @@ public class ExpenseService : IExpenseService
 
         var existingExpense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (existingExpense == null)
-            return Result<Expense>.Fail(AppErrors.NotFound<Expense>());
+            return AppErrors.NotFound<Expense>();
 
         if (!_authorizationService.AuthorisedToEdit(existingExpense, userId))
-            return Result<Expense>.Fail(AppErrors.Forbidden<Expense>());
+            return AppErrors.Forbidden<Expense>();
 
         var validationResult = _validationService.ProcessForSaving(command);
 
@@ -126,7 +126,7 @@ public class ExpenseService : IExpenseService
         //_unitOfWork.Expenses.Update(existingExpense);
         await _unitOfWork.CompleteAsync();
 
-        return Result<Expense>.Ok(existingExpense);
+        return existingExpense;
     }
 
     public async Task<Result> Delete(int id)
@@ -135,14 +135,14 @@ public class ExpenseService : IExpenseService
 
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (expense == null)
-            return Result.Fail(AppErrors.NotFound<Expense>());
+            return AppErrors.NotFound<Expense>();
 
         if (!_authorizationService.AuthorisedToEdit(expense, userId))
-            return Result.Fail(AppErrors.Forbidden<Expense>());
+            return AppErrors.Forbidden<Expense>();
 
         _unitOfWork.Expenses.Delete(expense);
         await _unitOfWork.CompleteAsync();
 
-        return Result.Success();
+        return Result.Ok();
     }
 }

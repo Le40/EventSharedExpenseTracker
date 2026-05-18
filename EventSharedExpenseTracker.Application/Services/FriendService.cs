@@ -25,9 +25,9 @@ public class FriendService : IFriendService
 
         var user = await _unitOfWork.Users.GetUserWithFriends(userId);
         if (user == null)
-            return Result<List<Friendship>>.Fail(AppErrors.NotFound<CustomUser>());
+            return AppErrors.NotFound<CustomUser>();
 
-        return Result<List<Friendship>>.Ok(user.Friends);
+        return user.Friends;
     }
 
     public async Task<Result<List<CustomUser>>> Search(string searchString)
@@ -45,7 +45,7 @@ public class FriendService : IFriendService
         var users = await _unitOfWork.Users.GetAllAsync(userId,
             filters: listOfFilters.ToArray());
 
-        return Result<List<CustomUser>>.Ok(users);
+        return users;
     }
 
 
@@ -56,7 +56,7 @@ public class FriendService : IFriendService
         var user = await _unitOfWork.Users.GetByIdAsync(userId);
         var friend = await _unitOfWork.Users.GetByIdAsync(friendId);
         if (friend == null || user == null)
-            return Result<Friendship>.Fail(AppErrors.NotFound<Friendship>());
+            return AppErrors.NotFound<Friendship>();
 
         var friendship = new Friendship
         {
@@ -68,7 +68,7 @@ public class FriendService : IFriendService
         _unitOfWork.Friendships.Create(friendship);
         await _unitOfWork.CompleteAsync();
 
-        return Result<Friendship>.Ok(friendship);
+        return friendship;
     }
 
     public async Task<Result<Friendship>> Accept(int friendshipId)
@@ -77,7 +77,7 @@ public class FriendService : IFriendService
 
         var friendship = await _unitOfWork.Friendships.GetByIdAsync(friendshipId);
         if (friendship == null)
-            return Result<Friendship>.Fail(AppErrors.NotFound<Friendship>());
+            return AppErrors.NotFound<Friendship>();
 
         friendship.IsConfirmed = true;
         _unitOfWork.Friendships.Update(friendship);
@@ -92,7 +92,7 @@ public class FriendService : IFriendService
 
         await _unitOfWork.CompleteAsync();
 
-        return Result<Friendship>.Ok(friendshipBack);
+        return friendshipBack;
     }
 
     public async Task<Result> Decline(int friendshipId)
@@ -101,12 +101,12 @@ public class FriendService : IFriendService
 
         var friendship = await _unitOfWork.Friendships.GetByIdAsync(friendshipId);
         if (friendship == null)
-            return Result.Fail(AppErrors.NotFound<Friendship>());
+            return AppErrors.NotFound<Friendship>();
 
         _unitOfWork.Friendships.Delete(friendship);
         await _unitOfWork.CompleteAsync();
 
-        return Result.Success();
+        return Result.Ok();
     }
 
     public async Task<Result> Delete(int friendshipId)
@@ -115,11 +115,11 @@ public class FriendService : IFriendService
 
         var friendship = await _unitOfWork.Friendships.GetByIdAsync(friendshipId);
         if (friendship == null)
-            return Result.Fail(AppErrors.NotFound<Friendship>());
+            return AppErrors.NotFound<Friendship>();
 
         _unitOfWork.Friendships.Delete(friendship);
         await _unitOfWork.CompleteAsync();
 
-        return Result.Success();
+        return Result.Ok();
     }
 }

@@ -15,7 +15,7 @@ public class ValidationService : IValidationService
             errors.Add(AppErrors.Validation<Trip>("Trip can't end before it begins."));
             return Result.Fail(errors);
         }
-        return Result.Success();
+        return Result.Ok();
     }
 
     public Result<ExpenseCommand> ProcessForSaving(ExpenseCommand command)
@@ -25,7 +25,7 @@ public class ValidationService : IValidationService
 
         var inputErrors = ValidateInputAmounts(command);
         if (inputErrors.Count>0)
-            return Result<ExpenseCommand>.Fail(inputErrors);
+            return inputErrors;
 
         var sharedOwed = command.Payments.Where(p => p.IsEquallyShared).ToList();
 
@@ -34,11 +34,11 @@ public class ValidationService : IValidationService
         var totalErrors = ValidateTotals(totals);
 
         if (totalErrors.Count>0)
-            return Result<ExpenseCommand>.Fail(totalErrors);
+            return totalErrors;
 
         ApplySharedOwedAmounts(sharedOwed, totals.RemainingAmountToShare);
 
-        return Result<ExpenseCommand>.Ok(command);
+        return command;
     }
 
     private static void NormalizeOwedInputs(ExpenseCommand command)

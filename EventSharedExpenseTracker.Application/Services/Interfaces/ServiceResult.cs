@@ -1,54 +1,58 @@
-﻿namespace EventSharedExpenseTracker.Application.Services.Interfaces;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
 
-public record Result
+namespace EventSharedExpenseTracker.Application.Services.Interfaces;
+
+public class Result
 {
     public bool IsSuccess => Errors.Count == 0;
     public IReadOnlyCollection<AppError> Errors { get; }
 
     protected Result(IEnumerable<AppError> errors)
-    {
-        Errors = errors.ToList();
-    }
+        =>Errors = errors.ToList();
 
-    public static Result Success() => new(Array.Empty<AppError>());
 
-    public static Result Fail(IEnumerable<AppError> errors) => new(errors);
-    public static Result Fail(AppError error) => new(new[] { error });
+    public static Result Ok() 
+        => new Result(Array.Empty<AppError>());
+    public static Result Fail(IEnumerable<AppError> errors) 
+        => new Result(errors);
+    public static Result Fail(AppError error) 
+        => new Result (new[] { error });
+
+    public static implicit operator Result(AppError error) 
+        => Fail(error);
+    public static implicit operator Result(List<AppError> errors) 
+        => Fail(errors);
 }
 
 
-public record Result<T> : Result
+public class Result<T> : Result
 {
     public T? Value { get; }
 
     private Result(T value) : base(Array.Empty<AppError>())
-    {
-        Value = value;
-    }
-
+        => Value = value;
     private Result(IEnumerable<AppError> errors) : base(errors)
-    {
-        Value = default;
-    }
-
+        => Value = default;
     private Result(AppError error) : base(new[] { error })
-    {
-        Value = default;
-    }
+        => Value = default;
+    
 
-    public Result<T> WithErrors(IEnumerable<AppError> errors)
-    {
-        return new Result<T>(Errors.Concat(errors));
-    }
+    public static new Result<T> Ok(T value) 
+        => new(value);
+    public static new Result<T> Fail(IEnumerable<AppError> errors) 
+        => new(errors);
+    public static new Result<T> Fail(AppError error)
+        => new(error);
 
-    public static Result<T> Ok(T value) => new(value);
-    public static Result<T> Fail(IEnumerable<AppError> errors) => new(errors);
-    public static Result<T> Fail(AppError error) => new(error);
-
-    public override string ToString()
-    {
-        return string.Join("; ", Errors.Select(e => e.Message));
-    }
+    public static implicit operator Result<T>(T value)
+        => Ok(value);
+ 
+    public static implicit operator Result<T>(AppError error) 
+        => Fail(error);
+  
+    public static implicit operator Result<T>(List<AppError> errors) 
+        => Fail(errors);
+  
 }
 
 public enum ErrorType
