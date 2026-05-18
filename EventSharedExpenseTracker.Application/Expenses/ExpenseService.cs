@@ -34,20 +34,16 @@ public class ExpenseService : IExpenseService
         if (!_authorizationService.AuthorisedToView(trip, userId))
             return AppErrors.Forbidden<Trip>();
 
-        var orderBy = ExpenseFilters.GetOrderByExpression(sortOrder);
-
-        var listOfFilters = new List<Func<IQueryable<Expense>, IQueryable<Expense>>>
+        var options = new ExpenseQueryOptions
         {
-            ExpenseFilters.Search(searchString!),
-            ExpenseFilters.CategoryFilter(categoryFilter!),
-            ExpenseFilters.CreatorFilter(creator, userId)
+            UserId = userId,
+            SearchString = searchString,
+            SortBy = sortOrder,
+            CreatedByMe = creator,
+            Category = categoryFilter
         };
 
-        // Done like this, so only necessary amount of row is queried from db.
-        // And to not have dependency on EF core in application.
-        var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId,
-            orderBy: orderBy,
-            filters: listOfFilters.ToArray());
+        var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId, options);
 
         var items = expenses.Select(e => {
             var canEditExpense = _authorizationService.AuthorisedToEdit(e, userId);

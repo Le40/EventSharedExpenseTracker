@@ -2,6 +2,7 @@
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Friends;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 
@@ -14,18 +15,21 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<List<CustomUser>> GetAllAsync(int userId,
-        params Func<IQueryable<CustomUser>, IQueryable<CustomUser>>[] filters)
+    public async Task<List<CustomUser>> GetAllAsync(int userId, FriendshipQueryOptions options)
     {
         // DEFAULT MANDATORY FILTER
         var query = _context.CustomUsers.AsQueryable();
 
-        foreach (var filter in filters)
+        if (!string.IsNullOrWhiteSpace(options.SearchString))
         {
-            query = filter(query);
+            query = query.Where(u =>
+            u.CustomUserName.Contains(options.SearchString));
         }
 
-        return await query.ToListAsync();
+        //if (!string.IsNullOrWhiteSpace(options.Category))
+        //    query = query.Where(e => e.Category == options.Category);
+
+        return await query.AsNoTracking().ToListAsync();
     }
 
     /* THIS IS SIMPLE VERSION BUT ITS REFERENCED somewhere else so i guess i am gonna use the normal one as that has search in it

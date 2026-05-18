@@ -29,20 +29,18 @@ public class FriendService : IFriendService
         return user.Friends;
     }
 
-    public async Task<Result<List<CustomUser>>> Search(string searchString)
+    public async Task<Result<List<CustomUser>>> Search(string? searchString)
     {
         int userId = _requestContext.UserId;
         var user = await _unitOfWork.Users.GetUserWithFriends(userId);
 
-        var listOfFilters = new List<Func<IQueryable<CustomUser>, IQueryable<CustomUser>>>
+        var options = new FriendshipQueryOptions
         {
-            //FriendHelper.FriendsFilter(user.Friends),
-            FriendFilters.Search(searchString),
-            users => users.Where(u => u.Id != userId)
+            SearchString = searchString,
+            Category = ""
         };
 
-        var users = await _unitOfWork.Users.GetAllAsync(userId,
-            filters: listOfFilters.ToArray());
+        var users = await _unitOfWork.Users.GetAllAsync(userId, options);
 
         return users;
     }

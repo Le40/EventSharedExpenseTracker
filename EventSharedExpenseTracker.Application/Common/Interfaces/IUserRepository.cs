@@ -1,11 +1,11 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Application.Friends;
+using EventSharedExpenseTracker.Domain.Models;
 
 namespace EventSharedExpenseTracker.Application.Common.Interfaces;
 
 public interface IUserRepository
 {
-    Task<List<CustomUser>> GetAllAsync(int userId,
-        params Func<IQueryable<CustomUser>, IQueryable<CustomUser>>[] filters);
+    Task<List<CustomUser>> GetAllAsync(int userId, FriendshipQueryOptions options);
 
     // this below, simpler version for testing, and also after going back i dont know why so complicted, maybe i will remember.
     //Task<List<CustomUser>> GetAllAsync();

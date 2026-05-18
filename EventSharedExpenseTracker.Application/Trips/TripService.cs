@@ -3,6 +3,7 @@ using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Common.Validation;
 using EventSharedExpenseTracker.Application.Expenses;
+using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
 using Mapster;
@@ -31,19 +32,14 @@ public class TripService : ITripService
     {
         int userId = _requestContext.UserId;
 
-        var orderBy = TripFilters.GetOrderByExpression(sortOrder);
-
-        var listOfFilters = new List<Func<IQueryable<Trip>, IQueryable<Trip>>>
+        var options = new TripQueryOptions
         {
-            TripFilters.Search(searchString),
-            //TripFilters.CategoryFilter(categoryFilter)
+            SearchString = searchString,
+            SortBy = sortOrder,
+            Category = categoryFilter
         };
 
-        // Done like this, so only necessary amount of row is queried from db.
-        // And to not have dependency on EF core in application.
-        var trips = await _unitOfWork.Trips.GetAllFromUserAsync(userId,
-            orderBy: orderBy,
-            filters: listOfFilters.ToArray());
+        var trips = await _unitOfWork.Trips.GetAllFromUserAsync(userId, options);
 
         var queries = trips.Select(t => TripMapper.ToQuery(t)).ToList();
             

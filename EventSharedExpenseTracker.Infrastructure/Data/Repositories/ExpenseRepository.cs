@@ -2,6 +2,7 @@
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Expenses.DTOs;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 
@@ -14,20 +15,35 @@ public class ExpenseRepository : IExpenseRepository
         _context = context;
     }
 
-    public async Task<List<Expense>> GetAllFromTripAsync(int tripId,
-        Func<IQueryable<Expense>, IOrderedQueryable<Expense>> orderBy,
-        params Func<IQueryable<Expense>, IQueryable<Expense>>[] filters)
+    public async Task<List<Expense>> GetAllFromTripAsync(int tripId, ExpenseQueryOptions options)
     {
         // DEFAULT MANDATORY FILTER
         var query = _context.Expenses
             .Where(e => e.TripId == tripId);
 
-        foreach (var filter in filters)
+        if (!string.IsNullOrWhiteSpace(options.SearchString))
         {
-            query = filter(query);
+            query = query.Where(e =>
+            e.Name.Contains(options.SearchString) ||
+            e.Category.Contains(options.SearchString) ||
+            e.Description != null && e.Description.Contains(options.SearchString));
         }
 
-        query = orderBy(query);
+        if (!string.IsNullOrWhiteSpace(options.Category))
+            query = query.Where(e => e.Category == options.Category);
+
+        if (options.CreatedByMe)
+            query = query.Where(x => x.CreatorId == options.UserId);
+
+        query = options.SortBy switch
+        {
+            "name" => query.OrderBy(e => e.Name),
+            "name_desc" => query.OrderByDescending(e => e.Name),
+            "amount" => query.OrderBy(e => e.Payments.Sum(p => p.Ammount)),
+            "amount_desc" => query.OrderByDescending(e => e.Payments.Sum(p => p.Ammount)),
+            "date" => query.OrderBy(e => e.Date),
+            _ => query.OrderByDescending(e => e.Date),
+        };
 
         return await query.AsNoTracking().ToListAsync();
     }

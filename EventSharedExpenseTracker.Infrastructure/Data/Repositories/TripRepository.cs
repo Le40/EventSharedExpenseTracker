@@ -2,6 +2,7 @@
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Trips.DTOs;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 
@@ -14,21 +15,29 @@ public class TripRepository : ITripRepository
         _context = context;
     }
 
-    public async Task<List<Trip>> GetAllFromUserAsync(int userId,
-        Func<IQueryable<Trip>, IOrderedQueryable<Trip>> orderBy,
-        params Func<IQueryable<Trip>, IQueryable<Trip>>[] filters)
+    public async Task<List<Trip>> GetAllFromUserAsync(int userId, TripQueryOptions options)
     {
         // DEFAULT MANDATORY FILTER
         var query = _context.Trips
             .Include(t => t.Participants)
             .Where(t => t.Participants.Any(p => p.UserId == userId));
 
-        foreach (var filter in filters)
+        if (!string.IsNullOrWhiteSpace(options.SearchString))
         {
-            query = filter(query);
+            query = query.Where(e =>
+            e.Name.Contains(options.SearchString));
         }
 
-        query = orderBy(query);
+        //if (!string.IsNullOrWhiteSpace(options.Category))
+        //    query = query.Where(e => e.Category == options.Category);
+
+        query = options.SortBy switch
+        {
+            "name" => query.OrderBy(e => e.Name),
+            "name_desc" => query.OrderByDescending(e => e.Name),
+            "date" => query.OrderBy(e => e.DateFrom),
+            _ => query.OrderByDescending(e => e.DateFrom),
+        };
 
         return await query.AsNoTracking().ToListAsync();
     }
