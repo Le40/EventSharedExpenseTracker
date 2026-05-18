@@ -4,7 +4,10 @@ namespace EventSharedExpenseTracker.Application.Dtos.Mappers
 {
     public static class TripMapper
     {
-        public static TripDetailsQuery ToDetailsQuery(Trip trip, bool canEdit, int userId)
+        public static TripDetailsQuery ToDetailsQuery(
+            Trip trip, 
+            bool canEdit,
+            IEnumerable<ExpenseQuery> expenses)
         {
             return new TripDetailsQuery
             {
@@ -25,9 +28,7 @@ namespace EventSharedExpenseTracker.Application.Dtos.Mappers
                     })
                     .ToList(),
 
-                Expenses = trip.Expenses
-                    .Select(e => ExpenseMapper.MapToQuery(e, userId))
-                    .ToList()
+                Expenses = expenses.ToList()
             };
         }
 

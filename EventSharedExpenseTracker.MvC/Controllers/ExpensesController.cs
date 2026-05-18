@@ -72,7 +72,7 @@ public class ExpensesController : BaseController
         if (!ModelState.IsValid)
             return RenderExpenseForm(model, ExpenseFormMode.Create);
 
-        var expenseCommand = ExpenseVMMapper.ToCommand(model, tripId);//, _requestContext.UserId
+        var expenseCommand = ExpenseVMMapper.ToCommand(model);//, _requestContext.UserId
 
         var result = await _expenseService.Add(expenseCommand, tripId);
 
@@ -115,9 +115,9 @@ public class ExpensesController : BaseController
         if (!ModelState.IsValid)
             return RenderExpenseForm(model, ExpenseFormMode.Edit);
 
-        var expenseCommand = ExpenseVMMapper.ToCommand(model, model.TripId);//, _requestContext.UserId
+        var expenseCommand = ExpenseVMMapper.ToCommand(model);//, _requestContext.UserId
 
-        var result = await _expenseService.Update(expenseCommand);
+        var result = await _expenseService.Update(id, expenseCommand);
 
         if (!result.IsSuccess)
         {

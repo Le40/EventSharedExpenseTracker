@@ -9,7 +9,6 @@ namespace EventSharedExpenseTracker.Application.Dtos
 {
     public class TripCommand
     {
-        public int Id { get; set; }
         public string Name { get; set; }
         [DataType(DataType.Date)]
         public DateTime DateFrom { get; set; }

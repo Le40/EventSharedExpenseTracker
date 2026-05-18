@@ -104,7 +104,7 @@ public class TripsController : BaseController
     [HttpGet("Trips/Edit/{id}")]
     public async Task<IActionResult> Edit(int id)
     {
-        var result = await _tripService.GetForUpdate(id);
+        var result = await _tripService.GetTripForm(id);
         if (!result.IsSuccess)
         {
             return HandleServiceErrors(result.Errors);
@@ -124,10 +124,8 @@ public class TripsController : BaseController
             return RenderTripForm(model, TripFormMode.Edit);
 
         await using var imageStream = imageFile?.OpenReadStream();
-        model.Id = id;
         var command = model.Adapt<TripCommand>();
-
-        var result = await _tripService.Update(command, imageStream);
+        var result = await _tripService.Update(id, command, imageStream);
         if (!result.IsSuccess)
         {
             var validationErrors = result.Errors

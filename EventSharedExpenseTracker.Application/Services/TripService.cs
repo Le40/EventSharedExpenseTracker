@@ -63,7 +63,22 @@ public class TripService : ITripService
 
         bool canEdit = _authorizationService.AuthorisedToEdit(trip, userId);
 
-        var query = TripMapper.ToDetailsQuery(trip, canEdit, userId);
+        var expenses = trip.Expenses
+            .Select(e => {
+                var canEditExpense = _authorizationService.AuthorisedToEdit(e, userId);
+                return ExpenseMapper.ToQuery(e, canEditExpense);
+            })
+            .ToList();
+
+        var query = TripMapper.ToDetailsQuery(trip, canEdit, expenses);
+
+
+
+
+
+        //bool canEdit = _authorizationService.AuthorisedToEdit(trip, userId);
+
+        //var query = TripMapper.ToDetailsQuery(trip, canEdit, userId);
 
         return Result<TripDetailsQuery>.Ok(query);
     }
@@ -94,26 +109,26 @@ public class TripService : ITripService
         return Result<Trip>.Ok(trip);
     }
 
-    public async Task<Result<TripCommand>> GetForUpdate(int id)
+    public async Task<Result<TripQuery>> GetTripForm(int id)
     {
         var userId = _requestContext.UserId;
         var trip = await _unitOfWork.Trips.GetByIdAsync(id);
 
         if (trip == null)
-            return Result<TripCommand>.Fail(AppErrors.NotFound<Trip>());
+            return Result<TripQuery>.Fail(AppErrors.NotFound<Trip>());
 
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
-            return Result<TripCommand>.Fail(AppErrors.Forbidden<Trip>());
+            return Result<TripQuery>.Fail(AppErrors.Forbidden<Trip>());
 
-        var command = trip.Adapt<TripCommand>();
+        var query = trip.Adapt<TripQuery>();
 
-        return Result<TripCommand>.Ok(command);
+        return Result<TripQuery>.Ok(query);
     }
 
-    public async Task<Result<Trip>> Update(TripCommand command, Stream? imageFileStream)
+    public async Task<Result<Trip>> Update(int id, TripCommand command, Stream? imageFileStream)
     {
         int userId = _requestContext.UserId;
-        var existingTrip = await _unitOfWork.Trips.GetByIdAsync(command.Id);
+        var existingTrip = await _unitOfWork.Trips.GetByIdAsync(id);
         if (existingTrip == null)
             return Result<Trip>.Fail(AppErrors.NotFound<Trip>());
 

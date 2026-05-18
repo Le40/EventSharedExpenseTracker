@@ -2,11 +2,6 @@
 {
     public class ExpenseCommand
     {
-
-        public int Id { get; set; }
-        public int TripId { get; set; }
-        public bool CanEdit { get; set; }
-
         public string Name { get; set; } = "";
         public DateTime Date { get; set; }
         public string Category { get; set; } = "";

@@ -51,7 +51,10 @@ public class ExpenseService : IExpenseService
             orderBy: orderBy,
             filters: listOfFilters.ToArray());
 
-        var items = expenses.Select(e => ExpenseMapper.MapToQuery(e, userId)).ToList();
+        var items = expenses.Select(e => {
+            var canEditExpense = _authorizationService.AuthorisedToEdit(e, userId);
+            return ExpenseMapper.ToQuery(e, canEditExpense);
+            }).ToList();
 
         return Result<List<ExpenseQuery>>.Ok(items);
     }
@@ -75,7 +78,7 @@ public class ExpenseService : IExpenseService
         var processedCommand = validationResult.Value!;
 
         //var expense = processedCommand.Adapt<Expense>();
-        var expense = ExpenseMapper.MapToExpense(processedCommand, tripId, userId);
+        var expense = ExpenseMapper.ToExpense(processedCommand, tripId, userId);
 
         _unitOfWork.Expenses.Add(expense);
         await _unitOfWork.CompleteAsync();
@@ -83,27 +86,27 @@ public class ExpenseService : IExpenseService
         return Result<Expense>.Ok(expense);
     }
 
-    public async Task<Result<ExpenseCommand>> GetForUpdate(int id)
+    public async Task<Result<ExpenseQuery>> GetExpenseForm(int id)
     {
         int userId = _requestContext.UserId;
 
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (expense == null)
-            return Result<ExpenseCommand>.Fail(AppErrors.NotFound<Expense>());
+            return Result<ExpenseQuery>.Fail(AppErrors.NotFound<Expense>());
 
         var canEdit = _authorizationService.AuthorisedToEdit(expense, userId);
 
         //var command = expense.Adapt<ExpenseCommand>();
-        var command = ExpenseMapper.MapToCommand(expense, canEdit);
+        var query = ExpenseMapper.ToQuery(expense, canEdit);
 
-        return Result<ExpenseCommand>.Ok(command);
+        return Result<ExpenseQuery>.Ok(query);
     }
 
-    public async Task<Result<Expense>> Update(ExpenseCommand command)
+    public async Task<Result<Expense>> Update(int id, ExpenseCommand command)
     {
         int userId = _requestContext.UserId;
 
-        var existingExpense = await _unitOfWork.Expenses.GetByIdAsync(command.Id);
+        var existingExpense = await _unitOfWork.Expenses.GetByIdAsync(id);
         if (existingExpense == null)
             return Result<Expense>.Fail(AppErrors.NotFound<Expense>());
 

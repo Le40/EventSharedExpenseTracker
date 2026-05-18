@@ -37,17 +37,14 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 TotalPaid = paidPayments.Sum(p => p.Amount)
             };
         }
-        public static ExpenseCommand ToCommand(ExpenseFormViewModel model, int tripId) //, int userId
+        public static ExpenseCommand ToCommand(ExpenseFormViewModel model) //, int userId
         {
             var expenseCommand = new ExpenseCommand
             {
-                Id = model.Id,
-                TripId = tripId, // not needed, also in form cause its from route
                 Name = model.Name,
                 Date = model.Date,
                 Category = model.Category,
                 Description = model.Description
-                //CreatorId = userId
             };
 
             foreach (var participant in model.Participants)
@@ -74,11 +71,17 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                     });
                 }
             }
+
+            //if (tripId > 0)
+            //{
+            //    expenseCommand.TripId = tripId;
+            //}
+
             return expenseCommand;
         }
 
-        public static ExpenseFormViewModel FromCommand(
-            ExpenseCommand command,
+        public static ExpenseFormViewModel FromQuery(
+            ExpenseQuery command,
             IEnumerable<TripParticipantQuery> tripParticipants)
         {
             var paidByParticipant = command.Payments

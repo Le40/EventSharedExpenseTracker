@@ -3,6 +3,7 @@
     public class ExpenseQuery
     {
         public int Id { get; set; }
+        public int TripId { get; set; }
         public bool CanEdit { get; set; }
 
         public string Name { get; set; } = "";
@@ -14,6 +15,8 @@
 
     public class PaymentQuery
     {
+        public int Id { get; set; }
+        public int ParticipantId { get; set; }
         public string ParticipantName { get; set; } = "";
         public decimal Amount { get; set; }
         public bool IsOwed { get; set; }

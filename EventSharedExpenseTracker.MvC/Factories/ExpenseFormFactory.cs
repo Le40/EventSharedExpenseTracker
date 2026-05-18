@@ -61,7 +61,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
 
         public async Task<Result<ExpenseFormViewModel>> BuildEditAsync(int expenseId)
         {
-            var commandResult = await _expenseService.GetForUpdate(expenseId);
+            var commandResult = await _expenseService.GetExpenseForm(expenseId);
             if (!commandResult.IsSuccess)
                 return Result<ExpenseFormViewModel>.Fail(commandResult.Errors);
                 
@@ -74,7 +74,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
 
             var userId = _requestContext.UserId;
 
-            var model = ExpenseVMMapper.FromCommand(command, tripResult.Value!.Participants);
+            var model = ExpenseVMMapper.FromQuery(command, tripResult.Value!.Participants);
 
             return Result<ExpenseFormViewModel>.Ok(model);
         }

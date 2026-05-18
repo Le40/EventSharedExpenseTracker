@@ -9,14 +9,13 @@ namespace EventSharedExpenseTracker.Application.Dtos.Mappers
 {
     public static class ExpenseMapper
     {
-        public static ExpenseQuery MapToQuery(Expense expense, int userId)
+        public static ExpenseQuery ToQuery(Expense expense, bool canEdit)
         { 
-            var canEdit = expense.CreatorId == userId;
-
             var query = new ExpenseQuery
             {
                 Id = expense.Id,
                 CanEdit = canEdit,
+                TripId = expense.TripId,
                 Name = expense.Name,
                 Date = expense.Date,
                 Category = expense.Category,
@@ -26,6 +25,8 @@ namespace EventSharedExpenseTracker.Application.Dtos.Mappers
             {
                 query.Payments.Add(new PaymentQuery
                 {
+                    Id = payment.Id,
+                    ParticipantId = payment.ParticipantId,
                     ParticipantName = payment.Participant!.UserName,
                     Amount = Math.Abs(payment.Ammount),
                     IsOwed = payment.IsOwed,
@@ -35,36 +36,9 @@ namespace EventSharedExpenseTracker.Application.Dtos.Mappers
             return query;
         }
 
-        public static ExpenseCommand MapToCommand(Expense expense, bool canEdit)
+        public static Expense ToExpense(ExpenseCommand command, int tripId, int userId)
         {
-            var command = new ExpenseCommand
-            {
-                Id = expense.Id,
-                CanEdit = canEdit,
-                TripId = expense.TripId,
-
-                Name = expense.Name,
-                Date = expense.Date,
-                Category = expense.Category,
-                Description = expense.Description
-            };
-
-            foreach (var payment in expense.Payments)
-            {
-                command.Payments.Add(new PaymentCommand
-                {
-                    Id = payment.Id,
-                    ParticipantId = payment.ParticipantId,
-                    IsOwed = payment.IsOwed,
-                    IsEquallyShared = payment.IsEquallyShared,
-                    Amount = Math.Abs(payment.Ammount) 
-                });
-            }
-            return command;
-        }
-
-        public static Expense MapToExpense(ExpenseCommand command, int tripId, int userId)
-        {
+            // FOR CREATE ONLY
             var expense = new Expense
             {
                 CreatorId = userId, // resouce.CreatorId is userId from the service layer
@@ -82,6 +56,7 @@ namespace EventSharedExpenseTracker.Application.Dtos.Mappers
 
         public static void ApplyToExpense(Expense expense, ExpenseCommand command)
         {
+            // FOR UPDATE ONLY
             expense.Name = command.Name;
             expense.Date = command.Date;
             expense.Category = command.Category;
