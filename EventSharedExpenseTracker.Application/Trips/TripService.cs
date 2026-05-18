@@ -5,6 +5,7 @@ using EventSharedExpenseTracker.Application.Common.Validation;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using Mapster;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ public class TripService : ITripService
         _validationService = validationService;
     }
 
-    public async Task<Result<List<TripQuery>>> Index(string? sortOrder, string? searchString, string? categoryFilter)
+    public async Task<Result<List<TripQuery>>> Index(string? sortOrder, string? searchString, TripCategory? categoryFilter)
     {
         int userId = _requestContext.UserId;
 

@@ -1,39 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EventSharedExpenseTracker.Domain.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.Domain.Models;
+
+
 
 public class Expense
 {
     public int Id { get; set; }
-
-    [StringLength(25, ErrorMessage = "The {0} must be at most {1} characters long.")]
-    public string Name { get; set; }
-
+    [StringLength(50)]
+    public required string Name { get; set; }
     [DataType(DataType.Date)]
-    //[DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}")]
     public DateTime Date { get; set; } = DateTime.Now;
-
-    [Required(ErrorMessage = "The Category field is required.")]
-    public string Category { get; set; }
-    [StringLength(80, ErrorMessage = "The {0} must be at most {1} characters long.")]
+    [StringLength(25)]
+    public ExpenseCategory Category { get; set; }
+    [StringLength(140)]
     public string? Description { get; set; }
-
     public int? CreatorId { get; set; }
     public CustomUser? Creator { get; set; }
-
     public int TripId { get; set; }
     public Trip? Trip { get; set; }
 
-    public List<Payment> Payments { get; set; } = [];
-
-    public decimal AmountSum { get; set; }
-
-    public static List<string> Categories { get; } =
-    [
-        "FOOD",
-        "TRAVEL",
-        "PROGRAM",
-        "ROOM",
-        "OTHER"
-    ];
+    public ICollection<Payment> Payments { get; } = [];
 }

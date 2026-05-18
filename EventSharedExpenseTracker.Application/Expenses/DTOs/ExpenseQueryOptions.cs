@@ -1,4 +1,6 @@
 ﻿
+using EventSharedExpenseTracker.Domain.Enums;
+
 namespace EventSharedExpenseTracker.Application.Expenses.DTOs
 {
     public class ExpenseQueryOptions
@@ -7,6 +9,6 @@ namespace EventSharedExpenseTracker.Application.Expenses.DTOs
         public string? SearchString { get; set; }
         public string? SortBy { get; set; }
         public bool CreatedByMe { get; set; }
-        public string? Category { get; set; }
+        public ExpenseCategory? Category { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
@@ -27,7 +28,7 @@ public class ExpensesController : BaseController
 
     // EXPENSES : INDEX
     [HttpGet("Trips/{tripId}/Expenses/")]
-    public async Task<IActionResult> Index(int tripId, string? sortOrder, string? searchString, string? categoryFilter, bool creator = false)
+    public async Task<IActionResult> Index(int tripId, string? sortOrder, string? searchString, ExpenseCategory? categoryFilter, bool creator = false)
     {
         var result = await _expenseService.Index(tripId, sortOrder, searchString, creator, categoryFilter);
         if (!result.IsSuccess)

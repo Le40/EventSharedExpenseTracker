@@ -29,7 +29,7 @@ namespace EventSharedExpenseTracker.Application.Expenses
                     Id = payment.Id,
                     ParticipantId = payment.ParticipantId,
                     ParticipantName = payment.Participant!.UserName,
-                    Amount = Math.Abs(payment.Ammount),
+                    Amount = Math.Abs(payment.Amount),
                     IsOwed = payment.IsOwed,
                     IsEquallyShared = payment.IsEquallyShared
                 });
@@ -73,14 +73,14 @@ namespace EventSharedExpenseTracker.Application.Expenses
                 var amount = payment.Amount!.Value;
                 expense.Payments.Add(new Payment
                 {
-                    Ammount = payment.IsOwed ? amount * -1 : amount,
+                    Amount = payment.IsOwed ? amount * -1 : amount,
                     IsOwed = payment.IsOwed,
                     IsEquallyShared = payment.IsEquallyShared,
                     ParticipantId = payment.ParticipantId
                 });
             }
             // possibly not needed, as i need amountSum mainly for show.
-            expense.AmountSum = expense.Payments.Where(p => !p.IsOwed).Sum(p => p.Ammount);
+            //expense.AmountSum = expense.Payments.Where(p => !p.IsOwed).Sum(p => p.Ammount);
         }
 
         private static void ReplacePayments(Expense expense, IEnumerable<PaymentCommand> paymentCommands)

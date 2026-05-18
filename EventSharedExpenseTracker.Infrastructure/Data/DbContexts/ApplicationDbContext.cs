@@ -30,9 +30,9 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
             modelBuilder.Entity<Trip>().Navigation(t => t.Participants).AutoInclude();
             //modelBuilder.Entity<CustomUser>().Navigation(t => t.Friends).AutoInclude();
 
-
+            //// FRIENDSHIPS MANY : MANY
             modelBuilder.Entity<Friendship>()
-                .HasKey(f => new { f.Id });
+                .HasKey(f => f.Id);
 
             modelBuilder.Entity<Friendship>()
                 .HasOne(f => f.User)
@@ -46,22 +46,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
                 .HasForeignKey(f => f.FriendId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-
-            //// FRIENDSHIPS
-            //modelBuilder.Entity<Friendship>()
-            //    .HasOne(f => f.User)
-            //    .WithMany(u => u.Friends)
-            //    .HasForeignKey(f => f.UserId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-            //modelBuilder.Entity<Friendship>()
-            //    .HasOne(f => f.Friend)
-            //    .WithMany() 
-            //    .HasForeignKey(f => f.FriendId)
-            //    .OnDelete(DeleteBehavior.Restrict);
-
-
-            // APPLICATION USER TO CUSTOM USER
+            // APPLICATION USER TO CUSTOM USER 1:1
             modelBuilder.Entity<ApplicationUser>()
                 .HasOne(u => u.CustomUser)
                 .WithOne()
@@ -69,13 +54,14 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.Cascade);
 
-
-            // if Trip.Creator(AppUser) deleted => delete all Trips created by him
+            // TRIP 1:MANY
+            // if Trip.Creator(AppUser) deleted => remove him from trip, set creator to null
+            // there can be more participants in the trip. No participants, handle in code.
             modelBuilder.Entity<Trip>()
                 .HasOne(t => t.Creator)
                 .WithMany(u => u.TripsCreated)
                 .HasForeignKey(t => t.CreatorId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.SetNull);
 
             // then when Trip is deleted => Expenses are deleted
             modelBuilder.Entity<Expense>()
@@ -91,18 +77,27 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
                 .HasForeignKey(p => p.ExpenseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Payment>()
+                .Property(p => p.Amount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<TripParticipant>()
+                .HasOne(p => p.Trip)
+                .WithMany(t => t.Participants)
+                .HasForeignKey(p => p.TripId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Participant)
+                .WithMany(p => p.Payments)
+                .HasForeignKey(p => p.ParticipantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
 
             // if User(AppUser) deleted => SET NULL TripParticipant.User - Becomes Dummy Participant
             modelBuilder.Entity<TripParticipant>()
                 .HasOne(p => p.User)
                 .WithMany(u => u.TripsParticipated)
-                .HasForeignKey(p => p.UserId)
-                .OnDelete(DeleteBehavior.SetNull);
-
-            // if User(AppUser) is deleted => SET NULL Payment.User - As if Dummy Participant
-            modelBuilder.Entity<Payment>()
-                .HasOne(p => p.User)
-                .WithMany(u => u.Payments)
                 .HasForeignKey(p => p.UserId)
                 .OnDelete(DeleteBehavior.SetNull);
 

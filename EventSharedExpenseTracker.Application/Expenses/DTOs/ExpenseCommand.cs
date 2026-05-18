@@ -1,13 +1,16 @@
-﻿namespace EventSharedExpenseTracker.Application.Expenses.DTOs
+﻿using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Models;
+
+namespace EventSharedExpenseTracker.Application.Expenses.DTOs
 {
     public record ExpenseCommand
     {
-        public string Name { get; set; } = "";
+        public required string Name { get; set; }
         public DateTime Date { get; set; }
-        public string Category { get; set; } = "";
+        public ExpenseCategory Category { get; set; }
         public string? Description { get; set; }
 
-        public List<PaymentCommand> Payments { get; set; } = [];
+        public ICollection<PaymentCommand> Payments { get; set; } = [];
     }
 
     public record PaymentCommand

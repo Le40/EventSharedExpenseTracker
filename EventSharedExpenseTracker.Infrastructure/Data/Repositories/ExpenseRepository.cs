@@ -25,12 +25,11 @@ public class ExpenseRepository : IExpenseRepository
         {
             query = query.Where(e =>
             e.Name.Contains(options.SearchString) ||
-            e.Category.Contains(options.SearchString) ||
             e.Description != null && e.Description.Contains(options.SearchString));
         }
 
-        if (!string.IsNullOrWhiteSpace(options.Category))
-            query = query.Where(e => e.Category == options.Category);
+        if (options.Category.HasValue)
+            query = query.Where(e => e.Category == options.Category.Value);
 
         if (options.CreatedByMe)
             query = query.Where(x => x.CreatorId == options.UserId);
@@ -39,8 +38,8 @@ public class ExpenseRepository : IExpenseRepository
         {
             "name" => query.OrderBy(e => e.Name),
             "name_desc" => query.OrderByDescending(e => e.Name),
-            "amount" => query.OrderBy(e => e.Payments.Sum(p => p.Ammount)),
-            "amount_desc" => query.OrderByDescending(e => e.Payments.Sum(p => p.Ammount)),
+            "amount" => query.OrderBy(e => e.Payments.Sum(p => p.Amount)),
+            "amount_desc" => query.OrderByDescending(e => e.Payments.Sum(p => p.Amount)),
             "date" => query.OrderBy(e => e.Date),
             _ => query.OrderByDescending(e => e.Date),
         };

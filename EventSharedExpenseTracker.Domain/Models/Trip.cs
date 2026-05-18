@@ -5,7 +5,7 @@ namespace EventSharedExpenseTracker.Domain.Models;
 public class Trip
 {
     public int Id { get; set; }
-    [StringLength(25, ErrorMessage = "The {0} must be at most {1} characters long.")]
+    [StringLength(25)]
     public required string Name { get; set; }
 
     [DataType(DataType.Date)]
@@ -13,10 +13,10 @@ public class Trip
 
     [DataType(DataType.Date)]
     public DateTime DateTo { get; set; }
-    public required int CreatorId { get; set; }
+    public int? CreatorId { get; set; }
     public CustomUser? Creator { get; set; }
     public string? ImagePath { get; set; }
 
-    public List<TripParticipant> Participants { get; } = new();
-    public List<Expense> Expenses { get; } = new();
+    public ICollection<TripParticipant> Participants { get; } = [];
+    public ICollection<Expense> Expenses { get; } = [];
 }

@@ -1,4 +1,4 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,41 +14,37 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 
         public int Id { get; set; }
         public int TripId { get; set; }
+        [StringLength(25)]
+        [Required(ErrorMessage = "Name is required.")]
+        public string Name { get; set; } = "";
+        [DataType(DataType.Date)]
+        public DateTime Date { get; set; } = DateTime.Now;
+        [Required(ErrorMessage = "The Category field is required.")]
+        public ExpenseCategory? Category { get; set; }
+        [StringLength(80)]
+        public string? Description { get; set; }
+
+        public ICollection<ExpenseFormParticipantViewModel> Participants { get; set; } = [];
+
         // for determining which version of the form to use.
         public ExpenseFormMode Mode { get; set; }
         public string ElementId => Mode == ExpenseFormMode.Create ? UiIds.CreateExpense : UiIds.EditExpense(Id);
         public bool FormIsEdit => Mode == ExpenseFormMode.Edit;
         public bool CanUserEdit { get; set; }
-
-        [StringLength(25, ErrorMessage = "The {0} must be at most {1} characters long.")]
-        public string Name { get; set; }
-
-        [DataType(DataType.Date)]
-        public DateTime Date { get; set; } = DateTime.Now;
-
-        [Required(ErrorMessage = "The Category field is required.")]
-        public string Category { get; set; } = string.Empty;
-
-        [StringLength(80, ErrorMessage = "The {0} must be at most {1} characters long.")]
-        public string? Description { get; set; }
-
-        public List<ExpenseFormParticipantViewModel> Participants { get; set; } = new();
-
-        public List<string> Categories { get; set; } = Expense.Categories;
     }
 
     public class ExpenseFormParticipantViewModel
     {
         public int ParticipantId { get; set; }
-        public string ParticipantName { get; set; } = "";
+        public required string ParticipantName { get; set; }
 
         public int? PaidPaymentId { get; set; }   // only needed for Edit
-        [Range(0.01, 9999, ErrorMessage = "Value must be positive.")]
+        [Range(0.01, 999999, ErrorMessage = "Value must be positive.")]
         public decimal? PaidAmount { get; set; }
 
         public int? OwedPaymentId { get; set; }   // only needed for Edit
         public bool IsOwedSelected { get; set; }
-        [Range(0, 9999, ErrorMessage = "Value must be positive.")]
+        [Range(0, 999999, ErrorMessage = "Value must be positive.")]
         public decimal? OwedAmount { get; set; }
     }
 }

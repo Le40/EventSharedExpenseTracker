@@ -26,8 +26,8 @@ namespace EventSharedExpenseTracker.Application.Trips
                         Id = p.Id,
                         IsDummy = p.UserId == null,
                         UserName = p.UserName,
-                        PaymentSum = p.Payments.Sum(x => x.Ammount),
-                        PaymentCount = p.Payments.Count()
+                        PaymentSum = p.Payments.Sum(x => x.Amount),
+                        PaymentCount = p.Payments.Count
                     })
                     .ToList(),
 

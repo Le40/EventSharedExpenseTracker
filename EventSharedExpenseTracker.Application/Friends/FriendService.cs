@@ -26,18 +26,17 @@ public class FriendService : IFriendService
         if (user == null)
             return AppErrors.NotFound<CustomUser>();
 
-        return user.Friends;
+        return (Result<List<Friendship>>)user.Friends;
     }
 
     public async Task<Result<List<CustomUser>>> Search(string? searchString)
     {
         int userId = _requestContext.UserId;
-        var user = await _unitOfWork.Users.GetUserWithFriends(userId);
+        //var user = await _unitOfWork.Users.GetUserWithFriends(userId);
 
         var options = new FriendshipQueryOptions
         {
             SearchString = searchString,
-            Category = ""
         };
 
         var users = await _unitOfWork.Users.GetAllAsync(userId, options);

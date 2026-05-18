@@ -44,7 +44,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
             {
                 Name = model.Name,
                 Date = model.Date,
-                Category = model.Category,
+                Category = model.Category.Value,
                 Description = model.Description
             };
 

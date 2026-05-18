@@ -2,6 +2,7 @@
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
@@ -28,7 +29,7 @@ public class TripsController : BaseController
     // INDEX
     [HttpGet("Trips/")]
     [HttpGet("/")]
-    public async Task<IActionResult> Index(string? sortOrder, string? searchString, string? categoryFilter)
+    public async Task<IActionResult> Index(string? sortOrder, string? searchString, TripCategory? categoryFilter)
     {
         ViewBag.DateSortParam = sortOrder == "date" ? "date_desc" : "date";
         ViewBag.SearchString = searchString;
@@ -51,8 +52,6 @@ public class TripsController : BaseController
     [HttpGet("Trips/Details/{id}")]
     public async Task<IActionResult> Details([FromRoute] int id)
     {
-        var userId = _requestContext.UserId;
-
         var result = await _tripService.Details(id);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
@@ -60,7 +59,6 @@ public class TripsController : BaseController
         var tripDetailsQuery = result.Value!;
 
         var model = TripDetailsMapper.FromQuery(tripDetailsQuery);
-        //model.ExpenseIndex.TripId = id;
       
         return View(model);
     }

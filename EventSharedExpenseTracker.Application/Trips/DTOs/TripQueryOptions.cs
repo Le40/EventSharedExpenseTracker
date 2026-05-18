@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using EventSharedExpenseTracker.Domain.Enums;
 
 namespace EventSharedExpenseTracker.Application.Trips.DTOs
 {
@@ -10,6 +6,6 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
     {
         public string? SearchString { get; set; }
         public string? SortBy { get; set; }
-        public string? Category { get; set; }
+        public TripCategory? Category { get; set; }
     }
 }

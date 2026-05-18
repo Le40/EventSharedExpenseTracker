@@ -24,19 +24,19 @@ public class TripRepository : ITripRepository
 
         if (!string.IsNullOrWhiteSpace(options.SearchString))
         {
-            query = query.Where(e =>
-            e.Name.Contains(options.SearchString));
+            query = query.Where(t =>
+            t.Name.Contains(options.SearchString));
         }
 
-        //if (!string.IsNullOrWhiteSpace(options.Category))
-        //    query = query.Where(e => e.Category == options.Category);
+        //if (options.Category.HasValue)
+        //   query = query.Where(t => t.Category == options.Category.Value);
 
         query = options.SortBy switch
         {
-            "name" => query.OrderBy(e => e.Name),
-            "name_desc" => query.OrderByDescending(e => e.Name),
-            "date" => query.OrderBy(e => e.DateFrom),
-            _ => query.OrderByDescending(e => e.DateFrom),
+            "name" => query.OrderBy(t => t.Name),
+            "name_desc" => query.OrderByDescending(t => t.Name),
+            "date" => query.OrderBy(t => t.DateFrom),
+            _ => query.OrderByDescending(t => t.DateFrom),
         };
 
         return await query.AsNoTracking().ToListAsync();

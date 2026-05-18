@@ -4,7 +4,7 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
 {
     public record TripCommand
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [DataType(DataType.Date)]
         public DateTime DateFrom { get; set; }
 

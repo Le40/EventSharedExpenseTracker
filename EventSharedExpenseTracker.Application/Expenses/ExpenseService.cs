@@ -5,6 +5,7 @@ using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Validation;
 using EventSharedExpenseTracker.Application.Common.Authorisation;
+using EventSharedExpenseTracker.Domain.Enums;
 
 namespace EventSharedExpenseTracker.Application.Expenses;
 
@@ -23,7 +24,7 @@ public class ExpenseService : IExpenseService
         _validationService = validationService;
     }
 
-    public async Task<Result<List<ExpenseQuery>>> Index(int tripId, string? sortOrder, string? searchString, bool creator, string? categoryFilter)
+    public async Task<Result<List<ExpenseQuery>>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
     {
         int userId = _requestContext.UserId;
 

@@ -1,12 +1,13 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 
 namespace EventSharedExpenseTracker.Application.Trips;
 
 public interface ITripService
 {
-    Task<Result<List<TripQuery>>> Index(string sortOrder, string searchString, string categoryFilter);
+    Task<Result<List<TripQuery>>> Index(string? sortOrder, string? searchString, TripCategory? categoryFilter);
     Task<Result<TripDetailsQuery>> Details(int id);
     Task<Result<Trip>> Add(TripCommand command, Stream? imageFileStream);
     Task<Result<TripQuery>> GetTripForm(int id);

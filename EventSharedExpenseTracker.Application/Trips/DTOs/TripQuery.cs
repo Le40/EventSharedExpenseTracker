@@ -5,7 +5,7 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
     public record TripQuery
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public required string Name { get; set; }
         [DataType(DataType.Date)]
         public DateTime DateFrom { get; set; }
 
@@ -13,6 +13,6 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         public DateTime DateTo { get; set; }
         public string? ImagePath { get; set; }
 
-        public List<string> ParticipantNames { get; set; } = [];
+        public ICollection<string> ParticipantNames { get; set; } = [];
     }
 }

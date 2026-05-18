@@ -2,6 +2,7 @@
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Application.Trips;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
@@ -44,7 +45,6 @@ namespace EventSharedExpenseTracker.MvC.Factories
                 //CreatorId = userId,
                 CanUserEdit = true,
                 TripId = tripId,
-                Categories = Expense.Categories,
 
                 Participants = orderedParticipants.Select(p =>
                     new ExpenseFormParticipantViewModel
@@ -73,7 +73,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
             if (!tripResult.IsSuccess)
                 return Result<ExpenseFormViewModel>.Fail(tripResult.Errors);
 
-            var userId = _requestContext.UserId;
+            //var userId = _requestContext.UserId;
 
             var model = ExpenseVMMapper.FromQuery(query, tripResult.Value!);
 

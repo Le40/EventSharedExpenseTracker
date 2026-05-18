@@ -10,5 +10,5 @@ public class TripParticipant
     public int TripId { get; set; }
     public Trip? Trip { get; set; }
 
-    public List<Payment> Payments { get; set; } = [];
+    public ICollection<Payment> Payments { get; } = [];
 }

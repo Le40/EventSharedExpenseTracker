@@ -1,5 +1,5 @@
 ﻿using EventSharedExpenseTracker.MvC.Common;
-using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
+using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
 {
@@ -19,10 +19,11 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
     public class TripIndexItemViewModel
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        [Required(ErrorMessage = "Name is required.")]
+        public required string Name { get; set; }
         public DateTime DateFrom { get; set; }
         public DateTime DateTo { get; set; }
         public string? ImagePath { get; set; }
-        public List<string> ParticipantNames { get; set; } = [];
+        public IEnumerable<string> ParticipantNames { get; set; } = [];
     }
 }

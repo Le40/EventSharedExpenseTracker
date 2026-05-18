@@ -26,9 +26,6 @@ public class UserRepository : IUserRepository
             u.CustomUserName.Contains(options.SearchString));
         }
 
-        //if (!string.IsNullOrWhiteSpace(options.Category))
-        //    query = query.Where(e => e.Category == options.Category);
-
         return await query.AsNoTracking().ToListAsync();
     }
 
