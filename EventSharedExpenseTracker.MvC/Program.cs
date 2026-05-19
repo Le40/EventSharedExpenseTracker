@@ -8,6 +8,11 @@ using EventSharedExpenseTracker.MvC.Services;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+builder.Logging.SetMinimumLevel(LogLevel.Information);
+
 // AZURE KEY VAULT
 /*var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
 if (builder.Environment.IsProduction())
@@ -34,7 +39,6 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-//builder.Services.AddScoped<CustomValidationActionFilter>();
 builder.Services.AddScoped<IRequestContext, RequestContextService>();
 builder.Services.AddScoped<ExpenseFormFactory>();
 
@@ -65,3 +69,4 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+

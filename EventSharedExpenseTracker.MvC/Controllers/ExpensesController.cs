@@ -16,13 +16,11 @@ namespace EventSharedExpenseTracker.MvC.Controllers;
 public class ExpensesController : BaseController
 {
     private readonly IExpenseService _expenseService;
-    private readonly IRequestContext _requestContext;
     private readonly ExpenseFormFactory _expenseFormFactory;
 
-    public ExpensesController(IExpenseService expenseService,  IRequestContext requestContext, ExpenseFormFactory expenseFormFactory)
+    public ExpensesController(IExpenseService expenseService, ExpenseFormFactory expenseFormFactory)
     {
         _expenseService = expenseService;
-        _requestContext = requestContext;
         _expenseFormFactory = expenseFormFactory;
     }
 

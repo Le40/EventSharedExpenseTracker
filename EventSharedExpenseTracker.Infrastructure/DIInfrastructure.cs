@@ -39,15 +39,7 @@ public static class DIInfrastructure
         services.AddScoped<IImageService, ImageService>();
 
         // EMAIL SENDER
-        //services.AddTransient<IEmailSender, EmailSender>();
-        //services.Configure<ResendClientOptions>(options =>
-        //{
-        //   options.ApiToken = configuration["ResendKey"];
-        //});
-
-        //services.AddHttpClient<ResendClient>(); // inject HttpClient
-        //services.AddTransient<IEmailSender, EmailSender>();
-        //services.Configure<AuthMessageSenderOptions>(configuration);
+        //services.AddHttpClient<IEmailSender, BrevoEmailSender>();
 
         // REPOSITORIES
         services.AddScoped<IUnitOfWork, UnitOfWork>();
