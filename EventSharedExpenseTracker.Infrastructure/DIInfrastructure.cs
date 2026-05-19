@@ -8,24 +8,21 @@ using EventSharedExpenseTracker.Infrastructure.Identity;
 using EventSharedExpenseTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
+using Microsoft.Extensions.Hosting;
 
 namespace EventSharedExpenseTracker.Infrastructure;
 
 public static class DIInfrastructure
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
     {
         //// DB
-        //var connectionString = configuration.GetConnectionString("LocalConnection") ?? throw new InvalidOperationException("Connection string 'LocalConnection' not found.");
-        /*if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Development")
-            connectionString = configuration.GetConnectionString("AzureConnection") ?? throw new InvalidOperationException("Connection string 'AzureConnection' not found.");
-        //var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));*/
-
-        var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+        if (!environment.IsEnvironment("Testing"))
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(connectionString));
+        }
 
         // IDENTITY
         services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)

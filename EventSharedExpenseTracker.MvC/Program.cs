@@ -37,7 +37,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 
 builder.Services.AddScoped<IRequestContext, RequestContextService>();
 builder.Services.AddScoped<ExpenseFormFactory>();
@@ -69,4 +69,6 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+public partial class Program { }
 
