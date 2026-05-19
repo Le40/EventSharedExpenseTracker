@@ -7,7 +7,6 @@ using EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 using EventSharedExpenseTracker.Infrastructure.Identity;
 using EventSharedExpenseTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
-using Resend;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 
 namespace EventSharedExpenseTracker.Infrastructure;
