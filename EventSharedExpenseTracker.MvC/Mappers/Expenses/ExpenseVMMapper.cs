@@ -73,11 +73,6 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 }
             }
 
-            //if (tripId > 0)
-            //{
-            //    expenseCommand.TripId = tripId;
-            //}
-
             return expenseCommand;
         }
 
@@ -114,7 +109,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                     new ExpenseFormParticipantViewModel
                     {
                         ParticipantId = participant.Id,
-                        ParticipantName = participant.UserName,
+                        ParticipantName = participant.DisplayName,
 
                         PaidPaymentId = paid?.Id,
                         PaidAmount = paid?.Amount,

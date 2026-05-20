@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
+﻿using EventSharedExpenseTracker.Application.Common;
+using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -28,7 +29,7 @@ namespace EventSharedExpenseTracker.Application.Expenses
                 {
                     Id = payment.Id,
                     ParticipantId = payment.ParticipantId,
-                    ParticipantName = payment.Participant!.UserName,
+                    ParticipantName = TripParticipantMapper.GetDisplayName(payment.Participant),
                     Amount = Math.Abs(payment.Amount),
                     IsOwed = payment.IsOwed,
                     IsEquallyShared = payment.IsEquallyShared

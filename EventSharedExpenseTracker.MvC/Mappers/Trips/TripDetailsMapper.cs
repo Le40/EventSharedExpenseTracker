@@ -28,7 +28,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                         {
                             Id = p.Id,
                             IsDummy = p.IsDummy,
-                            UserName = p.UserName,
+                            UserName = p.DisplayName,
                             PaymentSum = p.PaymentSum,
                             PaymentCount = p.PaymentCount
                         })

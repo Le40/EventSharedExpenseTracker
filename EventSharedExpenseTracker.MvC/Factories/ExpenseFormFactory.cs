@@ -36,8 +36,8 @@ namespace EventSharedExpenseTracker.MvC.Factories
             string userName = _requestContext.UserName;
 
             var orderedParticipants = tripResult.Value!
-                .OrderBy(p => p.UserName == userName ? 0 : 1)
-                .ThenBy(p => p.UserName)
+                .OrderBy(p => p.DisplayName == userName ? 0 : 1)
+                .ThenBy(p => p.DisplayName)
                 .ToList();
 
             var model = new ExpenseFormViewModel
@@ -50,7 +50,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
                     new ExpenseFormParticipantViewModel
                     {
                         ParticipantId = p.Id,
-                        ParticipantName = p.UserName,
+                        ParticipantName = p.DisplayName,
                         PaidAmount = null,
                         IsOwedSelected = false,
                         OwedAmount = null

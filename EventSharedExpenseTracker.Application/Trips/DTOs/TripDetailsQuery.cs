@@ -23,7 +23,7 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
     public record TripQueryParticipant
     {
         public int Id { get; set; }
-        public required string UserName { get; set; }
+        public required string DisplayName { get; set; }
     }
 
     public record TripDetailsQueryarticipant : TripQueryParticipant

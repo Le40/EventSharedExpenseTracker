@@ -27,6 +27,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
             modelBuilder.Entity<Expense>().Navigation(e => e.Payments).AutoInclude();
             //modelBuilder.Entity<Expense>().Navigation(e => e.Creator).AutoInclude();
             modelBuilder.Entity<Payment>().Navigation(p => p.Participant).AutoInclude();
+            modelBuilder.Entity<TripParticipant>().Navigation(u => u.User).AutoInclude();
             modelBuilder.Entity<Trip>().Navigation(t => t.Participants).AutoInclude();
             //modelBuilder.Entity<CustomUser>().Navigation(t => t.Friends).AutoInclude();
 
