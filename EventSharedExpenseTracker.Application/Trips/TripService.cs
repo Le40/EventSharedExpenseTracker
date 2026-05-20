@@ -147,7 +147,10 @@ public class TripService : ITripService
         if (!validationResult.IsSuccess)
             return Result<Trip>.Fail(validationResult.Errors);
 
+        // saving old image path, cause adapt rewrites it with null if it hasnt changed.
+        var oldImagePath = existingTrip.ImagePath;
         command.Adapt(existingTrip);
+        existingTrip.ImagePath = oldImagePath;
 
         if (imageFileStream != null)
             existingTrip.ImagePath = await _imageService.SaveImageAsync(imageFileStream, existingTrip.ImagePath ?? string.Empty);

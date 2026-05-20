@@ -28,7 +28,6 @@ if (builder.Environment.IsProduction())
     }
 }
 
-
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllersWithViews();
 
@@ -64,31 +63,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Trip}/{action=Index}/{id?}");
 app.MapRazorPages();
-
-
-// EXCEPTION HANDLING
-app.UseExceptionHandler(errorApp =>
-{
-    errorApp.Run(async context =>
-    {
-        var logger = context.RequestServices
-            .GetRequiredService<ILogger<Program>>();
-
-        var exceptionFeature = context.Features
-            .Get<IExceptionHandlerFeature>();
-
-        if (exceptionFeature != null)
-        {
-            logger.LogError(
-                exceptionFeature.Error,
-                "Unhandled exception occurred");
-        }
-
-        context.Response.StatusCode = 500;
-
-        await context.Response.WriteAsync("An error occurred.");
-    });
-});
 
 app.Run();
 
