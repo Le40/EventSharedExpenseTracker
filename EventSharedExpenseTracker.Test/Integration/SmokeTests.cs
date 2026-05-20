@@ -1,22 +1,17 @@
 ﻿using EventSharedExpenseTracker.Tests;
 using FluentAssertions;
+using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
 
 namespace EventSharedExpenseTracker.Tests.Integration;
 
-public class SmokeTests : IClassFixture<CustomWebApplicationFactory>
+public class SmokeTests
 {
-    private readonly HttpClient _client;
-
-    public SmokeTests(CustomWebApplicationFactory factory)
-    {
-        _client = factory.CreateClient();
-    }
-
     [Fact]
     public async Task HomePage_ReturnsSuccess()
     {
-        var response = await _client.GetAsync("/");
+        var client = new CustomWebApplicationFactory(false).CreateClient();
+        var response = await client.GetAsync("/");
 
         response.IsSuccessStatusCode.Should().BeTrue();
     }
@@ -24,7 +19,15 @@ public class SmokeTests : IClassFixture<CustomWebApplicationFactory>
     [Fact]
     public async Task Get_CreateTrip_WhenUnauthenticated_RedirectsToLogin()
     {
-        var response = await _client.GetAsync("/Trips/Create");
+        await using var factory = new CustomWebApplicationFactory(false);
+
+        var client = factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false
+        });
+
+        var response = await client.GetAsync("/Trips/Create");
+
         response.StatusCode.Should().Be(HttpStatusCode.Redirect);
         response.Headers.Location.Should().NotBeNull();
         response.Headers.Location!.ToString()

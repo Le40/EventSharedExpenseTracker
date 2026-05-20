@@ -1,12 +1,13 @@
 ﻿using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Authentication;
 
 namespace EventSharedExpenseTracker.Tests;
 
@@ -62,6 +63,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 {
                     options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName;
                     options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
+                });
+                services.PostConfigure<MvcOptions>(options =>
+                {
+                    options.Filters.Add(new IgnoreAntiforgeryTokenAttribute());
                 });
             }
             

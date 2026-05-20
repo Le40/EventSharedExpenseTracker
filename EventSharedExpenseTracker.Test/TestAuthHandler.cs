@@ -23,8 +23,8 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, "1"),
-            new Claim(ClaimTypes.Name, "testuser@test.com"),
-            new Claim(ClaimTypes.Email, "testuser@test.com")
+            new Claim("CustomUserId", "1"),
+            new Claim("CustomUserName", "testuser")
         };
 
         var identity = new ClaimsIdentity(claims, SchemeName);
