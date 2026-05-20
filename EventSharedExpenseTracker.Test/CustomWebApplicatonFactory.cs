@@ -64,12 +64,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     options.DefaultAuthenticateScheme = TestAuthHandler.SchemeName;
                     options.DefaultChallengeScheme = TestAuthHandler.SchemeName;
                 });
-                services.PostConfigure<MvcOptions>(options =>
-                {
-                    options.Filters.Add(new IgnoreAntiforgeryTokenAttribute());
-                });
             }
-            
+
+            services.AddControllersWithViews(options =>
+            {
+                options.Filters.Add(new IgnoreAntiforgeryTokenAttribute());
+            });
         });
     }
     protected override void Dispose(bool disposing)

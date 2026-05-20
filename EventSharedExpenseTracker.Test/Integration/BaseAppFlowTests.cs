@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
+﻿using Azure;
+using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -29,7 +30,7 @@ public class BaseAppFlowTests : IDisposable
     [Fact]
     public async Task Trip_Index_Works()
     {
-        var response = await _client.GetAsync("/Trips");
+        var response = await _client.GetAsync("/Trips", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -37,7 +38,7 @@ public class BaseAppFlowTests : IDisposable
     [Fact]
     public async Task Trip_Create_Get_Works()
     {
-        var response = await _client.GetAsync("/Trips/Create");
+        var response = await _client.GetAsync("/Trips/Create", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -47,7 +48,7 @@ public class BaseAppFlowTests : IDisposable
     {
         var tripId = await SeedTripAsync();
 
-        var response = await _client.GetAsync($"/Trips/Details/{tripId}");
+        var response = await _client.GetAsync($"/Trips/Details/{tripId}", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -57,7 +58,7 @@ public class BaseAppFlowTests : IDisposable
     {
         var tripId = await SeedTripAsync();
 
-        var response = await _client.GetAsync($"/Trips/Edit/{tripId}");
+        var response = await _client.GetAsync($"/Trips/Edit/{tripId}", TestContext.Current.CancellationToken);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -85,7 +86,7 @@ public class BaseAppFlowTests : IDisposable
             ["Participants[1].IsOwedSelected"] = "true",
             ["Participants[1].OwedAmount"] = "10"
         });
-
+        await PrintResponseAsync("CREATE", createResponse);
         createResponse.StatusCode.Should().BeOneOf(
             HttpStatusCode.Redirect,
             HttpStatusCode.OK);
@@ -111,7 +112,7 @@ public class BaseAppFlowTests : IDisposable
             ["Participants[1].IsOwedSelected"] = "true",
             ["Participants[1].OwedAmount"] = "15"
         });
-
+        await PrintResponseAsync("UPDATE", updateResponse);
         updateResponse.StatusCode.Should().BeOneOf(
             HttpStatusCode.Redirect,
             HttpStatusCode.OK);
@@ -182,12 +183,12 @@ public class BaseAppFlowTests : IDisposable
         {
             Id = 1,
             UserId = 1,
-            UserName = "testuser"
+            DisplayName = "testuser"
         });
         trip.Participants.Add(new TripParticipant
         {
             Id = 2,
-            UserName = "dummy"
+            DisplayName = "dummy"
         });
 
         db.Trips.Add(trip);
@@ -230,7 +231,7 @@ public class BaseAppFlowTests : IDisposable
         trip.Participants.Add(new TripParticipant
         {
             UserId = 1,
-            UserName = "testuser"
+            DisplayName  = "testuser"
         });
 
         db.Trips.Add(trip);

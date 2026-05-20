@@ -4,17 +4,14 @@ using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
-using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static EventSharedExpenseTracker.MvC.ViewModels.Expenses.ExpenseFormViewModel;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
 [Authorize]
-[AutoValidateAntiforgeryToken]
 public class TripsController : BaseController
 {
     private readonly ITripService _tripService;
