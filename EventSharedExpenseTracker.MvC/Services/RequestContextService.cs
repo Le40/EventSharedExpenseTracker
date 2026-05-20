@@ -12,11 +12,14 @@ public class RequestContextService : IRequestContext
         _httpContext = accessor.HttpContext ?? throw new ArgumentNullException(nameof(accessor));
     }
 
-    public string? UserName => _httpContext.User.FindFirstValue("CustomUserName");
+    public string UserName => 
+        _httpContext.User.FindFirstValue("CustomUserName")
+        ?? throw new UnauthorizedAccessException("Missing CustomUserName claim.");
+
     public int UserId =>
     int.TryParse(_httpContext.User.FindFirstValue("CustomUserId"), out int userId)
         ? userId
-        : -1;
+        : throw new UnauthorizedAccessException();
 
     public ClaimsPrincipal User => _httpContext.User;
 }

@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
+﻿using EventSharedExpenseTracker.Application.Common;
+using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
 
@@ -25,7 +26,7 @@ namespace EventSharedExpenseTracker.Application.Trips
                     {
                         Id = p.Id,
                         IsDummy = p.UserId == null,
-                        UserName = p.UserName,
+                        DisplayName = TripParticipantMapper.GetDisplayName(p),
                         PaymentSum = p.Payments.Sum(x => x.Amount),
                         PaymentCount = p.Payments.Count
                     })
@@ -45,7 +46,7 @@ namespace EventSharedExpenseTracker.Application.Trips
                 DateTo = trip.DateTo,
                 ImagePath = trip.ImagePath,
                 ParticipantNames = trip.Participants
-                    .Select(p => p.UserName)
+                    .Select(p => TripParticipantMapper.GetDisplayName(p))
                     .ToList()
             };
         }

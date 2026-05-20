@@ -95,7 +95,7 @@ public class TripService : ITripService
         var participant = new TripParticipant()
         {
             UserId = _requestContext.UserId,
-            UserName = _requestContext.UserName
+            DisplayName = _requestContext.UserName
         };
 
         trip.Participants.Add(participant);
@@ -243,7 +243,7 @@ public class TripService : ITripService
         {
             UserId = friend.Id,
             TripId = trip.Id,
-            UserName = friend.CustomUserName
+            DisplayName = friend.CustomUserName
         };
 
         trip.Participants.Add(participant);
@@ -271,13 +271,13 @@ public class TripService : ITripService
             return AppErrors.Forbidden<Trip>();
         }
 
-        if (trip.Participants.Any(p => p.UserName == participantName))
+        if (trip.Participants.Any(p => p.DisplayName == participantName))
             return AppErrors.Conflict<TripParticipant>();
 
         var participant = new TripParticipant()
         {
             TripId = trip.Id,
-            UserName = participantName
+            DisplayName = participantName
         };
 
         trip.Participants.Add(participant);
