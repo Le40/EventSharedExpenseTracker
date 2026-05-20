@@ -8,10 +8,6 @@
 
 <div class="col-lg-7 md-6 sm-5">
     <form asp-action="@Model.Mode.ToString()">
-        <input type="hidden" asp-for="Id" /> @*Needed because in edit i need to send id in the model to POST*@
-        @*<input type="hidden" asp-for="CreatorId" />*@
-        <input type="hidden" asp-for="CanUserEdit" />
-        <input type="hidden" asp-for="TripId" />
 
         <div class="form-group mb-1">
             <input asp-for="Name" class="form-control" placeholder="Expense Name" />
