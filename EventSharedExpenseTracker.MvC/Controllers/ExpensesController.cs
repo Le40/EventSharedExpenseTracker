@@ -15,6 +15,7 @@ namespace EventSharedExpenseTracker.MvC.Controllers;
 [AutoValidateAntiforgeryToken]
 public class ExpensesController : BaseController
 {
+    private readonly ILogger<ExpenseService> _logger;
     private readonly IExpenseService _expenseService;
     private readonly ExpenseFormFactory _expenseFormFactory;
 

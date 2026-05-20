@@ -1,23 +1,25 @@
 ﻿using EventSharedExpenseTracker.Domain.Models;
-using Mapster;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Validation;
 using EventSharedExpenseTracker.Application.Common.Authorisation;
 using EventSharedExpenseTracker.Domain.Enums;
+using Microsoft.Extensions.Logging;
 
 namespace EventSharedExpenseTracker.Application.Expenses;
 
 public class ExpenseService : IExpenseService
 {
+    private readonly ILogger<ExpenseService> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthorisationService _authorizationService;
     private readonly IRequestContext _requestContext;
     private readonly IValidationService _validationService;
 
-    public ExpenseService(IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext, IValidationService validationService)
+    public ExpenseService(IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext, IValidationService validationService, ILogger<ExpenseService> logger)
     {
+        _logger = logger;
         _unitOfWork = unitOfWork;
         _authorizationService = authorisationService;
         _requestContext = requestContext;
@@ -33,7 +35,11 @@ public class ExpenseService : IExpenseService
             return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId}",
+            userId, trip.Id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         var options = new ExpenseQueryOptions
         {
@@ -62,8 +68,12 @@ public class ExpenseService : IExpenseService
         if (trip == null)
             return AppErrors.NotFound<Trip>();
 
-        if (!_authorizationService.AuthorisedToView(trip, userId))
+        if (!_authorizationService.AuthorisedToView(trip, userId)) 
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId} to CREATE new expense.",
+            userId, trip.Id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         var validationResult = _validationService.ProcessForSaving(command);
 
@@ -77,6 +87,11 @@ public class ExpenseService : IExpenseService
 
         _unitOfWork.Expenses.Add(expense);
         await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation("Expense {ExpenseId} created for trip {TripId} by user {UserId}",
+            expense.Id,
+            expense.TripId,
+            userId);
 
         return expense;
     }
@@ -106,7 +121,11 @@ public class ExpenseService : IExpenseService
             return AppErrors.NotFound<Expense>();
 
         if (!_authorizationService.AuthorisedToEdit(existingExpense, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE of expense {ExpenseId}",
+            userId, existingExpense.Id);
             return AppErrors.Forbidden<Expense>();
+        }
 
         var validationResult = _validationService.ProcessForSaving(command);
 
@@ -121,6 +140,10 @@ public class ExpenseService : IExpenseService
         //_unitOfWork.Expenses.Update(existingExpense);
         await _unitOfWork.CompleteAsync();
 
+        _logger.LogInformation("Expense {ExpenseId} updated by user {UserId}",
+            existingExpense.Id,
+            userId);
+
         return existingExpense;
     }
 
@@ -133,10 +156,18 @@ public class ExpenseService : IExpenseService
             return AppErrors.NotFound<Expense>();
 
         if (!_authorizationService.AuthorisedToEdit(expense, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized DELETE of expense {ExpenseId}",
+            userId, id);
             return AppErrors.Forbidden<Expense>();
+        }
 
         _unitOfWork.Expenses.Delete(expense);
         await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation("Expense {ExpenseId} deleted by user {UserId}",
+            id,
+            userId);
 
         return Result.Ok();
     }
