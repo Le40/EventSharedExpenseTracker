@@ -5,7 +5,7 @@ using EventSharedExpenseTracker.Extensions;
 using EventSharedExpenseTracker.Infrastructure;
 using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Services;
-using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -29,10 +29,13 @@ if (builder.Environment.IsProduction())
 }
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 
 builder.Services.AddApplication();
-builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration, builder.Environment);
 
 builder.Services.AddScoped<IRequestContext, RequestContextService>();
 builder.Services.AddScoped<ExpenseFormFactory>();
@@ -65,4 +68,6 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+public partial class Program { }
 

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSharedExpenseTracker.I
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSharedExpenseTracker.MvC", "EventSharedExpenseTracker.MvC\EventSharedExpenseTracker.MvC.csproj", "{79036011-C958-4023-9D0E-8DC7FEAC7699}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSharedExpenseTracker.Tests", "EventSharedExpenseTracker.Test\EventSharedExpenseTracker.Tests.csproj", "{39961556-BCCA-42EA-9DC8-D5693AC9C62A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{79036011-C958-4023-9D0E-8DC7FEAC7699}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79036011-C958-4023-9D0E-8DC7FEAC7699}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79036011-C958-4023-9D0E-8DC7FEAC7699}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39961556-BCCA-42EA-9DC8-D5693AC9C62A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39961556-BCCA-42EA-9DC8-D5693AC9C62A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39961556-BCCA-42EA-9DC8-D5693AC9C62A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39961556-BCCA-42EA-9DC8-D5693AC9C62A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,6 +50,7 @@ Global
 		{9236A013-537E-4A93-AE43-B24A688C8CEB} = {E9877A47-F629-4802-851C-B28EC5EB813D}
 		{6C0951AE-BA4F-448F-9966-205CFFC3766B} = {E9877A47-F629-4802-851C-B28EC5EB813D}
 		{79036011-C958-4023-9D0E-8DC7FEAC7699} = {E9877A47-F629-4802-851C-B28EC5EB813D}
+		{39961556-BCCA-42EA-9DC8-D5693AC9C62A} = {E9877A47-F629-4802-851C-B28EC5EB813D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {04B7D911-260F-4807-9B04-73E9F259F768}

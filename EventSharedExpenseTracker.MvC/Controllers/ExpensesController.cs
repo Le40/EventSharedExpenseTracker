@@ -1,5 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Common.Results;
+﻿using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Factories;
@@ -12,7 +11,6 @@ using static EventSharedExpenseTracker.MvC.ViewModels.Expenses.ExpenseFormViewMo
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
 [Authorize]
-[AutoValidateAntiforgeryToken]
 public class ExpensesController : BaseController
 {
     private readonly ILogger<ExpenseService> _logger;

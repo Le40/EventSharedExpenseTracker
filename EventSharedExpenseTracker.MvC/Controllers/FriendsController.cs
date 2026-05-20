@@ -5,7 +5,6 @@ using EventSharedExpenseTracker.Application.Friends;
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
 [Authorize]
-[AutoValidateAntiforgeryToken]
 public class FriendsController : BaseController
 {
     private readonly IFriendService _friendService;
