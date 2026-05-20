@@ -1,20 +1,22 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Application.Common.Results;
+﻿using EventSharedExpenseTracker.Application.Common.Authorisation;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Common.Authorisation;
+using EventSharedExpenseTracker.Application.Common.Results;
+using EventSharedExpenseTracker.Application.Expenses;
+using EventSharedExpenseTracker.Domain.Models;
+using Microsoft.Extensions.Logging;
 
 namespace EventSharedExpenseTracker.Application.Friends;
 
 public class FriendService : IFriendService
 {
+    private readonly ILogger<FriendService> _logger;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IAuthorisationService _authorizationService;
     private readonly IRequestContext _requestContext;
 
-    public FriendService(IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext)
+    public FriendService(ILogger<FriendService> logger, IUnitOfWork unitOfWork, IRequestContext requestContext)
     {
+        _logger = logger;
         _unitOfWork = unitOfWork;
-        _authorizationService = authorisationService;
         _requestContext = requestContext;
     }
 
@@ -64,6 +66,11 @@ public class FriendService : IFriendService
         _unitOfWork.Friendships.Create(friendship);
         await _unitOfWork.CompleteAsync();
 
+        _logger.LogInformation("Invite {InviteId} created for user {FriendId} by user {UserId}",
+            friendship.Id,
+            friend,
+            userId);
+
         return friendship;
     }
 
@@ -88,6 +95,11 @@ public class FriendService : IFriendService
 
         await _unitOfWork.CompleteAsync();
 
+        _logger.LogInformation("Invite {InviteId} accepted for user {FriendId} by user {UserId}",
+            friendship.Id,
+            friendship.FriendId,
+            userId);
+
         return friendshipBack;
     }
 
@@ -102,6 +114,11 @@ public class FriendService : IFriendService
         _unitOfWork.Friendships.Delete(friendship);
         await _unitOfWork.CompleteAsync();
 
+        _logger.LogInformation("Invite {InviteId} declined for user {FriendId} by user {UserId}",
+            friendship.Id,
+            friendship.FriendId,
+            userId);
+
         return Result.Ok();
     }
 
@@ -115,6 +132,11 @@ public class FriendService : IFriendService
 
         _unitOfWork.Friendships.Delete(friendship);
         await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation("Invite {InviteId} deleted for user {FriendId} by user {UserId}",
+            friendship.Id,
+            friendship.FriendId,
+            userId);
 
         return Result.Ok();
     }

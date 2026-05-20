@@ -1,25 +1,21 @@
 using Azure.Identity;
 using EventSharedExpenseTracker.Application;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Extensions;
 using EventSharedExpenseTracker.Infrastructure;
 using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Services;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
-
+// LOGGING
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 builder.Logging.AddDebug();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 // AZURE KEY VAULT
-/*var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
-if (builder.Environment.IsProduction())
-{
-    builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
-}*/
-
 if (builder.Environment.IsProduction())
 {
     var vaultUri = Environment.GetEnvironmentVariable("VaultUri");
@@ -51,22 +47,48 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseAppExceptionHandling();
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+// LOGGING REQUESTS
+app.UseAppRequestLogging();
 
 app.UseRouting();
-
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Trip}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+
+// EXCEPTION HANDLING
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        var logger = context.RequestServices
+            .GetRequiredService<ILogger<Program>>();
+
+        var exceptionFeature = context.Features
+            .Get<IExceptionHandlerFeature>();
+
+        if (exceptionFeature != null)
+        {
+            logger.LogError(
+                exceptionFeature.Error,
+                "Unhandled exception occurred");
+        }
+
+        context.Response.StatusCode = 500;
+
+        await context.Response.WriteAsync("An error occurred.");
+    });
+});
 
 app.Run();
 

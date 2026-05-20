@@ -8,20 +8,23 @@ using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using Mapster;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 
 namespace EventSharedExpenseTracker.Application.Trips;
 
 public class TripService : ITripService
 {
+    private readonly ILogger<TripService> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IAuthorisationService _authorizationService;
     private readonly IRequestContext _requestContext;
     private readonly IImageService _imageService;
     private readonly IValidationService _validationService;
 
-    public TripService(IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext, IImageService imageService, IValidationService validationService)
+    public TripService(ILogger<TripService> logger, IUnitOfWork unitOfWork, IAuthorisationService authorisationService, IRequestContext requestContext, IImageService imageService, IValidationService validationService)
     {
+        _logger = logger;
         _unitOfWork = unitOfWork;
         _authorizationService = authorisationService;
         _requestContext = requestContext;
@@ -56,7 +59,11 @@ public class TripService : ITripService
             return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId}",
+                userId, trip.Id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         bool canEdit = _authorizationService.AuthorisedToEdit(trip, userId);
 
@@ -95,6 +102,10 @@ public class TripService : ITripService
         _unitOfWork.Trips.Add(trip);
         await _unitOfWork.CompleteAsync();
 
+        _logger.LogInformation("Trip {TripId} created by user {UserId}",
+            trip.Id,
+            userId);
+
         return trip;
     }
 
@@ -107,7 +118,11 @@ public class TripService : ITripService
             return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE access of trip {TripId}",
+                userId, trip.Id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         var query = trip.Adapt<TripQuery>();
 
@@ -122,7 +137,11 @@ public class TripService : ITripService
             return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToEdit(existingTrip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE of trip {TripId}",
+                userId, id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         var validationResult = _validationService.ValidateTrip(command);
         if (!validationResult.IsSuccess)
@@ -133,9 +152,13 @@ public class TripService : ITripService
         if (imageFileStream != null)
             existingTrip.ImagePath = await _imageService.SaveImageAsync(imageFileStream, existingTrip.ImagePath ?? string.Empty);
 
-
         //_unitOfWork.Trips.Update(existingTrip);
         await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation("Trip {TripId} updated by user {UserId}",
+            id,
+            userId);
+
         return existingTrip;
     }
 
@@ -148,7 +171,11 @@ public class TripService : ITripService
 
         int userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE of trip {TripId}",
+                userId, id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         var imagePath = trip.ImagePath;
 
@@ -157,6 +184,10 @@ public class TripService : ITripService
 
         if(imagePath != null)
             _imageService.DeleteImageFile(imagePath);
+
+        _logger.LogInformation("Trip {TripId} deleted by user {UserId}",
+            id,
+            userId);
 
         return Result.Ok();
     }
@@ -170,7 +201,11 @@ public class TripService : ITripService
             return AppErrors.NotFound<Trip>();
 
         if (!_authorizationService.AuthorisedToView(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted to GET participants of trip {TripId} unauthorised",
+                 userId, id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         var query = trip.Participants.Adapt<List<TripDetailsQueryarticipant>>();
 
@@ -186,7 +221,11 @@ public class TripService : ITripService
 
         var userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted to CREATE participant of trip {TripId} unauthorised.",
+                userId, tripId);
             return AppErrors.Forbidden<Trip>();
+        }
 
         // CHECK IF FRIENDSHIP IS CONFIRMED AND EXISTS - LOAD FRIENDSHIP?
         var friend = await _unitOfWork.Users.GetByIdAsync(friendId);
@@ -206,6 +245,12 @@ public class TripService : ITripService
 
         trip.Participants.Add(participant);
         await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation("Participant {ParticipantId} added to trip {TripId} by user {UserId}",
+            participant.Id, 
+            tripId,
+            userId);
+
         return trip;
     }
 
@@ -217,7 +262,11 @@ public class TripService : ITripService
 
         var userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted to CREATE dummy participant of trip {TripId} unauthorised.",
+                userId, id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         if (trip.Participants.Any(p => p.UserName == participantName))
             return AppErrors.Conflict<TripParticipant>();
@@ -231,6 +280,11 @@ public class TripService : ITripService
         trip.Participants.Add(participant);
         await _unitOfWork.CompleteAsync();
 
+        _logger.LogInformation("Dummy participant {ParticipantId} added to trip {TripId} by user {UserId}",
+            participant.Id,
+            id,
+            userId);
+
         return trip;
     }
 
@@ -242,7 +296,11 @@ public class TripService : ITripService
 
         var userId = _requestContext.UserId;
         if (!_authorizationService.AuthorisedToEdit(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted to DELETE participant of trip {TripId} unauthorised.",
+                userId, id);
             return AppErrors.Forbidden<Trip>();
+        }
 
         var participant = trip.Participants.FirstOrDefault(p => p.Id == participantId);
         if (participant == null)
@@ -254,6 +312,11 @@ public class TripService : ITripService
         
         trip.Participants.Remove(participant);
         await _unitOfWork.CompleteAsync();
+
+        _logger.LogInformation("Participant {ParticipantId} deleted from trip {TripId} by user {UserId}",
+            participant.Id,
+            id,
+            userId);
 
         return Result.Ok();
     }
