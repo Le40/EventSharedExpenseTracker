@@ -1,25 +1,73 @@
-App calculates and tracks shared expenses for created event, so every member of the event or trip can submit his expenses if he payed something for others.
+# Event Shared Expense Tracker
 
-Personal project for learning and trying out:
-- back-end and front-end of an web application
-- C# and ASP.NET Core
-- architectural concepts as Clean Architecture and Separation of Concerns
-- deployment of an app.
+Web application for tracking shared expenses during trips, events, and group activities.
 
-Used technologies:
-- SQLite as database
-- Entity framework as ORM
-- Identity framework for handling users
-- MvC as presentation layer
-- Bootstrap and htmx in the front end
-- Twilio for sending mails (not active at the time)
-- ImageSharp for pictures upload, resize and compression
-- Azure for deployment
+Users can create trips, manage participants, add expenses, and track who paid and who owes money.
 
-Features to be added:
-- friends management
-- currency settings and currency conversions
+Live demo: https://eventsharedexpensetracker.azurewebsites.net
 
-TESTING:
-- free to test, app doesnt currently validate emails, so fake emails are possible
-- once created, can be deleted by loging in and in profile there is tab personal data.
+## Features
+
+- ASP.NET Core Identity authentication
+- Trip and participant management
+- Shared expense tracking
+- Equal-share expense calculation
+- Dummy/non-registered participants
+- Image upload and compression
+- Authorization rules for trips and expenses
+- Structured error/result handling
+- Logging
+- Automated tests
+- Azure deployment
+
+## Tech Stack
+
+- C#
+- ASP.NET Core MVC
+- Entity Framework Core
+- SQL Server / SQLite
+- Bootstrap
+- htmx
+- Mapster
+- Azure App Service
+
+## Architecture Overview
+
+The solution is separated into multiple layers/projects:
+
+```text
+Domain
+Application
+Infrastructure
+MVC
+Tests
+```
+
+The project uses:
+
+- layered architecture inspired by Clean Architecture concepts
+- `ServiceResult` / `DomainResult` patterns for structured error handling
+- domain-level payment processing and validation
+- repository + unit of work pattern
+- DTO/query/view model mapping
+- authorization rules separated from controllers
+
+One notable modeling concept is separating unfinished payment input from persisted payment entities:
+
+```text
+PaymentInput -> ExpenseProcessor -> Payment
+```
+
+which allows validation and equal-share calculation before creating final payment entities.
+
+## Purpose
+
+This project is mainly a portfolio and learning project focused on:
+
+- backend architecture
+- ASP.NET Core MVC
+- domain modeling
+- validation and error handling
+- authentication and authorization
+- deployment and logging
+- building a real-world CRUD/business application
