@@ -9,6 +9,8 @@ public class TripParticipant
     public CustomUser? User { get; set; }
     public int TripId { get; set; }
     public Trip? Trip { get; set; }
-    public bool IsRegisteredUser => UserId != null;
     public ICollection<Payment> Payments { get; } = [];
+
+    public bool IsRegisteredUser => UserId != null;
+    public bool HasPayments => Payments.Any();
 }

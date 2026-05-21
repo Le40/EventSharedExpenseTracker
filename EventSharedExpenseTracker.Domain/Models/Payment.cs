@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using EventSharedExpenseTracker.Domain.Result;
+using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.Domain.Models;
 
@@ -8,8 +9,6 @@ public class Payment
     [DataType(DataType.Currency)]
     [DisplayFormat(DataFormatString = "{0:C2}")]
     public decimal Amount { get; set; }
-
-    public bool IsValid { get; set; }
     public bool IsOwed { get; set; }
     public bool IsEquallyShared { get; set; }
 

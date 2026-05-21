@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Result;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.Domain.Models;
@@ -22,4 +23,21 @@ public class Expense
     public Trip? Trip { get; set; }
 
     public ICollection<Payment> Payments { get; } = [];
+
+    public bool IsCreatedBy(int userId)
+    {
+        return CreatorId == userId;
+    }
+
+    public DomainResult SetPayments(IEnumerable<Payment> payments)
+    {
+        Payments.Clear();
+
+        foreach (var payment in payments)
+        {
+            Payments.Add(payment);
+        }
+
+        return DomainResult.Ok();
+    }
 }
