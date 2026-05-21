@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Domain.Result;
+﻿using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Result;
 
 namespace EventSharedExpenseTracker.Application.Common.Results
 {
