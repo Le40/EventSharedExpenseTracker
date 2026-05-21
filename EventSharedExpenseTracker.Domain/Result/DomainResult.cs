@@ -52,52 +52,8 @@
 
         public static implicit operator DomainResult<T>(List<DomainError> errors)
             => Fail(errors);
-
-    }
-
-    public sealed record DomainError(
-         string Code,
-         string Message,
-         DomainErrorType Type);
-
-    public enum DomainErrorType
-    {
-        Validation,
-        Conflict,
-        NotFound
-    }
-
-    public static class DomainErrors
-    {
-        public static readonly DomainError ParticipantNameRequired =
-            new("Trip.ParticipantNameRequired",
-                "Participant name is required.",
-                 DomainErrorType.Validation);
-
-        public static readonly DomainError ParticipantAlreadyExists =
-            new("Trip.ParticipantAlreadyExists",
-                "Participant already exists.",
-                DomainErrorType.Conflict);
-
-        public static readonly DomainError InvalidTripDateRange =
-            new("Trip.InvalidDateRange", 
-                "Date to must be greater than or equal to date from.",
-                DomainErrorType.Validation);
-
-        public static DomainError NotFound<T>() =>
-            new($"{typeof(T).Name}.NotFound",
-                $"{typeof(T).Name} not found.",
-                DomainErrorType.NotFound);
-
-        public static readonly DomainError ParticipantHasPayments =
-            new("Trip.ParticipantHasPayments", 
-                "Participant has payments.",
-                DomainErrorType.Validation);
-
-        public static DomainError Validation<T>(string message) =>
-            new($"{typeof(T).Name}.Validation.Error",
-                message,
-                DomainErrorType.Validation);
+        public static implicit operator DomainResult<T>(DomainError error)
+            => Fail([error]);
 
     }
 }

@@ -1,19 +1,11 @@
 ﻿using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.Result;
 
-namespace EventSharedExpenseTracker.Domain
-{
-    public sealed class PaymentDraft
-    {
-        public int ParticipantId { get; init; }
-        public decimal? Amount { get; set; }
-        public bool IsOwed { get; init; }
-        public bool IsEquallyShared { get; set; }
-    }
+namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
-    public class ExpenseProcessor
+    public static class ExpenseProcessor
     {
-        public DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentDraft> drafts)
+        public static DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentInput> drafts)
         {
             // any owed payment with amount cannot be equally shared.
             NormalizeOwedInputs(drafts);
@@ -46,10 +38,13 @@ namespace EventSharedExpenseTracker.Domain
                 })
                 .ToList();
 
+            if (payments.Count == 0)
+                return DomainErrors.NoPayments;
+
             return payments;
         }
 
-        private static void NormalizeOwedInputs(ICollection<PaymentDraft> paymentDrafts)
+        private static void NormalizeOwedInputs(ICollection<PaymentInput> paymentDrafts)
         {
             foreach (var owed in paymentDrafts.Where(p => p.IsOwed))
             {
@@ -59,7 +54,7 @@ namespace EventSharedExpenseTracker.Domain
             }
         }
 
-        private static List<DomainError> ValidateInputAmounts(ICollection<PaymentDraft> paymentDrafts)
+        private static List<DomainError> ValidateInputAmounts(ICollection<PaymentInput> paymentDrafts)
         {
             var errors = new List<DomainError>();
             if (paymentDrafts.Any(p => p.Amount < 0))
@@ -69,7 +64,7 @@ namespace EventSharedExpenseTracker.Domain
         }
 
         private static ExpenseTotals CalculateTotals(
-            ICollection<PaymentDraft> paymentDrafts,
+            ICollection<PaymentInput> paymentDrafts,
             int sharedCount)
         {
             var sumPaid = paymentDrafts.Where(p => !p.IsOwed).Sum(p => p.Amount ?? 0m);
@@ -104,7 +99,7 @@ namespace EventSharedExpenseTracker.Domain
         }
 
         private static void ApplySharedOwedAmounts(
-            ICollection<PaymentDraft> sharedOwed,
+            ICollection<PaymentInput> sharedOwed,
             decimal remainingAmountToShare)
         {
             if (sharedOwed.Count == 0)

@@ -1,6 +1,7 @@
 ﻿using EventSharedExpenseTracker.Application.Common;
 using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.Domain.PaymentProcessing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace EventSharedExpenseTracker.Application.Expenses
                 Description = command.Description,
             };
 
-            AddPayments(expense, command.Payments);
+            //AddPayments(expense, command.Payments);
             return expense;
         }
 
@@ -64,10 +65,10 @@ namespace EventSharedExpenseTracker.Application.Expenses
             expense.Category = command.Category;
             expense.Description = command.Description;
 
-            ReplacePayments(expense, command.Payments);
+            //ReplacePayments(expense, command.Payments);
         }
 
-        private static void AddPayments(Expense expense, IEnumerable<PaymentCommand> paymentCommands)
+        private static void AddPayments(Expense expense, IEnumerable<PaymentInput> paymentCommands)
         {
             foreach (var payment in paymentCommands.Where(p => p.Amount > 0))
             {
@@ -84,7 +85,7 @@ namespace EventSharedExpenseTracker.Application.Expenses
             //expense.AmountSum = expense.Payments.Where(p => !p.IsOwed).Sum(p => p.Ammount);
         }
 
-        private static void ReplacePayments(Expense expense, IEnumerable<PaymentCommand> paymentCommands)
+        private static void ReplacePayments(Expense expense, IEnumerable<PaymentInput> paymentCommands)
         {
             expense.Payments.Clear();
             AddPayments(expense, paymentCommands);

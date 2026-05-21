@@ -13,7 +13,6 @@ namespace EventSharedExpenseTracker.MvC.Controllers;
 [Authorize]
 public class ExpensesController : BaseController
 {
-    private readonly ILogger<ExpenseService> _logger;
     private readonly IExpenseService _expenseService;
     private readonly ExpenseFormFactory _expenseFormFactory;
 
@@ -124,7 +123,7 @@ public class ExpensesController : BaseController
         return RedirectToAction("Details", "Trips", new { id = tripId });
     }
 
-    private IActionResult ReturnFormOrError(Result result, ExpenseFormViewModel model, ExpenseFormMode mode)
+    private IActionResult ReturnFormOrError(ServiceResult result, ExpenseFormViewModel model, ExpenseFormMode mode)
     {
         if (TryAddValidationErrorsToModelState(result.Errors))
             return RenderExpenseForm(model, mode);

@@ -1,7 +1,7 @@
 ﻿
 namespace EventSharedExpenseTracker.Application.Common.Results
 {
-    public enum ErrorType
+    public enum AppErrorType
     {
         Validation,
         NotFound,

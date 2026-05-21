@@ -24,12 +24,14 @@ public class Expense
 
     public ICollection<Payment> Payments { get; } = [];
 
+    public bool HasCreator => CreatorId is not null;
+
     public bool IsCreatedBy(int userId)
     {
         return CreatorId == userId;
     }
 
-    public DomainResult SetPayments(IEnumerable<Payment> payments)
+    public void SetPayments(IEnumerable<Payment> payments)
     {
         Payments.Clear();
 
@@ -37,7 +39,5 @@ public class Expense
         {
             Payments.Add(payment);
         }
-
-        return DomainResult.Ok();
     }
 }

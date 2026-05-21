@@ -7,10 +7,10 @@ namespace EventSharedExpenseTracker.MvC.Controllers
     {
         protected IActionResult HandleServiceErrors(IEnumerable<AppError> errors)
         {
-            if (errors.Any(e => e.Type == ErrorType.NotFound))
+            if (errors.Any(e => e.Type == AppErrorType.NotFound))
                 return NotFound();
 
-            if (errors.Any(e => e.Type == ErrorType.Forbidden))
+            if (errors.Any(e => e.Type == AppErrorType.Forbidden))
                 return Forbid();
 
             if (TryAddValidationErrorsToModelState(errors.ToList()))
@@ -22,7 +22,7 @@ namespace EventSharedExpenseTracker.MvC.Controllers
         protected bool TryAddValidationErrorsToModelState(IEnumerable<AppError> errors)
         {
             var validationErrors = errors
-                .Where(e => e.Type == ErrorType.Validation)
+                .Where(e => e.Type == AppErrorType.Validation)
                 .ToList();
 
             if (!validationErrors.Any())

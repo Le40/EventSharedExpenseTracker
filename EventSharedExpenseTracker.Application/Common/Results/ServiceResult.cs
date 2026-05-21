@@ -1,29 +1,29 @@
 ﻿namespace EventSharedExpenseTracker.Application.Common.Results;
 
-public class Result
+public class ServiceResult
 {
     public bool IsSuccess => Errors.Count == 0;
     public IReadOnlyCollection<AppError> Errors { get; }
 
-    protected Result(IEnumerable<AppError> errors)
+    protected ServiceResult(IEnumerable<AppError> errors)
         => Errors = errors.ToList();
 
 
-    public static Result Ok() 
+    public static ServiceResult Ok() 
         => new ([]);
-    public static Result Fail(IEnumerable<AppError> errors) 
+    public static ServiceResult Fail(IEnumerable<AppError> errors) 
         => new (errors);
-    public static Result Fail(AppError error) 
+    public static ServiceResult Fail(AppError error) 
         => new ([error]);
 
-    public static implicit operator Result(AppError error) 
+    public static implicit operator ServiceResult(AppError error) 
         => Fail(error);
-    public static implicit operator Result(List<AppError> errors) 
+    public static implicit operator ServiceResult(List<AppError> errors) 
         => Fail(errors);
 }
 
 
-public class Result<T> : Result
+public class Result<T> : ServiceResult
 {
     public T? Value { get; }
 

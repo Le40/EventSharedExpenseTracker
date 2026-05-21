@@ -103,7 +103,7 @@ public class FriendService : IFriendService
         return friendshipBack;
     }
 
-    public async Task<Result> Decline(int friendshipId)
+    public async Task<ServiceResult> Decline(int friendshipId)
     {
         int userId = _requestContext.UserId;
 
@@ -119,10 +119,10 @@ public class FriendService : IFriendService
             friendship.FriendId,
             userId);
 
-        return Result.Ok();
+        return ServiceResult.Ok();
     }
 
-    public async Task<Result> Delete(int friendshipId)
+    public async Task<ServiceResult> Delete(int friendshipId)
     {
         int userId = _requestContext.UserId;
 
@@ -138,6 +138,6 @@ public class FriendService : IFriendService
             friendship.FriendId,
             userId);
 
-        return Result.Ok();
+        return ServiceResult.Ok();
     }
 }

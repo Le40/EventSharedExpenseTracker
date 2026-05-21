@@ -1,6 +1,7 @@
 ﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.Domain.PaymentProcessing;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
 namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
@@ -52,7 +53,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
             { 
                 if (participant.PaidAmount > 0) // validated in viewmodel 
                 {
-                    expenseCommand.Payments.Add(new PaymentCommand
+                    expenseCommand.Payments.Add(new PaymentInput
                     {
                         ParticipantId = participant.ParticipantId,
                         Amount = participant.PaidAmount.Value,
@@ -63,7 +64,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
 
                 if (participant.IsOwedSelected || participant.OwedAmount > 0) // validated in viewmodel
                 {
-                    expenseCommand.Payments.Add(new PaymentCommand
+                    expenseCommand.Payments.Add(new PaymentInput
                     {
                         ParticipantId = participant.ParticipantId,
                         Amount = participant.OwedAmount,

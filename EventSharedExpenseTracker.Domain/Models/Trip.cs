@@ -63,7 +63,7 @@ public class Trip
         if (participant == null)
             return DomainErrors.NotFound<TripParticipant>();
 
-        if (participant.Payments.Any())
+        if (participant.HasPayments)
             return DomainErrors.ParticipantHasPayments;
 
         Participants.Remove(participant);
@@ -74,6 +74,13 @@ public class Trip
     public bool IsCreatedBy(int userId)
     {
         return CreatorId == userId;
+    }
+
+    public bool HasCreator => CreatorId is not null;
+
+    public bool HasParticipant(int userId)
+    {
+        return Participants.Any(p => p.UserId == userId);
     }
 
     public DomainResult ValidateDateRange()

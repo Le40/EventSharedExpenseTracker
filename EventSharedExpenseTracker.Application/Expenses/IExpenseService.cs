@@ -11,5 +11,5 @@ public interface IExpenseService
     Task<Result<Expense>> Add(ExpenseCommand command, int tripId);
     Task<Result<ExpenseQuery>> GetExpenseForm(int id);
     Task<Result<Expense>> Update(int id, ExpenseCommand command);
-    Task<Result> Delete(int id);
+    Task<ServiceResult> Delete(int id);
 }

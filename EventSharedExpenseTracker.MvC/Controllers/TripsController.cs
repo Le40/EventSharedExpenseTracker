@@ -162,7 +162,7 @@ public class TripsController : BaseController
         return RedirectToAction("Details", "Trips", new { id });
     }
 
-    private IActionResult ReturnFormOrError(Result result, TripFormViewModel model, TripFormMode mode)
+    private IActionResult ReturnFormOrError(ServiceResult result, TripFormViewModel model, TripFormMode mode)
     {
         if (TryAddValidationErrorsToModelState(result.Errors))
             return RenderTripForm(model, mode);
