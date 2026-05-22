@@ -33,7 +33,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 Name = query.Name,
                 Category = query.Category,
                 Date = query.Date,
-                CanEdit = query.CanEdit,
+                CanUserEdit = query.CanUserEdit,
                 PaidPayments = paidPayments,
                 OwedPayments = owedPayments,
                 TotalPaid = paidPayments.Sum(p => p.Amount)
@@ -93,7 +93,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
             {
                 Id = command.Id,
                 TripId = command.TripId,
-                CanUserEdit = command.CanEdit,
+                CanUserEdit = command.CanUserEdit,
 
                 Name = command.Name,
                 Date = command.Date,

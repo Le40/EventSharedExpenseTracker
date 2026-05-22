@@ -8,7 +8,7 @@
 
 <div class="col-lg-7 md-6 sm-5">
     <form asp-action="@Model.Mode.ToString()">
-
+        <input type="hidden" asp-for="CanUserEdit" /> @*Needed so that form retains this if modelstate get back invalid, with errors.*@
         <div class="form-group mb-1">
             <input asp-for="Name" class="form-control" placeholder="Expense Name" />
             <span asp-validation-for="Name" class="text-danger"></span>

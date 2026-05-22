@@ -14,7 +14,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
             return new TripDetailsViewModel
             {
                 Id = query.Id,
-                CanUserEdit = query.CanEdit,
+                CanUserEdit = query.CanUserEdit,
                 Name = query.Name,
                 DateFrom = query.DateFrom,
                 DateTo = query.DateTo,
@@ -22,7 +22,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
 
                 TripParticipants = new TripDetailsParticipantsViewModel {
                     TripId = query.Id,
-                    CanUserEdit = query.CanEdit,
+                    CanUserEdit = query.CanUserEdit,
                     Participants = query.Participants
                         .Select(p => new TripDetailsParticipantViewModel
                         {

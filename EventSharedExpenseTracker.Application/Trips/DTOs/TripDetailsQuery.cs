@@ -6,7 +6,7 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
     {
         public int Id { get; set; }
 
-        public bool CanEdit { get; set; }
+        public bool CanUserEdit { get; set; }
 
         public required string Name { get; set; }
 

@@ -12,12 +12,12 @@ namespace EventSharedExpenseTracker.Application.Expenses
 {
     public static class ExpenseMapper
     {
-        public static ExpenseQuery ToQuery(Expense expense, bool canEdit)
+        public static ExpenseQuery ToQuery(Expense expense, bool canUserEdit)
         { 
             var query = new ExpenseQuery
             {
                 Id = expense.Id,
-                CanEdit = canEdit,
+                CanUserEdit = canUserEdit,
                 TripId = expense.TripId,
                 Name = expense.Name,
                 Date = expense.Date,

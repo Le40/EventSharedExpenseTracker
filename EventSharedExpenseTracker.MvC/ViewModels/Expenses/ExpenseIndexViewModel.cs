@@ -25,7 +25,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
     public class ExpenseListItemViewModel
     {
         public int Id { get; set; }
-        public bool CanEdit { get; set; }
+        public bool CanUserEdit { get; set; }
         public string EIdEditExpense => UiIds.EditExpense(Id);
         public required string Name { get; set; }
         public ExpenseCategory Category { get; set; }

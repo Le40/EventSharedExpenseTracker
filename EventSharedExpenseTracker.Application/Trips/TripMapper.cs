@@ -9,13 +9,13 @@ namespace EventSharedExpenseTracker.Application.Trips
     {
         public static TripDetailsQuery ToDetailsQuery(
             Trip trip, 
-            bool canEdit,
+            bool canUserEdit,
             IEnumerable<ExpenseQuery> expenses)
         {
             return new TripDetailsQuery
             {
                 Id = trip.Id,
-                CanEdit = canEdit,
+                CanUserEdit = canUserEdit,
                 Name = trip.Name,
                 DateFrom = trip.DateFrom,
                 DateTo = trip.DateTo,

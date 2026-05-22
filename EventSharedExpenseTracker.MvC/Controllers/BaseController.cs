@@ -13,6 +13,9 @@ namespace EventSharedExpenseTracker.MvC.Controllers
             if (errors.Any(e => e.Type == AppErrorType.Forbidden))
                 return Forbid();
 
+            if (errors.Any(e => e.Type == AppErrorType.Conflict))
+                return Conflict();
+
             if (TryAddValidationErrorsToModelState(errors.ToList()))
                 return BadRequest(ModelState);
 
