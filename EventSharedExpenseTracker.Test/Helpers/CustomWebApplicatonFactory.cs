@@ -70,6 +70,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             {
                 options.Filters.Add(new IgnoreAntiforgeryTokenAttribute());
             });
+
+            services.AddScoped<TestDataSeeder>();
         });
     }
     protected override void Dispose(bool disposing)
