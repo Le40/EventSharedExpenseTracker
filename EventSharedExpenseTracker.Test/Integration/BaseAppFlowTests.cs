@@ -1,12 +1,16 @@
-﻿using Azure;
+﻿using AngleSharp.Html.Parser;
+using Azure;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+using EventSharedExpenseTracker.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Threading;
 
 namespace EventSharedExpenseTracker.Tests.Integration;
 
@@ -146,6 +150,63 @@ public class BaseAppFlowTests : IDisposable
             HttpStatusCode.OK);
     }
 
+    [Fact]
+    public async Task Expense_Create_WhenValidationFails_AfterRealGet_RetainsParticipants()
+    {
+        var seed = await SeedTripWithParticipantsAsync();
+
+        var form = await GetFormFieldsAsync($"/Trips/{seed}/Expenses/Add");
+
+        form["Name"] = ""; // force validation error
+        form["Date"] = DateTime.Today.ToString("yyyy-MM-dd");
+        form["Category"] = "Food";
+
+        var response = await PostFormAsync(
+            $"/Trips/{seed}/Expenses/Add",
+            form);
+
+        var html = await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        html.Should().Contain("hx-post");
+        html.Should().Contain("dummy");
+    }
+
+
+    private async Task<Dictionary<string, string>> GetFormFieldsAsync(string url)
+    {
+        var response = await _client.GetAsync(url);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var html = await response.Content.ReadAsStringAsync();
+
+        var parser = new HtmlParser();
+        var document = await parser.ParseDocumentAsync(html);
+
+        var fields = new Dictionary<string, string>();
+
+        foreach (var input in document.QuerySelectorAll("input, select, textarea"))
+        {
+            var name = input.GetAttribute("name");
+
+            if (string.IsNullOrWhiteSpace(name))
+                continue;
+
+            var value = input.GetAttribute("value") ?? "";
+
+            if (input.NodeName.Equals("select", StringComparison.OrdinalIgnoreCase))
+            {
+                var selected = input.QuerySelector("option[selected]");
+                value = selected?.GetAttribute("value") ?? "";
+            }
+
+            fields[name] = value;
+        }
+
+        return fields;
+    }
+
     private int GetFirstExpenseId()
     {
         using var scope = _factory.Services.CreateScope();
@@ -251,6 +312,75 @@ public class BaseAppFlowTests : IDisposable
         _output.WriteLine(body);
     }
 
+    private async Task<(int ExpenseId, int TripId, int UserParticipantId, int DummyParticipantId)>
+    SeedExpenseAsync()
+    {
+        using var scope = _factory.Services.CreateScope();
+
+        var db = scope.ServiceProvider
+            .GetRequiredService<ApplicationDbContext>();
+
+        var trip = new Trip
+        {
+            Name = "Test Trip",
+            DateFrom = DateTime.Today,
+            DateTo = DateTime.Today.AddDays(1),
+            CreatorId = 1
+        };
+
+        var userParticipant = new TripParticipant
+        {
+            UserId = 1,
+            DisplayName = "testuser"
+        };
+
+        var dummyParticipant = new TripParticipant
+        {
+            DisplayName = "dummy"
+        };
+
+        trip.Participants.Add(userParticipant);
+        trip.Participants.Add(dummyParticipant);
+
+        var expense = new Expense
+        {
+            Name = "Dinner",
+            Date = DateTime.Today,
+            Category = ExpenseCategory.Food,
+            CreatorId = 1
+        };
+
+        expense.Payments.Add(new Payment
+        {
+            Participant = userParticipant,
+            Amount = 20
+        });
+
+        expense.Payments.Add(new Payment
+        {
+            Participant = userParticipant,
+            Amount = -10
+        });
+
+        expense.Payments.Add(new Payment
+        {
+            Participant = dummyParticipant,
+            Amount = -10
+        });
+
+        trip.Expenses.Add(expense);
+
+        db.Trips.Add(trip);
+
+        await db.SaveChangesAsync();
+
+        return (
+            expense.Id,
+            trip.Id,
+            userParticipant.Id,
+            dummyParticipant.Id
+        );
+    }
 
     public void Dispose()
     {
