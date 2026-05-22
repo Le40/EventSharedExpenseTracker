@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Tests;
+using EventSharedExpenseTracker.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;

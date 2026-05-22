@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EventSharedExpenseTracker.Tests;
+namespace EventSharedExpenseTracker.Tests.Helpers;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
