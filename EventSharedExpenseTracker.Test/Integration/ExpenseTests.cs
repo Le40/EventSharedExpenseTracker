@@ -1,5 +1,6 @@
 ﻿
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+using EventSharedExpenseTracker.Tests.Factories;
 using EventSharedExpenseTracker.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;

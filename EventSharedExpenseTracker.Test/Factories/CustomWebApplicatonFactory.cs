@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+using EventSharedExpenseTracker.Tests.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace EventSharedExpenseTracker.Tests.Helpers;
+namespace EventSharedExpenseTracker.Tests.Factories;
 
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {

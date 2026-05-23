@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Tests;
+using EventSharedExpenseTracker.Tests.Factories;
 using EventSharedExpenseTracker.Tests.Helpers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -6,7 +7,7 @@ using System.Net;
 
 namespace EventSharedExpenseTracker.Tests.Integration;
 
-public class SmokeTests
+public class AuthTests 
 {
     [Fact]
     public async Task HomePage_ReturnsSuccess()
