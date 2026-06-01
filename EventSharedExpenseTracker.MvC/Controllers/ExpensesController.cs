@@ -33,7 +33,7 @@ public class ExpensesController : BaseController
 
         var vm = new ExpenseIndexViewModel
         {
-            Expenses = result.Value!.Select(e => ExpenseVMMapper.FromQuery(e)).ToList(),
+            Expenses = result.Value!.Expenses.Select(e => ExpenseVMMapper.FromQuery(e)).ToList(),
             TripId = tripId,
             SearchString = searchString,
             CategoryFilter = categoryFilter,
@@ -41,7 +41,8 @@ public class ExpensesController : BaseController
             CurrentSort = sortOrder,
             NameSortParam = sortOrder == "name" ? "name_desc" : "name",
             DateSortParam = sortOrder == "date" ? "date_desc" : "date",
-            AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount"
+            AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount",
+            BaseCurrencyCode = result.Value.BaseCurrencyCode
         };
 
         // if the request is from htmx, return the partial view

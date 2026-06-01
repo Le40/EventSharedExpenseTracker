@@ -25,7 +25,7 @@ public class ExpenseService : IExpenseService
         _exchangeRateService = exchangeRateService;
     }
 
-    public async Task<Result<List<ExpenseQuery>>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
+    public async Task<Result<ExpenseIndexQuery>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
     {
         int userId = _requestContext.UserId;
 
@@ -55,13 +55,24 @@ public class ExpenseService : IExpenseService
         // get Expenses
         var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId, options);
 
-        // map to query/response + authorise each Expense
+        var query = new ExpenseIndexQuery
+        {
+            BaseCurrencyCode = trip.BaseCurrencyCode,
+            Expenses = expenses.Select(e =>
+            {
+                var canEditExpense = AuthorisationRules.AuthorisedToEdit(e, userId);
+                return ExpenseMapper.ToQuery(e, canEditExpense);
+            }).ToList()
+        };
+
+        /*// map to query/response + authorise each Expense
         var items = expenses.Select(e => {
             var canEditExpense = AuthorisationRules.AuthorisedToEdit(e, userId);
             return ExpenseMapper.ToQuery(e, canEditExpense);
             }).ToList();
 
-        return items;
+        return items;*/
+        return query;
     }
 
     public async Task<Result<Expense>> Add(ExpenseCommand command, int tripId)

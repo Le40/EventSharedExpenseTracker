@@ -3,6 +3,11 @@ using EventSharedExpenseTracker.Domain.Models;
 
 namespace EventSharedExpenseTracker.Application.Expenses.DTOs
 {
+    public record ExpenseIndexQuery
+    {
+        public string BaseCurrencyCode { get; set; } = "EUR";
+        public ICollection<ExpenseQuery> Expenses { get; set; } = [];
+    }
     public record ExpenseQuery
     {
         public int Id { get; set; }
