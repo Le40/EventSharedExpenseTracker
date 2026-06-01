@@ -37,7 +37,8 @@ public static class DIInfrastructure
         // EMAIL SENDER
         //services.AddHttpClient<IEmailSender, BrevoEmailSender>();
 
-        services.AddScoped<IExchangeRateService, FakeExchangeRateService>();
+        //services.AddScoped<IExchangeRateService, ExchangeRateService>();
+        services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
 
         // REPOSITORIES
         services.AddScoped<IUnitOfWork, UnitOfWork>();

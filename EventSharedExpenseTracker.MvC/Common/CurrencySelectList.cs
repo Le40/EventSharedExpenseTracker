@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using EventSharedExpenseTracker.Application.Common;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EventSharedExpenseTracker.MvC.Common
 {
@@ -6,21 +7,13 @@ namespace EventSharedExpenseTracker.MvC.Common
     {
         public static List<SelectListItem> Get(string selectedCurrencyCode = "EUR")
         {
-            var currencies = new[]
-            {
-            ("EUR", "Euro"),
-            ("CZK", "Czech koruna"),
-            ("USD", "US dollar"),
-            ("GBP", "British pound"),
-            ("PLN", "Polish złoty"),
-            ("HUF", "Hungarian forint")
-        };
+            var currencies = CurrencyMetadata.Currencies;
 
             return currencies.Select(c => new SelectListItem
             {
-                Value = c.Item1,
-                Text = $"{c.Item1} - {c.Item2}",
-                Selected = c.Item1 == selectedCurrencyCode
+                Value = c.Key,
+                Text = $"{c.Key} - {c.Value.Name}",
+                Selected = c.Key == selectedCurrencyCode
             }).ToList();
         }
     }

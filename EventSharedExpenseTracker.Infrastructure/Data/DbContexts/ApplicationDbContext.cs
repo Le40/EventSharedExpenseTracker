@@ -15,6 +15,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
         public DbSet<TripParticipant> TripParticipants { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<ExchangeRate> ExchangeRates { get; set; }
 
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -126,6 +127,14 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
                 .WithMany(u => u.ExpensesCreated)
                 .HasForeignKey(e => e.CreatorId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<ExchangeRate>()
+                .HasIndex(x => new { x.CurrencyCode, x.RateDate })
+                .IsUnique();
+
+            modelBuilder.Entity<ExchangeRate>()
+                .Property(x => x.RatePerEur)
+                .HasPrecision(18, 8);
 
 
             base.OnModelCreating(modelBuilder);
