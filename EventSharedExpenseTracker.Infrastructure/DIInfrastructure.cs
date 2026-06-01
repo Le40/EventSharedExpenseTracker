@@ -9,6 +9,8 @@ using EventSharedExpenseTracker.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using Microsoft.Extensions.Hosting;
+using EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService;
+using EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService.Providers.ExchangeRateApi;
 
 namespace EventSharedExpenseTracker.Infrastructure;
 
@@ -38,7 +40,8 @@ public static class DIInfrastructure
         //services.AddHttpClient<IEmailSender, BrevoEmailSender>();
 
         //services.AddScoped<IExchangeRateService, ExchangeRateService>();
-        services.AddHttpClient<IExchangeRateService, ExchangeRateService>();
+        services.AddScoped<IExchangeRateService, ExchangeRateService>();
+        services.AddHttpClient<IExchangeRateApiProvider, ExchangeRateApiProvider>();
 
         // REPOSITORIES
         services.AddScoped<IUnitOfWork, UnitOfWork>();

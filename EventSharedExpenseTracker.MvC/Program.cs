@@ -16,8 +16,8 @@ builder.Logging.AddDebug();
 builder.Logging.SetMinimumLevel(LogLevel.Information);
 
 // AZURE KEY VAULT
-if (builder.Environment.IsProduction())
-{
+/*if (builder.Environment.IsProduction())
+{*/
     var vaultUri = Environment.GetEnvironmentVariable("VaultUri");
 
     if (!string.IsNullOrWhiteSpace(vaultUri))
@@ -26,7 +26,7 @@ if (builder.Environment.IsProduction())
             new Uri(vaultUri),
             new DefaultAzureCredential());
     }
-}
+//}
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddControllersWithViews(options =>

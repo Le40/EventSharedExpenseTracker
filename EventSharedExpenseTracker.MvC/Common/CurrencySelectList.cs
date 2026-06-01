@@ -7,14 +7,33 @@ namespace EventSharedExpenseTracker.MvC.Common
     {
         public static List<SelectListItem> Get(string selectedCurrencyCode = "EUR")
         {
-            var currencies = CurrencyMetadata.Currencies;
+            return CurrencyMetadata.Currencies
+               .OrderBy(c =>
+               {
+                   var index = Array.IndexOf(
+                       PreferredCurrencies,
+                       c.Key);
 
-            return currencies.Select(c => new SelectListItem
-            {
-                Value = c.Key,
-                Text = $"{c.Key} - {c.Value.Name}",
-                Selected = c.Key == selectedCurrencyCode
-            }).ToList();
+                   return index >= 0 ? index : 999;
+               })
+               .ThenBy(c => c.Key)
+               .Select(c => new SelectListItem
+               {
+                   Value = c.Key,
+                   Text = $"{c.Key} - {c.Value.Name}",
+                   Selected = c.Key == selectedCurrencyCode
+               })
+               .ToList();
         }
+
+        private static readonly string[] PreferredCurrencies =
+        {
+            "EUR",
+            "CZK",
+            "USD",
+            "GBP",
+            "PLN",
+            "HUF"
+        };
     }
 }
