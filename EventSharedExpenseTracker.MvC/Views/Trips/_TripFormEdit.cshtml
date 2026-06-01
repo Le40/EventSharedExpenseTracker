@@ -3,6 +3,7 @@
 @{
     Layout = null;
 }
+<div class="bg-dark">
 <form asp-action="@Model.Mode.ToString()">
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
@@ -18,6 +19,14 @@
         <input asp-for="DateTo" class="form-control form-control-sm" />
         <span asp-validation-for="DateTo" class="text-danger"></span>
     </div>
+    <div class="form-group">
+        <select class="form-select" asp-for="BaseCurrencyCode"
+                asp-items="Model.CurrencyOptions">
+            <option value="">Select Currency</option>
+        </select>
+        <span asp-validation-for="BaseCurrencyCode" class="text-danger"></span>
+    </div>
+
     <div class="form-group mt-2">
         <input type="file" name="imageFile" accept=".png, .jpg, .jpeg, .gif" class="form-control form-control-sm" />
     </div>
@@ -44,6 +53,7 @@
         </button>
     </div>
 </form>
+</div>
 @{
     var test = Model.ElementId;
 }

@@ -23,7 +23,7 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 2, Amount = 10, IsOwed = true, IsEquallyShared = true },
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts);
+            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
 
             result.IsSuccess.Should().BeTrue();
         }
@@ -38,7 +38,7 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 2, Amount = 10, IsOwed = true, IsEquallyShared = true },
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts);
+            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
 
             result.IsSuccess.Should().BeFalse();
         }
@@ -54,13 +54,13 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 3, IsOwed = true, IsEquallyShared = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts);
+            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
 
             result.IsSuccess.Should().BeTrue();
 
-            result.Value.Should().Contain(p => p.ParticipantId == 1 && p.Amount == -10);
-            result.Value.Should().Contain(p => p.ParticipantId == 2 && p.Amount == -10);
-            result.Value.Should().Contain(p => p.ParticipantId == 3 && p.Amount == -10);
+            result.Value.Should().Contain(p => p.ParticipantId == 1 && p.AmountBase == -10);
+            result.Value.Should().Contain(p => p.ParticipantId == 2 && p.AmountBase == -10);
+            result.Value.Should().Contain(p => p.ParticipantId == 3 && p.AmountBase == -10);
         }
 
         [Fact]
@@ -73,12 +73,12 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 2, IsOwed = true, IsEquallyShared = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts);
+            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
 
             result.IsSuccess.Should().BeTrue();
 
-            result.Value.Should().Contain(p => p.ParticipantId == 1 && p.Amount == -5 && p.IsEquallyShared == false);
-            result.Value.Should().Contain(p => p.ParticipantId == 2 && p.Amount == -25);
+            result.Value.Should().Contain(p => p.ParticipantId == 1 && p.AmountBase == -5 && p.IsEquallyShared == false);
+            result.Value.Should().Contain(p => p.ParticipantId == 2 && p.AmountBase == -25);
         }
 
         [Fact]
@@ -90,7 +90,7 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 1, Amount = 30, IsOwed = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts);
+            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
 
             result.IsSuccess.Should().BeFalse();
         }
@@ -104,7 +104,7 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 1, Amount = 10, IsOwed = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts);
+            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
 
             result.IsSuccess.Should().BeFalse();
         }

@@ -19,10 +19,12 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                 DateFrom = query.DateFrom,
                 DateTo = query.DateTo,
                 ImagePath = query.ImagePath,
+                //BaseCurrencyCode = query.BaseCurrencyCode,
 
                 TripParticipants = new TripDetailsParticipantsViewModel {
                     TripId = query.Id,
                     CanUserEdit = query.CanUserEdit,
+                    BaseCurrencyCode = query.BaseCurrencyCode,
                     Participants = query.Participants
                         .Select(p => new TripDetailsParticipantViewModel
                         {
@@ -43,7 +45,9 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                     CurrentSort = null,
                     NameSortParam = "name",
                     DateSortParam = "date",
-                    AmmSortParam = "amount"
+                    AmmSortParam = "amount",
+
+                    BaseCurrencyCode = query.BaseCurrencyCode
                 }
             };
         }

@@ -128,19 +128,19 @@ namespace EventSharedExpenseTracker.Tests.Helpers
             expense.Payments.Add(new Payment
             {
                 ParticipantId = userParticipant.Id,
-                Amount = 20
+                AmountBase = 20
             });
 
             expense.Payments.Add(new Payment
             {
                 ParticipantId = userParticipant.Id,
-                Amount = -10
+                AmountBase = -10
             });
 
             expense.Payments.Add(new Payment
             {
                 ParticipantId = dummyParticipant.Id,
-                Amount = -10
+                AmountBase = -10
             });
 
             dbTrip.Expenses.Add(expense);

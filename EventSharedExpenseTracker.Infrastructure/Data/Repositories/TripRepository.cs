@@ -47,7 +47,7 @@ public class TripRepository : ITripRepository
         return await _context.Trips.FindAsync(id);
     }
 
-    public async Task<Trip?> GetByIdWithExpenses(int id)
+    public async Task<Trip?> GetByIdWithExpensesAsync(int id)
     {
         return await _context.Trips
             .Include(t => t.Expenses.OrderByDescending(e => e.Id))
@@ -66,6 +66,11 @@ public class TripRepository : ITripRepository
 
     public void Delete(Trip trip)
     {
+        _context.Payments.RemoveRange(
+            trip.Expenses.SelectMany(e => e.Payments));
+
+        _context.Expenses.RemoveRange(trip.Expenses);
+        _context.TripParticipants.RemoveRange(trip.Participants);
         _context.Trips.Remove(trip);
     }
 }

@@ -15,12 +15,14 @@ public class ExpenseService : IExpenseService
     private readonly ILogger<ExpenseService> _logger;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRequestContext _requestContext;
+    private readonly IExchangeRateService _exchangeRateService;
 
-    public ExpenseService(IUnitOfWork unitOfWork, IRequestContext requestContext, ILogger<ExpenseService> logger)
+    public ExpenseService(IUnitOfWork unitOfWork, IRequestContext requestContext, ILogger<ExpenseService> logger, IExchangeRateService exchangeRateService)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _requestContext = requestContext;
+        _exchangeRateService = exchangeRateService;
     }
 
     public async Task<Result<List<ExpenseQuery>>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
@@ -79,13 +81,22 @@ public class ExpenseService : IExpenseService
             return AppErrors.Forbidden<Trip>();
         }
 
+        var exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, trip.BaseCurrencyCode);
+
         // process Expense's PaymentInputs to Payment entities. Validate their correctness.
-        var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments);
+        var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
         if (!paymentInputProcessingResult.IsSuccess)
             return DomainErrorMapper.ToAppErrors(paymentInputProcessingResult.Errors);
 
         // map expenseCommand to Expense
-        var expense = ExpenseMapper.ToExpense(command, tripId, userId);
+        var context = new ExpenseCreationContext
+        {
+            TripId = tripId,
+            UserId = userId,
+            TripBaseCurrencyCode = trip.BaseCurrencyCode,
+            ExchangeRateToBase = exchangeRate
+        };
+        var expense = ExpenseMapper.ToExpense(command, context);
         // Expense attaches processed payments
         expense.SetPayments(paymentInputProcessingResult.Value);
 
@@ -135,13 +146,21 @@ public class ExpenseService : IExpenseService
             return AppErrors.Forbidden<Expense>();
         }
 
+        var currencyChanged = existingExpense.CurrencyCode != command.CurrencyCode;
+        var dateChanged = existingExpense.Date.Date != command.Date.Date;
+
+        var exchangeRate = existingExpense.ExchangeRateToBase;
+        if (currencyChanged || dateChanged)
+        {
+            exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, existingExpense.BaseCurrencyCode);
+        }
         // process Expense's PaymentInputs to Payment entities. Validate their correctness.
-        var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments);
+        var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
         if (!paymentInputProcessingResult.IsSuccess)
             return DomainErrorMapper.ToAppErrors(paymentInputProcessingResult.Errors);
 
         // apply changes from command to Expense
-        ExpenseMapper.ApplyToExpense(existingExpense, command);
+        ExpenseMapper.ApplyToExpense(existingExpense, command, exchangeRate);
         // Expense attaches processed payments
         existingExpense.SetPayments(paymentInputProcessingResult.Value);
 

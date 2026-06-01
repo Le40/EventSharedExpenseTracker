@@ -15,7 +15,9 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
 
         public string? ImagePath { get; set; }
 
-        public ICollection<TripDetailsQueryarticipant> Participants { get; set; } = [];
+        public string BaseCurrencyCode { get; set; } = "EUR";
+
+        public ICollection<TripDetailsQueryParticipant> Participants { get; set; } = [];
 
         public ICollection<ExpenseQuery> Expenses { get; set; } = [];
     }
@@ -26,7 +28,7 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         public required string DisplayName { get; set; }
     }
 
-    public record TripDetailsQueryarticipant : TripQueryParticipant
+    public record TripDetailsQueryParticipant : TripQueryParticipant
     {
         public bool IsDummy { get; set; }
         public decimal PaymentSum { get; set; }

@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection.Emit;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
 {
@@ -78,9 +79,26 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
                 .HasForeignKey(p => p.ExpenseId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Payment>()
-                .Property(p => p.Amount)
-                .HasPrecision(18, 2);
+            modelBuilder.Entity<Payment>(entity =>
+            {
+                entity.Property(p => p.AmountOriginal)
+                      .HasPrecision(18, 2);
+
+                entity.Property(p => p.AmountBase)
+                      .HasPrecision(18, 2);
+            });
+
+            modelBuilder.Entity<Expense>(entity =>
+            {
+                entity.Property(e => e.ExchangeRateToBase)
+                      .HasPrecision(18, 8);
+
+                entity.Property(e => e.CurrencyCode)
+                      .HasMaxLength(3);
+
+                entity.Property(e => e.BaseCurrencyCode)
+                      .HasMaxLength(3);
+            });
 
             modelBuilder.Entity<TripParticipant>()
                 .HasOne(p => p.Trip)

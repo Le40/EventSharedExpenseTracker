@@ -17,6 +17,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public DateTime DateTo { get; set; }
         public string? ImagePath { get; set; }
 
+        public string BaseCurrencyCode { get; set; } = "EUR";
+
         public TripDetailsParticipantsViewModel TripParticipants { get; set; } = new();
         public ExpenseIndexViewModel ExpenseIndex { get; set; } = new();
 
@@ -32,6 +34,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public int TripId {  get; set; }
         public bool CanUserEdit { get; set; }
         public string EIdTripParticipants => UiIds.TripParticipants;
+        public string BaseCurrencyCode { get; set; } = "EUR";
 
         public IEnumerable<TripDetailsParticipantViewModel> Participants { get; set; } = [];
     }

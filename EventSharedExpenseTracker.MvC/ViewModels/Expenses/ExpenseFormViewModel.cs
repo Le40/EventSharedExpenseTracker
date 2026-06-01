@@ -1,5 +1,6 @@
 ﻿using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
@@ -23,6 +24,9 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         public ExpenseCategory? Category { get; set; }
         [StringLength(80)]
         public string? Description { get; set; }
+
+        public string CurrencyCode { get; set; } = "EUR";
+        public List<SelectListItem> CurrencyOptions { get; set; } = [];
 
         public ICollection<ExpenseFormParticipantViewModel> Participants { get; set; } = [];
 

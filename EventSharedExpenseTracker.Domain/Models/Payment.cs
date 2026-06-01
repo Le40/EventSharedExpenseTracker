@@ -7,8 +7,9 @@ public class Payment
 {
     public int Id { get; set; }
     [DataType(DataType.Currency)]
-    [DisplayFormat(DataFormatString = "{0:C2}")]
-    public decimal Amount { get; set; }
+    public decimal AmountOriginal { get; set; }
+    [DataType(DataType.Currency)]
+    public decimal AmountBase { get; set; }
     public bool IsOwed { get; set; }
     public bool IsEquallyShared { get; set; }
 

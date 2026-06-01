@@ -2,6 +2,7 @@
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.PaymentProcessing;
+using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
 namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
@@ -13,7 +14,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
             var paidPayments = query.Payments.Where(p => !p.IsOwed).Select(p => new PaymentDisplayViewModel
             {
                 ParticipantName = p.ParticipantName,
-                Amount = p.Amount,
+                Amount = p.AmountBase,
                 IsOwed = p.IsOwed,
                 IsEquallyShared = p.IsEquallyShared
             }).ToList();
@@ -21,7 +22,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
             var owedPayments = query.Payments.Where(p => p.IsOwed).Select(p => new PaymentDisplayViewModel
             {
                 ParticipantName = p.ParticipantName,
-                Amount = p.Amount,
+                Amount = p.AmountBase,
                 IsOwed = p.IsOwed,
                 IsEquallyShared = p.IsEquallyShared
             }).ToList();
@@ -46,7 +47,8 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 Name = model.Name,
                 Date = model.Date,
                 Category = model.Category.Value,
-                Description = model.Description
+                Description = model.Description,
+                CurrencyCode = model.CurrencyCode   
             };
 
             foreach (var participant in model.Participants)
@@ -98,7 +100,9 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 Name = command.Name,
                 Date = command.Date,
                 Category = command.Category,
-                Description = command.Description
+                Description = command.Description,
+                CurrencyCode = command.CurrencyCode,
+                CurrencyOptions = CurrencySelectList.Get("EUR")
             };
 
             foreach (var participant in tripParticipants)
@@ -113,13 +117,13 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                         ParticipantName = participant.DisplayName,
 
                         PaidPaymentId = paid?.Id,
-                        PaidAmount = paid?.Amount,
+                        PaidAmount = paid?.AmountOriginal,
 
                         OwedPaymentId = owed?.Id,
                         // every owed payment is selected in form.
                         IsOwedSelected = owed != null,
                         // if command.IsequallyShared is true, then amount should not be shown in form.
-                        OwedAmount = owed is null || owed.IsEquallyShared ? null : owed.Amount       
+                        OwedAmount = owed is null || owed.IsEquallyShared ? null : owed.AmountOriginal       
                     });
             }
 

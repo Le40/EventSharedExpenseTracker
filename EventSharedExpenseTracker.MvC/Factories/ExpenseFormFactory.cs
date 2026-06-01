@@ -4,6 +4,7 @@ using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
@@ -35,7 +36,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
             var userId = _requestContext.UserId;
             string userName = _requestContext.UserName;
 
-            var orderedParticipants = tripResult.Value!
+            var orderedParticipants = tripResult.Value!.Participants
                 .OrderBy(p => p.DisplayName == userName ? 0 : 1)
                 .ThenBy(p => p.DisplayName)
                 .ToList();
@@ -45,6 +46,8 @@ namespace EventSharedExpenseTracker.MvC.Factories
                 //CreatorId = userId,
                 CanUserEdit = true,
                 TripId = tripId,
+                CurrencyCode = tripResult.Value.BaseCurrencyCode,
+                CurrencyOptions = CurrencySelectList.Get(),
 
                 Participants = orderedParticipants.Select(p =>
                     new ExpenseFormParticipantViewModel
@@ -75,7 +78,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
 
             //var userId = _requestContext.UserId;
 
-            var model = ExpenseVMMapper.FromQuery(query, tripResult.Value!);
+            var model = ExpenseVMMapper.FromQuery(query, tripResult.Value!.Participants);
 
             return Result<ExpenseFormViewModel>.Ok(model);
         }

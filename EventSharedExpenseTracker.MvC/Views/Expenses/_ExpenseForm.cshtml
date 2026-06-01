@@ -25,6 +25,13 @@
                 </select>
                 <span asp-validation-for="Category" class="text-danger"></span>
             </div>
+            <div class="col">
+                <select class="form-select" asp-for="CurrencyCode"
+                        asp-items="Model.CurrencyOptions">
+                    <option value="">Select Currency</option>
+                </select>
+                <span asp-validation-for="CurrencyCode" class="text-danger"></span>
+            </div>
         </div>
 
 

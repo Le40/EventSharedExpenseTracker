@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.MvC.Common;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using static EventSharedExpenseTracker.MvC.ViewModels.Expenses.ExpenseFormViewModel;
 
@@ -20,6 +21,9 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         [DataType(DataType.Date)]
         public DateTime DateTo { get; set; } = DateTime.Today;
         public string? ImagePath { get; set; }
+
+        public string BaseCurrencyCode { get; set; } = "EUR";
+        public List<SelectListItem> CurrencyOptions { get; set; } = [];
 
         public TripFormMode Mode { get; set; }
         public string ElementId => Mode == TripFormMode.Create ? UiIds.CreateTrip : UiIds.EditTrip;

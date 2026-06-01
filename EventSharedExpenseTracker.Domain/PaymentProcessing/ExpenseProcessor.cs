@@ -5,7 +5,7 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
     public static class ExpenseProcessor
     {
-        public static DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentInput> drafts)
+        public static DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentInput> drafts, decimal exchangeRateToBase)
         {
             // any owed payment with amount cannot be equally shared.
             NormalizeOwedInputs(drafts);
@@ -29,12 +29,18 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
             var payments = drafts
                 .Where(p => p.Amount > 0m)
-                .Select(p => new Payment
+                .Select(p =>
                 {
-                    ParticipantId = p.ParticipantId,
-                    Amount = p.IsOwed ? -p.Amount!.Value : p.Amount!.Value,
-                    IsOwed = p.IsOwed,
-                    IsEquallyShared = p.IsEquallyShared
+                    var amount = p.IsOwed ? -p.Amount!.Value : p.Amount!.Value;
+
+                    return new Payment
+                    {
+                        ParticipantId = p.ParticipantId,
+                        AmountOriginal = amount,
+                        AmountBase = Math.Round(amount * exchangeRateToBase, 2),
+                        IsOwed = p.IsOwed,
+                        IsEquallyShared = p.IsEquallyShared
+                    };
                 })
                 .ToList();
 
@@ -43,6 +49,7 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
             return payments;
         }
+
 
         private static void NormalizeOwedInputs(ICollection<PaymentInput> paymentDrafts)
         {

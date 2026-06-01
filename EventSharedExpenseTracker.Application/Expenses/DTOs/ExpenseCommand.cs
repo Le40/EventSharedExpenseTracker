@@ -10,7 +10,8 @@ namespace EventSharedExpenseTracker.Application.Expenses.DTOs
         public DateTime Date { get; set; }
         public ExpenseCategory Category { get; set; }
         public string? Description { get; set; }
-
+        public string CurrencyCode { get; set; } = "EUR";
+        //public decimal ExchangeRateToBase { get; set; } = 1m;
         public ICollection<PaymentInput> Payments { get; set; } = [];
     }
 

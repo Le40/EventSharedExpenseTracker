@@ -12,6 +12,7 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         [DataType(DataType.Date)]
         public DateTime DateTo { get; set; }
         public string? ImagePath { get; set; }
+        public string BaseCurrencyCode { get; set; } = "EUR";
 
         public ICollection<string> ParticipantNames { get; set; } = [];
     }

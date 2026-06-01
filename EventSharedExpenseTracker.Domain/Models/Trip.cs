@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Domain.Result;
+﻿using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Result;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.Domain.Models;
@@ -17,6 +18,13 @@ public class Trip
     public int? CreatorId { get; set; }
     public CustomUser? Creator { get; set; }
     public string? ImagePath { get; set; }
+
+    public TripCategory Category { get; set; }
+
+    public string? City { get; set; }
+    public string Country { get; set; } = "";
+    [StringLength(3)]
+    public string BaseCurrencyCode { get; set; } = "EUR";
 
     public ICollection<TripParticipant> Participants { get; } = [];
     public ICollection<Expense> Expenses { get; } = [];

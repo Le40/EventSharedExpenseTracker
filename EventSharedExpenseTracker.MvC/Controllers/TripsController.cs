@@ -3,6 +3,7 @@ using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
 using Mapster;
@@ -64,7 +65,14 @@ public class TripsController : BaseController
     [HttpGet("Trips/Create")]
     public IActionResult Create()
     {
-        return PartialView("_TripFormCreate", new TripFormViewModel());
+        return PartialView(
+            "_TripFormCreate", 
+            new TripFormViewModel
+            {
+                CurrencyOptions = CurrencySelectList.Get("EUR"),
+                BaseCurrencyCode = "EUR"
+
+            });
     }
 
     // CREATE: POST
@@ -97,6 +105,7 @@ public class TripsController : BaseController
         }
 
         var model = result.Value.Adapt<TripFormViewModel>();
+        model.CurrencyOptions = CurrencySelectList.Get("EUR");
 
         return RenderTripForm(model, TripFormMode.Edit);
     }
@@ -177,6 +186,7 @@ public class TripsController : BaseController
         // htmx wont return 400+ code back to dom, so its 200 even for bad form.
 
         model.Mode = mode;
+        model.CurrencyOptions = CurrencySelectList.Get("EUR");
 
         Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
         return PartialView($"_TripForm{mode}", model);

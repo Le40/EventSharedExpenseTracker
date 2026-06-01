@@ -20,14 +20,15 @@ namespace EventSharedExpenseTracker.Application.Trips
                 DateFrom = trip.DateFrom,
                 DateTo = trip.DateTo,
                 ImagePath = trip.ImagePath,
+                BaseCurrencyCode = trip.BaseCurrencyCode,
 
                 Participants = trip.Participants
-                    .Select(p => new TripDetailsQueryarticipant
+                    .Select(p => new TripDetailsQueryParticipant
                     {
                         Id = p.Id,
                         IsDummy = p.UserId == null,
                         DisplayName = TripParticipantMapper.GetDisplayName(p),
-                        PaymentSum = p.Payments.Sum(x => x.Amount),
+                        PaymentSum = p.Payments.Sum(x => x.AmountBase),
                         PaymentCount = p.Payments.Count
                     })
                     .ToList(),
@@ -45,6 +46,7 @@ namespace EventSharedExpenseTracker.Application.Trips
                 DateFrom = trip.DateFrom,
                 DateTo = trip.DateTo,
                 ImagePath = trip.ImagePath,
+                BaseCurrencyCode = trip.BaseCurrencyCode,
                 ParticipantNames = trip.Participants
                     .Select(p => TripParticipantMapper.GetDisplayName(p))
                     .ToList()

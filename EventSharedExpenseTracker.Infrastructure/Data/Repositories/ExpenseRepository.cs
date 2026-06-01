@@ -38,8 +38,8 @@ public class ExpenseRepository : IExpenseRepository
         {
             "name" => query.OrderBy(e => e.Name),
             "name_desc" => query.OrderByDescending(e => e.Name),
-            "amount" => query.OrderBy(e => e.Payments.Sum(p => p.Amount)),
-            "amount_desc" => query.OrderByDescending(e => e.Payments.Sum(p => p.Amount)),
+            "amount" => query.OrderBy(e => e.Payments.Sum(p => p.AmountBase)),
+            "amount_desc" => query.OrderByDescending(e => e.Payments.Sum(p => p.AmountBase)),
             "date" => query.OrderBy(e => e.Date),
             _ => query.OrderByDescending(e => e.Date),
         };

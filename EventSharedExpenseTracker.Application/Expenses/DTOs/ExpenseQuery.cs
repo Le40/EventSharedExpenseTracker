@@ -13,6 +13,7 @@ namespace EventSharedExpenseTracker.Application.Expenses.DTOs
         public DateTime Date { get; set; }
         public ExpenseCategory Category { get; set; }
         public string? Description { get; set; }
+        public string CurrencyCode { get; set; } = "EUR";
         public ICollection<PaymentQuery> Payments { get; set; } = [];
     }
 
@@ -21,7 +22,8 @@ namespace EventSharedExpenseTracker.Application.Expenses.DTOs
         public int Id { get; set; }
         public int ParticipantId { get; set; }
         public required string ParticipantName { get; set; }
-        public decimal Amount { get; set; }
+        public decimal AmountOriginal { get; set; }
+        public decimal AmountBase { get; set; }
         public bool IsOwed { get; set; }
         public bool IsEquallyShared { get; set; }
     }

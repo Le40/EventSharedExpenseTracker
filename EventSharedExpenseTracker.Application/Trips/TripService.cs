@@ -51,7 +51,7 @@ public class TripService : ITripService
         int userId = _requestContext.UserId;
 
         // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdWithExpenses(id);
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
         if (trip == null)
             return AppErrors.NotFound<Trip>();
 
@@ -130,7 +130,8 @@ public class TripService : ITripService
         }
 
         // map 
-        var query = trip.Adapt<TripQuery>();
+        //var query = trip.Adapt<TripQuery>();
+        var query = TripMapper.ToQuery(trip);
 
         return query;
     }
@@ -144,7 +145,7 @@ public class TripService : ITripService
             return AppErrors.Validation<Trip>("Date to must be greater than or equal to date from.");
 
         // get Trip
-        var existingTrip = await _unitOfWork.Trips.GetByIdAsync(id);
+        var existingTrip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
         if (existingTrip == null)
             return AppErrors.NotFound<Trip>();
 
@@ -154,6 +155,14 @@ public class TripService : ITripService
             _logger.LogWarning("User {UserId} attempted unauthorized UPDATE of trip {TripId}",
                 userId, id);
             return AppErrors.Forbidden<Trip>();
+        }
+
+        var currencyChanged = existingTrip.BaseCurrencyCode != command.BaseCurrencyCode;
+
+        if (currencyChanged && existingTrip.Expenses.Any())
+        {
+            return AppErrors.Validation<Trip>(
+                "Trip base currency cannot be changed after expenses exist.");
         }
 
         // saving old image path, cause adapt rewrites it with null if it hasnt changed.
@@ -178,7 +187,7 @@ public class TripService : ITripService
     public async Task<ServiceResult> Delete(int id)
     {
         // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdAsync(id);
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
         if (trip == null)
             return AppErrors.NotFound<Trip>();
 
@@ -208,7 +217,7 @@ public class TripService : ITripService
         return ServiceResult.Ok();
     }
 
-    public async Task<Result<List<TripDetailsQueryarticipant>>> GetParticipants(int id)
+    public async Task<Result<TripDetailsQuery>> GetParticipants(int id)
     {
         var userId = _requestContext.UserId;
 
@@ -226,7 +235,7 @@ public class TripService : ITripService
         }
 
         // map
-        var query = trip.Participants.Adapt<List<TripDetailsQueryarticipant>>();
+        var query = trip.Adapt<TripDetailsQuery>();
 
         return query;
     }
@@ -305,7 +314,7 @@ public class TripService : ITripService
     public async Task<ServiceResult> DeleteParticipant(int id, int participantId)
     {
         // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdWithExpenses(id);
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
         if (trip == null)
             return AppErrors.NotFound<Trip>();
 

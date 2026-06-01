@@ -1,6 +1,7 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
@@ -134,6 +135,7 @@ public class ExpensesController : BaseController
     private PartialViewResult RenderExpenseForm(ExpenseFormViewModel model, ExpenseFormMode mode)
     {
         model.Mode = mode;
+        model.CurrencyOptions = CurrencySelectList.Get("EUR");
 
         Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
         return PartialView("_ExpenseForm", model);

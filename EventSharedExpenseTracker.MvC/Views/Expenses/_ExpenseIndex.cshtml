@@ -1,5 +1,6 @@
 ﻿@using EventSharedExpenseTracker.MvC.ViewModels.Expenses
 @using EventSharedExpenseTracker.Domain.Enums
+@using EventSharedExpenseTracker.MvC.Common
 
 @model ExpenseIndexViewModel
 
@@ -95,7 +96,8 @@
                     </div>
 
                     <div class="mb-2">
-                        <b>@(expense.TotalPaid.ToString("C"))</b>
+                        <b>@CurrencyFormatter.Format(expense.TotalPaid,Model.BaseCurrencyCode)</b>
+                        @*<b>@(expense.TotalPaid.ToString("C"))</b>*@
                         <i class="text-white-50">
                             -
                             @foreach (var payment in expense.PaidPayments)
@@ -114,7 +116,8 @@
                                 <span class="border border-light-subtle rounded bg-danger-subtle text-white-50">
                                     @payment.ParticipantName
                                 </span>
-                                <span>@payment.Amount.ToString("C2")</span>
+                                <span>@CurrencyFormatter.Format(payment.Amount, Model.BaseCurrencyCode)</span>
+                                @*<span>@payment.Amount.ToString("C2")</span>*@
                             }
                         </small>
                     </i>

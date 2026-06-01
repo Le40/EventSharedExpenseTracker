@@ -16,6 +16,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         public string? DateSortParam { get; set; }
         public string? CurrentSort { get; set; }
 
+        public string BaseCurrencyCode { get; set; } = "EUR";
+
         public IEnumerable<ExpenseListItemViewModel> Expenses { get; set; } = [];
 
         public string EIdCreateExpense => UiIds.CreateExpense;
