@@ -3,9 +3,11 @@ using EventSharedExpenseTracker.Application;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Extensions;
 using EventSharedExpenseTracker.Infrastructure;
+using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.MvC.Factories;
 using EventSharedExpenseTracker.MvC.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -52,6 +54,20 @@ else
     app.UseAppExceptionHandling();
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
+}
+
+
+var applyMigrations =
+    builder.Configuration.GetValue<bool>("ApplyMigrationsOnStartup");
+
+if (applyMigrations)
+{
+    using var scope = app.Services.CreateScope();
+
+    var db = scope.ServiceProvider
+        .GetRequiredService<ApplicationDbContext>();
+
+    await db.Database.MigrateAsync();
 }
 
 app.UseHttpsRedirection();
