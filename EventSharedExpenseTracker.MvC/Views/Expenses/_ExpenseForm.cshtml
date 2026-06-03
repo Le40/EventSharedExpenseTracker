@@ -20,7 +20,7 @@
             </div>
             <div class="col">
                 <select class="form-select" asp-for="Category"
-                        asp-items = "Html.GetEnumSelectList<ExpenseCategory>()">
+                    asp-items="Html.GetEnumSelectList<ExpenseCategory>()">
                     <option value="">Select Category</option>
                 </select>
                 <span asp-validation-for="Category" class="text-danger"></span>

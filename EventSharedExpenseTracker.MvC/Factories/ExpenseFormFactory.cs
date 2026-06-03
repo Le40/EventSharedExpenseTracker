@@ -48,6 +48,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
                 TripId = tripId,
                 CurrencyCode = tripResult.Value.BaseCurrencyCode,
                 CurrencyOptions = CurrencySelectList.Get(),
+                //CategoryOptions = ExpenseCategorySelectList.Get(),
 
                 Participants = orderedParticipants.Select(p =>
                     new ExpenseFormParticipantViewModel

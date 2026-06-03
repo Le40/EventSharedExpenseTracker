@@ -121,7 +121,7 @@ namespace EventSharedExpenseTracker.Tests.Helpers
             {
                 Name = "Dinner",
                 Date = DateTime.Today,
-                Category = ExpenseCategory.Food,
+                Category = ExpenseCategory.Restaurant,
                 CreatorId = trip.CreatorId
             };
 

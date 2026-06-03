@@ -74,6 +74,8 @@ public class TripTests : IDisposable
         form["Name"] = "Summer Trip";
         form["DateFrom"] = DateTime.Today.ToString("yyyy-MM-dd");
         form["DateTo"] = DateTime.Today.AddDays(3).ToString("yyyy-MM-dd");
+        form["Country"] = "AT";
+        form["Category"] = "Backpacking";
 
         var response = await _formHelper.PostFormAsync("/Trips/Create", form);
 
@@ -147,6 +149,8 @@ public class TripTests : IDisposable
         form["Name"] = "Updated Trip";
         form["DateFrom"] = DateTime.Today.ToString("yyyy-MM-dd");
         form["DateTo"] = DateTime.Today.AddDays(5).ToString("yyyy-MM-dd");
+        form["Country"] = "AT";
+        form["Category"] = "Backpacking";
 
         var response = await _formHelper.PostFormAsync($"/Trips/Edit/{seed.TripId}", form);
 

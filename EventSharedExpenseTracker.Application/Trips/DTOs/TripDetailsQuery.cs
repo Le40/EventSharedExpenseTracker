@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
+using EventSharedExpenseTracker.Domain.Enums;
 
 namespace EventSharedExpenseTracker.Application.Trips.DTOs
 {
@@ -16,6 +17,9 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         public string? ImagePath { get; set; }
 
         public string BaseCurrencyCode { get; set; } = "EUR";
+        public TripCategory Category { get; set; }
+        public string Country { get; set; } = "";
+        public string City { get; set; } = "";
 
         public ICollection<TripDetailsQueryParticipant> Participants { get; set; } = [];
 

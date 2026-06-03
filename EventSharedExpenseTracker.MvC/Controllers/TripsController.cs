@@ -66,11 +66,13 @@ public class TripsController : BaseController
     public IActionResult Create()
     {
         return PartialView(
-            "_TripFormCreate", 
+            "_TripForm", 
             new TripFormViewModel
             {
                 CurrencyOptions = CurrencySelectList.Get("EUR"),
-                BaseCurrencyCode = "EUR"
+                BaseCurrencyCode = "EUR",
+                Mode = TripFormMode.Create,
+                CountryOptions = CountrySelectList.Get()
 
             });
     }
@@ -106,6 +108,7 @@ public class TripsController : BaseController
 
         var model = result.Value.Adapt<TripFormViewModel>();
         model.CurrencyOptions = CurrencySelectList.Get("EUR");
+        model.CountryOptions = CountrySelectList.Get();
 
         return RenderTripForm(model, TripFormMode.Edit);
     }
@@ -187,9 +190,10 @@ public class TripsController : BaseController
 
         model.Mode = mode;
         model.CurrencyOptions = CurrencySelectList.Get("EUR");
+        model.CountryOptions = CountrySelectList.Get();
 
         Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
-        return PartialView($"_TripForm{mode}", model);
+        return PartialView($"_TripForm", model);
     }
 }
 

@@ -47,6 +47,9 @@ namespace EventSharedExpenseTracker.Application.Trips
                 DateTo = trip.DateTo,
                 ImagePath = trip.ImagePath,
                 BaseCurrencyCode = trip.BaseCurrencyCode,
+                Country = trip.Country,
+                City = trip.City,
+                Category = trip.Category,
                 ParticipantNames = trip.Participants
                     .Select(p => TripParticipantMapper.GetDisplayName(p))
                     .ToList()

@@ -1,0 +1,100 @@
+﻿@using EventSharedExpenseTracker.Domain.Enums
+@using EventSharedExpenseTracker.MvC.ViewModels.Trips
+@model TripFormViewModel
+@{
+    Layout = null;
+}
+
+<form asp-action="@Model.Mode.ToString()" class="bg-dark p-2">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <input asp-for="Name" class="form-control form-control-sm" placeholder="Trip name" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="row g-2 mb-1">
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="DateFrom" class="control-label"></label>
+                <input asp-for="DateFrom" class="form-control form-control-sm" />
+                <span asp-validation-for="DateFrom" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="DateTo" class="control-label"></label>
+                <input asp-for="DateTo" class="form-control form-control-sm" />
+                <span asp-validation-for="DateTo" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <label asp-for="Category" class="control-label"></label>
+        <select class="form-select" asp-for="Category"
+            asp-items="Html.GetEnumSelectList<TripCategory>()">
+            <option value="">Select Category</option>
+        </select>
+        <span asp-validation-for="Category" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="City" class="control-label"></label>
+        <input asp-for="City" class="form-control form-control-sm" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div class="row g-2 mb-1">
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="Country" class="control-label"></label>
+                <select class="form-select" asp-for="Country"
+                        asp-items="Model.CountryOptions">
+                    <option value="">Select Country</option>
+                </select>
+                <span asp-validation-for="Country" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label asp-for="BaseCurrencyCode" class="control-label"></label>
+                <select class="form-select" asp-for="BaseCurrencyCode"
+                        asp-items="Model.CurrencyOptions">
+                    <option value="">Select Currency</option>
+                </select>
+                <span asp-validation-for="BaseCurrencyCode" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group mt-2">
+        <input type="file" name="imageFile" accept=".png, .jpg, .jpeg, .gif" class="form-control form-control-sm" />
+    </div>
+
+    <div class="form-group btn-group align-items-end mt-2">
+        <button class="btn btn-info btn-sm"
+                hx-post="@Url.Action(Model.Mode.ToString(), "Trips")"
+                hx-target="body"
+                @*hx-swap="innerHTML"*@
+                hx-encoding="multipart/form-data">
+            Save
+        </button>
+
+        @if (Model.Mode.ToString() == "Create")
+        {
+            <button class="btn btn-secondary btn-sm"
+                    hx-get="@Url.Action("Index", "Trips")"
+                    hx-target="body"
+                    hx-swap="innerHTML">
+                Cancel
+            </button>
+        }
+        else
+        {
+            <button class="btn btn-secondary btn-sm"
+                    hx-get="@Url.Action("Details", "Trips", new { id = Model.Id })"
+                    hx-target="#@Model.ElementId"
+                    hx-select="#@Model.ElementId"
+                    hx-swap="outerHTML">
+                Cancel
+            </button>
+        }
+
+    </div>
+</form>

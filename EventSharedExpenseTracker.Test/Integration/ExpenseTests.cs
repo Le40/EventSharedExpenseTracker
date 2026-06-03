@@ -41,7 +41,7 @@ public class ExpenseTests : IDisposable
         {
             ["Name"] = "Dinner",
             ["Date"] = DateTime.Today.ToString("yyyy-MM-dd"),
-            ["Category"] = "Food",
+            ["Category"] = "Restaurant",
 
             ["Participants[0].ParticipantId"] = seed.UserParticipantId.ToString(),
             ["Participants[0].ParticipantName"] = "testuser",
@@ -107,7 +107,7 @@ public class ExpenseTests : IDisposable
 
             ["Name"] = "Updated Dinner",
             ["Date"] = DateTime.Today.ToString("yyyy-MM-dd"),
-            ["Category"] = "Food",
+            ["Category"] = "Restaurant",
 
             ["Participants[0].ParticipantId"] = seed.UserParticipantId.ToString(),
             ["Participants[0].ParticipantName"] = "testuser",

@@ -48,7 +48,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 Date = model.Date,
                 Category = model.Category.Value,
                 Description = model.Description,
-                CurrencyCode = model.CurrencyCode   
+                CurrencyCode = model.CurrencyCode
             };
 
             foreach (var participant in model.Participants)
@@ -100,6 +100,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 Name = command.Name,
                 Date = command.Date,
                 Category = command.Category,
+                //CategoryOptions = ExpenseCategorySelectList.Get(),
                 Description = command.Description,
                 CurrencyCode = command.CurrencyCode,
                 CurrencyOptions = CurrencySelectList.Get("EUR")
