@@ -5,10 +5,10 @@ namespace EventSharedExpenseTracker.Application.Friends;
 
 public interface IFriendService
 {
-    Task<Result<List<Friendship>>> Index();
-    Task<Result<List<CustomUser>>> Search (string searchString);
-    Task<Result<Friendship>> Invite(int friendId);
-    Task<Result<Friendship>> Accept(int friendshipId);
+    Task<ServiceResult<List<Friendship>>> Index();
+    Task<ServiceResult<List<CustomUser>>> Search (string searchString);
+    Task<ServiceResult<Friendship>> Invite(int friendId);
+    Task<ServiceResult<Friendship>> Accept(int friendshipId);
     Task<ServiceResult> Decline(int friendshipId);
     Task<ServiceResult> Delete(int friendshipId);
 }

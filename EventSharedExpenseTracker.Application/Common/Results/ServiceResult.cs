@@ -23,34 +23,37 @@ public class ServiceResult
 }
 
 
-public class Result<T> : ServiceResult
+public class ServiceResult<T> : ServiceResult
 {
     public T? Value { get; }
 
-    private Result(T value) : base([])
+    private ServiceResult(T value) : base([])
         => Value = value;
-    private Result(IEnumerable<AppError> errors) : base(errors)
+    private ServiceResult(IEnumerable<AppError> errors) : base(errors)
         => Value = default;
-    private Result(AppError error) : base([error])
+    private ServiceResult(AppError error) : base([error])
         => Value = default;
     
 
-    public static Result<T> Ok(T value) 
+    public static ServiceResult<T> Ok(T value) 
         => new(value);
-    public static new Result<T> Fail(IEnumerable<AppError> errors) 
+    public static new ServiceResult<T> Fail(IEnumerable<AppError> errors) 
         => new(errors);
-    public static new Result<T> Fail(AppError error)
+    public static new ServiceResult<T> Fail(AppError error)
         => new(error);
 
-    public static implicit operator Result<T>(T value)
+    public static implicit operator ServiceResult<T>(T value)
         => Ok(value);
  
-    public static implicit operator Result<T>(AppError error) 
+    public static implicit operator ServiceResult<T>(AppError error) 
         => Fail(error);
   
-    public static implicit operator Result<T>(List<AppError> errors) 
+    public static implicit operator ServiceResult<T>(List<AppError> errors) 
         => Fail(errors);
-  
+    // extra method so i can conveniently change the <T> witout rewrapping errors
+    public ServiceResult<T> ToFailure<T>()
+        => ServiceResult<T>.Fail(Errors);
+
 }
 
 

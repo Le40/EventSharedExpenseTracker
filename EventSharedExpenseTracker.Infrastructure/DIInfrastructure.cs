@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 using EventSharedExpenseTracker.Infrastructure.Identity;
+using EventSharedExpenseTracker.Infrastructure.Seed;
 using EventSharedExpenseTracker.Infrastructure.Services;
-using Microsoft.AspNetCore.Identity;
-using EventSharedExpenseTracker.Application.Common.Interfaces;
-using Microsoft.Extensions.Hosting;
 using EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService;
 using EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService.Providers.ExchangeRateApi;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace EventSharedExpenseTracker.Infrastructure;
 
@@ -49,6 +50,8 @@ public static class DIInfrastructure
         services.AddScoped<IExpenseRepository, ExpenseRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+
+        services.AddScoped<DemoDataSeeder>();
 
         return services;
     }

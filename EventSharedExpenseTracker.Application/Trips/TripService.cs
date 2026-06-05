@@ -25,7 +25,7 @@ public class TripService : ITripService
         _imageService = imageService;
     }
 
-    public async Task<Result<List<TripQuery>>> Index(string? sortOrder, string? searchString, TripCategory? categoryFilter)
+    public async Task<ServiceResult<List<TripQuery>>> Index(string? sortOrder, string? searchString, TripCategory? categoryFilter)
     {
         int userId = _requestContext.UserId;
 
@@ -46,22 +46,16 @@ public class TripService : ITripService
         return queries;
     }
 
-    public async Task<Result<TripDetailsQuery>> Details(int id)
+    public async Task<ServiceResult<TripDetailsQuery>> Details(int id)
     {
+        // get and autorise trip
         int userId = _requestContext.UserId;
+        var tripResult = await GetTripAuthorisedForView(id);
 
-        // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
+        if (!tripResult.IsSuccess)
+            return tripResult.ToFailure<TripDetailsQuery>();
 
-        // authorise for viewing => is user participant of the Trip
-        if (!AuthorisationRules.AuthorisedToView(trip, userId))
-        {
-            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId}",
-                userId, trip.Id);
-            return AppErrors.Forbidden<Trip>();
-        }
+        var trip = tripResult.Value!;
 
         // authorise for editing => is user creator of the Trip
         bool canUserEdit = AuthorisationRules.AuthorisedToEdit(trip, userId);
@@ -79,7 +73,7 @@ public class TripService : ITripService
         return query;
     }
 
-    public async Task<Result<Trip>> Add(TripCommand command, Stream? imageFileStream)
+    public async Task<ServiceResult<Trip>> Add(TripCommand command, Stream? imageFileStream)
     {
         int userId = _requestContext.UserId;
 
@@ -112,22 +106,21 @@ public class TripService : ITripService
         return trip;
     }
 
-    public async Task<Result<TripQuery>> GetTripForm(int id)
+    public async Task<ServiceResult<TripQuery>> GetTripForm(int id)
     {
-        var userId = _requestContext.UserId;
+        // get and autorise trip
+        int userId = _requestContext.UserId;
+        var tripResult = await GetTripAuthorisedForEdit(id);
 
-        // get trip
-        var trip = await _unitOfWork.Trips.GetByIdAsync(id);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
-
-        // authorise
-        if (!AuthorisationRules.AuthorisedToEdit(trip, userId))
+        if (!tripResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE access of trip {TripId}",
-                userId, trip.Id);
-            return AppErrors.Forbidden<Trip>();
+            _logger.LogWarning(
+                "User {UserId} attempted to update trip {TripId} without permission.",
+                userId, id);
+            return tripResult.ToFailure<TripQuery>();
         }
+
+        var trip = tripResult.Value!;
 
         // map 
         //var query = trip.Adapt<TripQuery>();
@@ -136,7 +129,7 @@ public class TripService : ITripService
         return query;
     }
 
-    public async Task<Result<Trip>> Update(int id, TripCommand command, Stream? imageFileStream)
+    public async Task<ServiceResult<Trip>> Update(int id, TripCommand command, Stream? imageFileStream)
     {
         int userId = _requestContext.UserId;
 
@@ -144,26 +137,22 @@ public class TripService : ITripService
         if (command.DateFrom > command.DateTo)
             return AppErrors.Validation<Trip>("Date to must be greater than or equal to date from.");
 
-        // get Trip
-        var existingTrip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
-        if (existingTrip == null)
-            return AppErrors.NotFound<Trip>();
+        // get and autorise trip
+        var tripResult = await GetTripAuthorisedForEdit(id);
 
-        // authorise
-        if (!AuthorisationRules.AuthorisedToEdit(existingTrip, userId))
+        if (!tripResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE of trip {TripId}",
+            _logger.LogWarning(
+                "User {UserId} attempted to update trip {TripId} without permission.",
                 userId, id);
-            return AppErrors.Forbidden<Trip>();
+            return tripResult;
         }
 
-        var currencyChanged = existingTrip.BaseCurrencyCode != command.BaseCurrencyCode;
+        var existingTrip = tripResult.Value!;
 
-        if (currencyChanged && existingTrip.Expenses.Any())
-        {
-            return AppErrors.Validation<Trip>(
-                "Trip base currency cannot be changed after expenses exist.");
-        }
+        var currencyResult = existingTrip.ChangeCurrency(command.BaseCurrencyCode);
+        if (!currencyResult.IsSuccess)
+            return DomainErrorMapper.ToAppErrors(currencyResult.Errors);
 
         // saving old image path, cause adapt rewrites it with null if it hasnt changed.
         var oldImagePath = existingTrip.ImagePath;
@@ -186,19 +175,19 @@ public class TripService : ITripService
 
     public async Task<ServiceResult> Delete(int id)
     {
-        // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
-
-        // authorise
+        // get and autorise trip
         int userId = _requestContext.UserId;
-        if (!AuthorisationRules.AuthorisedToEdit(trip, userId))
+        var tripResult = await GetTripAuthorisedForEdit(id);
+
+        if (!tripResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE of trip {TripId}",
+            _logger.LogWarning(
+                "User {UserId} attempted to delete trip {TripId} without permission.",
                 userId, id);
-            return AppErrors.Forbidden<Trip>();
+            return tripResult;
         }
+
+        var trip = tripResult.Value!;
 
         // get image path for deletion
         var imagePath = trip.ImagePath;
@@ -217,22 +206,21 @@ public class TripService : ITripService
         return ServiceResult.Ok();
     }
 
-    public async Task<Result<TripDetailsQuery>> GetParticipants(int id)
+    public async Task<ServiceResult<TripDetailsQuery>> GetParticipants(int id)
     {
+        // get and autorise trip
         var userId = _requestContext.UserId;
+        var tripResult = await GetTripAuthorisedForEdit(id);
 
-        // get trip
-        var trip = await _unitOfWork.Trips.GetByIdAsync(id);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
-
-        // authorise
-        if (!AuthorisationRules.AuthorisedToView(trip, userId))
+        if (!tripResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted to GET participants of trip {TripId} unauthorised",
-                 userId, id);
-            return AppErrors.Forbidden<Trip>();
+            _logger.LogWarning(
+                "User {UserId} attempted to get participants from trip {TripId} without permission.",
+                userId, id);
+            return tripResult.ToFailure<TripDetailsQuery>();
         }
+
+        var trip = tripResult.Value!;
 
         // map
         var query = trip.Adapt<TripDetailsQuery>();
@@ -240,21 +228,21 @@ public class TripService : ITripService
         return query;
     }
 
-    public async Task<Result<Trip>> AddParticipant(int tripId, int friendId)
+    public async Task<ServiceResult<Trip>> AddParticipant(int tripId, int friendId)
     {
-        // get trip
-        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
-
-        // authorise
+        // get and autorise trip
         var userId = _requestContext.UserId;
-        if (!AuthorisationRules.AuthorisedToEdit(trip, userId))
+        var tripResult = await GetTripAuthorisedForEdit(tripId);
+
+        if (!tripResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted to CREATE participant of trip {TripId} unauthorised.",
+            _logger.LogWarning(
+                "User {UserId} attempted to create participant from trip {TripId} without permission.",
                 userId, tripId);
-            return AppErrors.Forbidden<Trip>();
+            return tripResult;
         }
+
+        var trip = tripResult.Value!;
 
         // CHECK IF FRIENDSHIP IS CONFIRMED AND EXISTS - LOAD FRIENDSHIP?
         // FOR NOW: get other user, not yet friend
@@ -280,21 +268,21 @@ public class TripService : ITripService
         return trip;
     }
 
-    public async Task<Result<Trip>> AddDummy(int id, string participantName)
+    public async Task<ServiceResult<Trip>> AddDummy(int id, string participantName)
     {
-        // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdAsync(id);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
-
-        // authorise
+        // get and autorise trip
         var userId = _requestContext.UserId;
-        if (!AuthorisationRules.AuthorisedToEdit(trip, userId))
+        var tripResult = await GetTripAuthorisedForEdit(id);
+
+        if (!tripResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted to CREATE dummy participant of trip {TripId} unauthorised.",
+            _logger.LogWarning(
+                "User {UserId} attempted to create participant from trip {TripId} without permission.",
                 userId, id);
-            return AppErrors.Forbidden<Trip>();
+            return tripResult;
         }
+
+        var trip = tripResult.Value!;
 
         // add participant to trip
         var participantResult = trip.AddDummyParticipant(participantName);
@@ -313,19 +301,19 @@ public class TripService : ITripService
 
     public async Task<ServiceResult> DeleteParticipant(int id, int participantId)
     {
-        // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
-
-        // authorise
+        // get and autorise trip
         var userId = _requestContext.UserId;
-        if (!AuthorisationRules.AuthorisedToEdit(trip, userId))
+        var tripResult = await GetTripAuthorisedForEdit(id);
+
+        if (!tripResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted to DELETE participant of trip {TripId} unauthorised.",
+            _logger.LogWarning(
+                "User {UserId} attempted to delete participant from trip {TripId} without permission.",
                 userId, id);
-            return AppErrors.Forbidden<Trip>();
+            return tripResult;
         }
+
+        var trip = tripResult.Value!;
 
         // remove participant 
         var participantResult = trip.RemoveParticipant(participantId);
@@ -340,5 +328,35 @@ public class TripService : ITripService
             userId);
 
         return ServiceResult.Ok();
+    }
+
+    private async Task<ServiceResult<Trip>> GetTripAuthorisedForEdit (int tripId)
+    {
+        var userId = _requestContext.UserId;
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+        if (trip == null)
+            return AppErrors.NotFound<Trip>();
+
+        if (!AuthorisationRules.AuthorisedToEdit(trip, userId))
+            return AppErrors.Forbidden<Trip>();
+
+        return trip;
+    }
+
+    private async Task<ServiceResult<Trip>> GetTripAuthorisedForView(int tripId)
+    {
+        var userId = _requestContext.UserId;
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+        if (trip == null)
+            return AppErrors.NotFound<Trip>();
+
+        if (!AuthorisationRules.AuthorisedToView(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId}",
+            userId, trip.Id);
+            return AppErrors.Forbidden<Trip>();
+        }
+
+        return trip;
     }
 }

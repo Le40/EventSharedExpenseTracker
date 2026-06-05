@@ -26,12 +26,12 @@ namespace EventSharedExpenseTracker.MvC.Factories
             _expenseService = expenseService;
         }
 
-        public async Task<Result<ExpenseFormViewModel>> BuildCreateAsync(int tripId)
+        public async Task<ServiceResult<ExpenseFormViewModel>> BuildCreateAsync(int tripId)
         {
             var tripResult = await _tripService.GetParticipants(tripId);
 
             if (!tripResult.IsSuccess)
-                return Result<ExpenseFormViewModel>.Fail(tripResult.Errors);
+                return ServiceResult<ExpenseFormViewModel>.Fail(tripResult.Errors);
 
             var userId = _requestContext.UserId;
             string userName = _requestContext.UserName;
@@ -61,27 +61,27 @@ namespace EventSharedExpenseTracker.MvC.Factories
                     }).ToList()
             };
 
-            return Result<ExpenseFormViewModel>.Ok(model);
+            return ServiceResult<ExpenseFormViewModel>.Ok(model);
         }
 
-        public async Task<Result<ExpenseFormViewModel>> BuildEditAsync(int expenseId)
+        public async Task<ServiceResult<ExpenseFormViewModel>> BuildEditAsync(int expenseId)
         {
             var queryResult = await _expenseService.GetExpenseForm(expenseId);
             if (!queryResult.IsSuccess)
-                return Result<ExpenseFormViewModel>.Fail(queryResult.Errors);
+                return ServiceResult<ExpenseFormViewModel>.Fail(queryResult.Errors);
                 
             var query = queryResult.Value!;
 
             var tripResult = await _tripService.GetParticipants(query.TripId);
 
             if (!tripResult.IsSuccess)
-                return Result<ExpenseFormViewModel>.Fail(tripResult.Errors);
+                return ServiceResult<ExpenseFormViewModel>.Fail(tripResult.Errors);
 
             //var userId = _requestContext.UserId;
 
             var model = ExpenseVMMapper.FromQuery(query, tripResult.Value!.Participants);
 
-            return Result<ExpenseFormViewModel>.Ok(model);
+            return ServiceResult<ExpenseFormViewModel>.Ok(model);
         }
     }
 }

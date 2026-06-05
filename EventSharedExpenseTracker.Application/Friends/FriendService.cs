@@ -20,7 +20,7 @@ public class FriendService : IFriendService
         _requestContext = requestContext;
     }
 
-    public async Task<Result<List<Friendship>>> Index()
+    public async Task<ServiceResult<List<Friendship>>> Index()
     {
         int userId = _requestContext.UserId;
 
@@ -28,10 +28,10 @@ public class FriendService : IFriendService
         if (user == null)
             return AppErrors.NotFound<CustomUser>();
 
-        return (Result<List<Friendship>>)user.Friends;
+        return (ServiceResult<List<Friendship>>)user.Friends;
     }
 
-    public async Task<Result<List<CustomUser>>> Search(string? searchString)
+    public async Task<ServiceResult<List<CustomUser>>> Search(string? searchString)
     {
         int userId = _requestContext.UserId;
         //var user = await _unitOfWork.Users.GetUserWithFriends(userId);
@@ -47,7 +47,7 @@ public class FriendService : IFriendService
     }
 
 
-    public async Task<Result<Friendship>> Invite(int friendId)
+    public async Task<ServiceResult<Friendship>> Invite(int friendId)
     {
         int userId = _requestContext.UserId;
 
@@ -74,7 +74,7 @@ public class FriendService : IFriendService
         return friendship;
     }
 
-    public async Task<Result<Friendship>> Accept(int friendshipId)
+    public async Task<ServiceResult<Friendship>> Accept(int friendshipId)
     {
         int userId = _requestContext.UserId;
 

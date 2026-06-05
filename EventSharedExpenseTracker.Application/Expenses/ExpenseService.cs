@@ -1,12 +1,13 @@
-﻿using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Application.Common.Authorisation;
+using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses.DTOs;
-using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Common.Authorisation;
+using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
-using Microsoft.Extensions.Logging;
-using Mapster;
+using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.PaymentProcessing;
+using Mapster;
+using Microsoft.Extensions.Logging;
 
 namespace EventSharedExpenseTracker.Application.Expenses;
 
@@ -25,22 +26,16 @@ public class ExpenseService : IExpenseService
         _exchangeRateService = exchangeRateService;
     }
 
-    public async Task<Result<ExpenseIndexQuery>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
+    public async Task<ServiceResult<ExpenseIndexQuery>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
     {
+        // get and autorise trip
         int userId = _requestContext.UserId;
+        var tripResult = await GetTripAuthorisedForView(tripId);
 
-        // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
+        if (!tripResult.IsSuccess)
+            return tripResult.ToFailure<ExpenseIndexQuery>();
 
-        // authorise Trip
-        if (!AuthorisationRules.AuthorisedToView(trip, userId))
-        {
-            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId}",
-            userId, trip.Id);
-            return AppErrors.Forbidden<Trip>();
-        }
+        var trip = tripResult.Value!;
 
         // options for query
         var options = new ExpenseQueryOptions
@@ -65,32 +60,19 @@ public class ExpenseService : IExpenseService
             }).ToList()
         };
 
-        /*// map to query/response + authorise each Expense
-        var items = expenses.Select(e => {
-            var canEditExpense = AuthorisationRules.AuthorisedToEdit(e, userId);
-            return ExpenseMapper.ToQuery(e, canEditExpense);
-            }).ToList();
-
-        return items;*/
         return query;
     }
 
-    public async Task<Result<Expense>> Add(ExpenseCommand command, int tripId)
+    public async Task<ServiceResult<Expense>> Add(ExpenseCommand command, int tripId)
     {
+        // get and autorise trip
         int userId = _requestContext.UserId;
+        var tripResult = await GetTripAuthorisedForView(tripId);
 
-        // get Trip
-        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
+        if (!tripResult.IsSuccess)
+            return tripResult.ToFailure<Expense>();
 
-        // authorise Trip
-        if (!AuthorisationRules.AuthorisedToView(trip, userId)) 
-        {
-            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId} to CREATE new expense.",
-            userId, trip.Id);
-            return AppErrors.Forbidden<Trip>();
-        }
+        var trip = tripResult.Value!;
 
         var exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, trip.BaseCurrencyCode);
 
@@ -122,7 +104,7 @@ public class ExpenseService : IExpenseService
         return expense;
     }
 
-    public async Task<Result<ExpenseQuery>> GetExpenseForm(int id)
+    public async Task<ServiceResult<ExpenseQuery>> GetExpenseForm(int id)
     {
         int userId = _requestContext.UserId;
 
@@ -140,22 +122,20 @@ public class ExpenseService : IExpenseService
         return query;
     }
 
-    public async Task<Result<Expense>> Update(int id, ExpenseCommand command)
+    public async Task<ServiceResult<Expense>> Update(int id, ExpenseCommand command)
     {
+        // get and autorise expense
         int userId = _requestContext.UserId;
+        var expenseResult = await GetExpenseAuthorisedForEdit(id);
 
-        // get Expense
-        var existingExpense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        if (existingExpense == null)
-            return AppErrors.NotFound<Expense>();
-
-        // authorise Expense
-        if (!AuthorisationRules.AuthorisedToEdit(existingExpense, userId))
+        if (!expenseResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted unauthorized UPDATE of expense {ExpenseId}",
-            userId, existingExpense.Id);
-            return AppErrors.Forbidden<Expense>();
+            _logger.LogWarning("User {UserId} attempted update of expense {ExpenseId} without permission",
+            userId, id);
+            return expenseResult;
         }
+
+        var existingExpense = expenseResult.Value!;
 
         var currencyChanged = existingExpense.CurrencyCode != command.CurrencyCode;
         var dateChanged = existingExpense.Date.Date != command.Date.Date;
@@ -187,20 +167,18 @@ public class ExpenseService : IExpenseService
 
     public async Task<ServiceResult> Delete(int id)
     {
+        // get and autorise expense
         int userId = _requestContext.UserId;
+        var expenseResult = await GetExpenseAuthorisedForEdit(id);
 
-        // get Expense
-        var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        if (expense == null)
-            return AppErrors.NotFound<Expense>();
-
-        // authorise Expense
-        if (!AuthorisationRules.AuthorisedToEdit(expense, userId))
+        if (!expenseResult.IsSuccess)
         {
-            _logger.LogWarning("User {UserId} attempted unauthorized DELETE of expense {ExpenseId}",
+            _logger.LogWarning("User {UserId} attempted delete of expense {ExpenseId} without permission",
             userId, id);
-            return AppErrors.Forbidden<Expense>();
+            return expenseResult;
         }
+
+        var expense = expenseResult.Value!;
 
         // delete Expense
         _unitOfWork.Expenses.Delete(expense);
@@ -211,5 +189,35 @@ public class ExpenseService : IExpenseService
             userId);
 
         return ServiceResult.Ok();
+    }
+
+    private async Task<ServiceResult<Trip>> GetTripAuthorisedForView(int tripId)
+    {
+        var userId = _requestContext.UserId;
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+        if (trip == null)
+            return AppErrors.NotFound<Trip>();
+
+        if (!AuthorisationRules.AuthorisedToView(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId}",
+            userId, trip.Id);
+            return AppErrors.Forbidden<Trip>();
+        }
+
+        return trip;
+    }
+
+    private async Task<ServiceResult<Expense>> GetExpenseAuthorisedForEdit(int id)
+    {
+        var userId = _requestContext.UserId;
+        var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
+        if (expense == null)
+            return AppErrors.NotFound<Expense>();
+
+        if (!AuthorisationRules.AuthorisedToEdit(expense, userId))
+            return AppErrors.Forbidden<Expense>();
+
+        return expense;
     }
 }

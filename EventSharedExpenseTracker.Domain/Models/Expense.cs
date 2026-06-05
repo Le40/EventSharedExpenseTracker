@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Result;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.Domain.Models;
@@ -8,7 +9,7 @@ namespace EventSharedExpenseTracker.Domain.Models;
 public class Expense
 {
     public int Id { get; set; }
-    [StringLength(50)]
+    [StringLength(80)]
     public required string Name { get; set; }
     [DataType(DataType.Date)]
     public DateTime Date { get; set; } = DateTime.Now;
@@ -35,13 +36,27 @@ public class Expense
         return CreatorId == userId;
     }
 
-    public void SetPayments(IEnumerable<Payment> payments)
+    public DomainResult SetPayments(IEnumerable<Payment> payments)
     {
+        var list = payments.ToList();
+
+        if (!list.Any(p => !p.IsOwed))
+            return DomainErrors.Validation<Expense>("Expense must have at least one payer.");
+
+        if (!list.Any(p => p.IsOwed))
+            return DomainErrors.Validation<Expense>("Expense must have at least one owed participant.");
+
+        var paidTotal = list.Where(p => !p.IsOwed).Sum(p => p.AmountBase);
+        var owedTotal = list.Where(p => p.IsOwed).Sum(p => p.AmountBase);
+
+        if (paidTotal != owedTotal)
+            return DomainErrors.Validation<Expense>("Paid and owed totals must match.");
+
         Payments.Clear();
 
-        foreach (var payment in payments)
-        {
+        foreach (var payment in list)
             Payments.Add(payment);
-        }
+
+        return DomainResult.Ok();
     }
 }

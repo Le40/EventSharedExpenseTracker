@@ -7,9 +7,9 @@ namespace EventSharedExpenseTracker.Application.Expenses;
 
 public interface IExpenseService
 {
-    Task<Result<ExpenseIndexQuery>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter);
-    Task<Result<Expense>> Add(ExpenseCommand command, int tripId);
-    Task<Result<ExpenseQuery>> GetExpenseForm(int id);
-    Task<Result<Expense>> Update(int id, ExpenseCommand command);
+    Task<ServiceResult<ExpenseIndexQuery>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter);
+    Task<ServiceResult<Expense>> Add(ExpenseCommand command, int tripId);
+    Task<ServiceResult<ExpenseQuery>> GetExpenseForm(int id);
+    Task<ServiceResult<Expense>> Update(int id, ExpenseCommand command);
     Task<ServiceResult> Delete(int id);
 }

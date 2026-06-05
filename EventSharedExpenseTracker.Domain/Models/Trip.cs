@@ -7,7 +7,7 @@ namespace EventSharedExpenseTracker.Domain.Models;
 public class Trip
 {
     public int Id { get; set; }
-    [StringLength(25)]
+    [StringLength(80)]
     public required string Name { get; set; }
 
     [DataType(DataType.Date)]
@@ -98,5 +98,27 @@ public class Trip
 
         return DomainResult.Ok();
     }
+
+    public DomainResult ChangeCurrency(string currencyCode)
+    {
+        if (string.IsNullOrWhiteSpace(currencyCode))
+            return DomainErrors.Validation<Trip>("Currency code is required.");
+
+        currencyCode = currencyCode.Trim().ToUpperInvariant();
+
+        if (BaseCurrencyCode == currencyCode)
+            return DomainResult.Ok();
+
+        if (Expenses.Any())
+        {
+            return DomainErrors.Validation<Trip>(
+                "Trip base currency cannot be changed after expenses exist.");
+        }
+
+        BaseCurrencyCode = currencyCode;
+        return DomainResult.Ok();
+    }
+
+    public record Currency(string code);
 
 }
