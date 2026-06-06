@@ -31,7 +31,7 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
                 .Where(p => p.Amount > 0m)
                 .Select(p =>
                 {
-                    var amount = p.IsOwed ? -p.Amount!.Value : p.Amount!.Value;
+                    var amount = Math.Round(p.IsOwed ? -p.Amount!.Value : p.Amount!.Value,2);
 
                     return new Payment
                     {
@@ -46,6 +46,11 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
             if (payments.Count == 0)
                 return DomainErrors.NoPayments;
+
+            RecalculateSharedAmountsBaseAndApplyRemainder(payments);
+
+            if (payments.Sum(p => p.AmountBase) != 0)
+                return DomainErrors.Validation<Expense>("Paid and owed totals must match.");
 
             return payments;
         }
@@ -118,6 +123,42 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
             {
                 owed.Amount = sharedAmount;
             }
+        }
+
+        private static void RecalculateSharedAmountsBaseAndApplyRemainder(
+            ICollection<Payment> payments)
+        {
+            var paidSum = payments
+                .Where(p => !p.IsOwed)
+                .Sum(p => p.AmountBase);
+
+            var manualOwedSum = payments
+                .Where(p => p.IsOwed && !p.IsEquallyShared)
+                .Sum(p => Math.Abs(p.AmountBase));
+
+            var sharedPayments = payments
+                .Where(p => p.IsOwed && p.IsEquallyShared)
+                .ToList();
+
+            if (sharedPayments.Count == 0)
+                return;
+
+            var amountToShare = -(paidSum - manualOwedSum);
+
+            var sharedAmount = Math.Round(
+                amountToShare / sharedPayments.Count,
+                2,
+                MidpointRounding.AwayFromZero);
+
+            foreach (var payment in sharedPayments)
+            {
+                payment.AmountBase = sharedAmount;
+            }
+
+            var sharedSum = sharedPayments.Sum(p => p.AmountBase);
+            var remainder = amountToShare - sharedSum;
+
+            sharedPayments.Last().AmountBase += remainder;
         }
 
         private readonly record struct ExpenseTotals(

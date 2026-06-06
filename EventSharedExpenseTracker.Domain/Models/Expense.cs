@@ -46,10 +46,7 @@ public class Expense
         if (!list.Any(p => p.IsOwed))
             return DomainErrors.Validation<Expense>("Expense must have at least one owed participant.");
 
-        var paidTotal = list.Where(p => !p.IsOwed).Sum(p => p.AmountBase);
-        var owedTotal = list.Where(p => p.IsOwed).Sum(p => p.AmountBase);
-
-        if (paidTotal != owedTotal)
+        if (list.Sum(p=>p.AmountBase) != 0)
             return DomainErrors.Validation<Expense>("Paid and owed totals must match.");
 
         Payments.Clear();
