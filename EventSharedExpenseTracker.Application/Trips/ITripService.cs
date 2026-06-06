@@ -2,7 +2,6 @@
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Domain.SettlementProcessing;
 using EventSharedExpenseTracker.Domain.Settlements;
 
 namespace EventSharedExpenseTracker.Application.Trips;
@@ -19,6 +18,6 @@ public interface ITripService
     Task<ServiceResult<Trip>> AddParticipant(int tripId, int id);
     Task<ServiceResult<Trip>> AddDummy(int tripId, string partName);
     Task<ServiceResult> DeleteParticipant(int tripId, int id);
-    //Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId);
+    Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId);
 
 }

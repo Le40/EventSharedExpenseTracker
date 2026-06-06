@@ -174,7 +174,7 @@ public class TripsController : BaseController
         return RedirectToAction("Details", "Trips", new { id });
     }
 
-    /*[HttpPost("Trips/{id}/Settlement")]
+    [HttpGet("Trips/{id}/Settlement")]
     public async Task<IActionResult> Settlements(int id)
     {
         var result = await _tripService.GetSettlements(id);
@@ -182,7 +182,7 @@ public class TripsController : BaseController
             return HandleServiceErrors(result.Errors);
 
         return View(result.Value);
-    }*/
+    }
 
 
 

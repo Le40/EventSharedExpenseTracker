@@ -1,60 +1,71 @@
-﻿
-using EventSharedExpenseTracker.Domain.Settlements;
+﻿using EventSharedExpenseTracker.Domain.Models;
 
-namespace EventSharedExpenseTracker.Domain.SettlementProcessing
+namespace EventSharedExpenseTracker.Domain.Settlements;
+
+public static class SettlementCalculator
 {
-    public class SettlementCalculator
+    public static List<Settlement> Calculate(Trip trip)
     {
-        public static List<Settlement> CalculateSettlements(
-            Dictionary<int, decimal> paidByParticipant,
-            Dictionary<int, decimal> owedByParticipant)
+        var debtors = trip.Participants
+            .Select(p => new
+            {
+                Participant = p,
+                Balance = p.Payments.Sum(x => x.AmountBase)
+            })
+            .Where(x => x.Balance < 0)
+            .OrderBy(x => x.Balance) // most negative first
+            .ToList();
+
+        var creditors = trip.Participants
+            .Select(p => new
+            {
+                Participant = p,
+                Balance = p.Payments.Sum(x => x.AmountBase)
+            })
+            .Where(x => x.Balance > 0)
+            .OrderByDescending(x => x.Balance)
+            .ToList();
+
+        var settlements = new List<Settlement>();
+
+        var debtorIndex = 0;
+        var creditorIndex = 0;
+
+        while (debtorIndex < debtors.Count && creditorIndex < creditors.Count)
         {
-            var creditors = new Queue<(int ParticipantId, decimal Amount)>();
-            var debtors = new Queue<(int ParticipantId, decimal Amount)>();
+            var debtor = debtors[debtorIndex];
+            var creditor = creditors[creditorIndex];
 
-            var participantIds = paidByParticipant.Keys
-                .Union(owedByParticipant.Keys)
-                .ToList();
+            var amount = Math.Min(
+                Math.Abs(debtor.Balance),
+                creditor.Balance);
 
-            foreach (var id in participantIds)
+            settlements.Add(new Settlement
             {
-                var paid = paidByParticipant.GetValueOrDefault(id);
-                var owed = owedByParticipant.GetValueOrDefault(id);
-                var net = paid - owed;
+                FromParticipantId = debtor.Participant.Id,
+                FromParticipantName = debtor.Participant.DisplayName,
+                ToParticipantId = creditor.Participant.Id,
+                ToParticipantName = creditor.Participant.DisplayName,
+                Amount = amount
+            });
 
-                if (net > 0)
-                    creditors.Enqueue((id, net));
-                else if (net < 0)
-                    debtors.Enqueue((id, -net));
-            }
-
-            var settlements = new List<Settlement>();
-
-            while (creditors.Count > 0 && debtors.Count > 0)
+            debtors[debtorIndex] = debtor with
             {
-                var debtor = debtors.Dequeue();
-                var creditor = creditors.Dequeue();
+                Balance = debtor.Balance + amount
+            };
 
-                var amount = Math.Min(debtor.Amount, creditor.Amount);
+            creditors[creditorIndex] = creditor with
+            {
+                Balance = creditor.Balance - amount
+            };
 
-                settlements.Add(new Settlement
-                {
-                    FromParticipantId = debtor.ParticipantId,
-                    ToParticipantId = creditor.ParticipantId,
-                    Amount = amount
-                });
+            if (debtors[debtorIndex].Balance == 0)
+                debtorIndex++;
 
-                var debtorRemaining = debtor.Amount - amount;
-                var creditorRemaining = creditor.Amount - amount;
-
-                if (debtorRemaining > 0)
-                    debtors.Enqueue((debtor.ParticipantId, debtorRemaining));
-
-                if (creditorRemaining > 0)
-                    creditors.Enqueue((creditor.ParticipantId, creditorRemaining));
-            }
-
-            return settlements;
+            if (creditors[creditorIndex].Balance == 0)
+                creditorIndex++;
         }
+
+        return settlements;
     }
 }

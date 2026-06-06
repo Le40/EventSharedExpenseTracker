@@ -5,7 +5,6 @@ using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Domain.SettlementProcessing;
 using EventSharedExpenseTracker.Domain.Settlements;
 using Mapster;
 using Microsoft.Extensions.Logging;
@@ -51,13 +50,17 @@ public class TripService : ITripService
     public async Task<ServiceResult<TripDetailsQuery>> Details(int id)
     {
         // get and autorise trip
-        int userId = _requestContext.UserId;
-        var tripResult = await GetTripAuthorisedForView(id);
+        var userId = _requestContext.UserId;
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(id);
+        if (trip == null)
+            return AppErrors.NotFound<Trip>();
 
-        if (!tripResult.IsSuccess)
-            return tripResult.ToFailure<TripDetailsQuery>();
-
-        var trip = tripResult.Value!;
+        if (!AuthorisationRules.AuthorisedToView(trip, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted unauthorized access of trip {TripId}",
+            userId, trip.Id);
+            return AppErrors.Forbidden<Trip>();
+        }
 
         // authorise for editing => is user creator of the Trip
         bool canUserEdit = AuthorisationRules.AuthorisedToEdit(trip, userId);
@@ -212,7 +215,7 @@ public class TripService : ITripService
     {
         // get and autorise trip
         var userId = _requestContext.UserId;
-        var tripResult = await GetTripAuthorisedForEdit(id);
+        var tripResult = await GetTripAuthorisedForView(id);
 
         if (!tripResult.IsSuccess)
         {
@@ -332,19 +335,25 @@ public class TripService : ITripService
         return ServiceResult.Ok();
     }
 
-    /*public async Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId)
+    public async Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId)
     {
-        var tripBalances = await _unitOfWork.Trips.GetParticipantBalancesAsync(tripId);
-        if (tripBalances == null)
+        var tripResult = await GetTripAuthorisedForView(tripId);
+
+        if (!tripResult.IsSuccess)
+            return tripResult.ToFailure<List<Settlement>>();
+
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+
+        if (trip == null)
             return AppErrors.NotFound<Trip>();
 
-        return SettlementCalculator.CalculateSettlements(tripBalances);
-    }*/
+        return SettlementCalculator.Calculate(trip);
+    }
 
     private async Task<ServiceResult<Trip>> GetTripAuthorisedForEdit (int tripId)
     {
         var userId = _requestContext.UserId;
-        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
         if (trip == null)
             return AppErrors.NotFound<Trip>();
 
@@ -357,7 +366,7 @@ public class TripService : ITripService
     private async Task<ServiceResult<Trip>> GetTripAuthorisedForView(int tripId)
     {
         var userId = _requestContext.UserId;
-        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
         if (trip == null)
             return AppErrors.NotFound<Trip>();
 
