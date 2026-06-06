@@ -1,5 +1,6 @@
 ﻿using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.Domain.Settlements;
 
 namespace EventSharedExpenseTracker.Application.Common.Interfaces;
 
@@ -11,4 +12,6 @@ public interface ITripRepository
     void Add(Trip trip);
     void Update(Trip trip);
     void Delete(Trip trip);
+
+    Task<List<ParticipantBalance>> GetParticipantBalancesAsync(int tripId);
 }

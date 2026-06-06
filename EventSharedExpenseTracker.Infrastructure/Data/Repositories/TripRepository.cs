@@ -3,6 +3,8 @@ using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.SettlementProcessing;
+using EventSharedExpenseTracker.Domain.Settlements;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 
@@ -39,7 +41,10 @@ public class TripRepository : ITripRepository
             _ => query.OrderByDescending(t => t.DateFrom),
         };
 
-        return await query.AsNoTracking().ToListAsync();
+        return await query
+            .AsNoTracking()
+            .AsSplitQuery()
+            .ToListAsync();
     }
 
     public async Task<Trip?> GetByIdAsync(int id)
@@ -50,8 +55,24 @@ public class TripRepository : ITripRepository
     public async Task<Trip?> GetByIdWithExpensesAsync(int id)
     {
         return await _context.Trips
+            .AsNoTracking()
+            .AsSplitQuery()
             .Include(t => t.Expenses.OrderByDescending(e => e.Id))
             .FirstOrDefaultAsync(t => t.Id == id);
+    }
+
+    public async Task<List<ParticipantBalance>> GetParticipantBalancesAsync(int tripId)
+    {
+        return await _context.TripParticipants
+            .AsNoTracking()
+            .Where(p => p.TripId == tripId)
+            .Select(p => new ParticipantBalance
+            {
+                ParticipantId = p.Id,
+                ParticipantName = p.DisplayName,
+                Balance = p.Payments.Sum(x => x.AmountBase)
+            })
+            .ToListAsync();
     }
 
     public void Add(Trip trip)

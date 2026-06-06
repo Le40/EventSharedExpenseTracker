@@ -174,6 +174,22 @@ public class TripsController : BaseController
         return RedirectToAction("Details", "Trips", new { id });
     }
 
+    /*[HttpPost("Trips/{id}/Settlement")]
+    public async Task<IActionResult> Settlements(int id)
+    {
+        var result = await _tripService.GetSettlements(id);
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
+
+        return View(result.Value);
+    }*/
+
+
+
+
+
+
+
     private IActionResult ReturnFormOrError(ServiceResult result, TripFormViewModel model, TripFormMode mode)
     {
         if (TryAddValidationErrorsToModelState(result.Errors))

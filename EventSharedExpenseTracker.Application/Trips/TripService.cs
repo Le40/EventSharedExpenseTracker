@@ -5,6 +5,8 @@ using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
+using EventSharedExpenseTracker.Domain.SettlementProcessing;
+using EventSharedExpenseTracker.Domain.Settlements;
 using Mapster;
 using Microsoft.Extensions.Logging;
 
@@ -330,6 +332,15 @@ public class TripService : ITripService
         return ServiceResult.Ok();
     }
 
+    /*public async Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId)
+    {
+        var tripBalances = await _unitOfWork.Trips.GetParticipantBalancesAsync(tripId);
+        if (tripBalances == null)
+            return AppErrors.NotFound<Trip>();
+
+        return SettlementCalculator.CalculateSettlements(tripBalances);
+    }*/
+
     private async Task<ServiceResult<Trip>> GetTripAuthorisedForEdit (int tripId)
     {
         var userId = _requestContext.UserId;
@@ -359,4 +370,5 @@ public class TripService : ITripService
 
         return trip;
     }
+
 }

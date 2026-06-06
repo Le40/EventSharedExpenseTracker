@@ -44,7 +44,10 @@ public class ExpenseRepository : IExpenseRepository
             _ => query.OrderByDescending(e => e.Date),
         };
 
-        return await query.AsNoTracking().ToListAsync();
+        return await query
+            .AsNoTracking()
+            .AsSplitQuery()
+            .ToListAsync();
     }
 
     public async Task<Expense?> GetByIdAsync(int id)
