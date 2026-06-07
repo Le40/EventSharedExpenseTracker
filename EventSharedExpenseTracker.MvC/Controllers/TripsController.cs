@@ -3,11 +3,15 @@ using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.MvC.Common;
+using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
+using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
@@ -27,23 +31,23 @@ public class TripsController : BaseController
     // INDEX
     [HttpGet("Trips/")]
     [HttpGet("/")]
-    public async Task<IActionResult> Index(string? sortOrder, string? searchString, TripCategory? categoryFilter)
+    public async Task<IActionResult> Index(string? sortOrder, string? searchString, bool creator, TripCategory? categoryFilter)
     {
-        ViewBag.DateSortParam = sortOrder == "date" ? "date_desc" : "date";
-        ViewBag.SearchString = searchString;
-        ViewBag.CategoryFilter = categoryFilter;
-
-        var result = await _tripService.Index(sortOrder, searchString, categoryFilter);
+        var result = await _tripService.GetIndex(sortOrder, searchString, categoryFilter);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
-        var models = new TripIndexViewModel
+        var vm = new TripIndexViewModel
         {
-            Creator = true,
+            SearchString = searchString,
+            CategoryFilter = categoryFilter,
+            Creator = creator,
+            CurrentSort = sortOrder,
+            DateSortParam = sortOrder == "date" ? "date_desc" : "date",
             Trips = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList()
         };
-
-        return View(models);
+  
+        return View(vm);
     }
 
     // DETAILS

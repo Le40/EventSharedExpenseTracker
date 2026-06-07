@@ -5,7 +5,7 @@ namespace EventSharedExpenseTracker.MvC.Controllers
 {
     public class AdminController : Controller
     {
-        [HttpGet("Admin/SeedDemoData")]
+        //[HttpGet("Admin/SeedDemoData")]
         public async Task<IActionResult> SeedDemoData([FromServices] DemoDataSeeder seeder)
         {
             if (!HttpContext.RequestServices

@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.MvC.Common;
+﻿using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.MvC.Common;
 using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
@@ -6,7 +7,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
     public class TripIndexViewModel
     {
         public string? SearchString { get; set; }
-        public string? CategoryFilter { get; set; }
+        public TripCategory? CategoryFilter { get; set; }
         public bool Creator { get; set; }
         public string? DateSortParam { get; set; }
         public string? CurrentSort { get; set; }
@@ -21,8 +22,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public int Id { get; set; }
         [Required(ErrorMessage = "Name is required.")]
         public required string Name { get; set; }
-        public DateTime DateFrom { get; set; }
-        public DateTime DateTo { get; set; }
+        public DateOnly DateFrom { get; set; }
+        public DateOnly DateTo { get; set; }
         public string? ImagePath { get; set; }
         public IEnumerable<string> ParticipantNames { get; set; } = [];
     }

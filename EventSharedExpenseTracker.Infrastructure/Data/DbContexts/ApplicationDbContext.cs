@@ -97,8 +97,8 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
                 entity.Property(e => e.CurrencyCode)
                       .HasMaxLength(3);
 
-                entity.Property(e => e.BaseCurrencyCode)
-                      .HasMaxLength(3);
+                //entity.Property(e => e.BaseCurrencyCode)
+                //      .HasMaxLength(3);
             });
 
             modelBuilder.Entity<TripParticipant>()

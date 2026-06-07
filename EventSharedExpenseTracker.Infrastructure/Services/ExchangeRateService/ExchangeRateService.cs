@@ -1,13 +1,8 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
-using EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService.Providers.ExchangeRateApi;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using System.Globalization;
-using System.Net.Http.Json;
-using System.Text.Json;
-using System.Xml.Linq;
+
 
 namespace EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService
 {
@@ -25,7 +20,8 @@ namespace EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService
 
         public async Task<decimal> GetRateAsync(
             string fromCurrencyCode,
-            string toCurrencyCode)
+            string toCurrencyCode,
+            DateOnly date)
         {
             fromCurrencyCode = NormalizeCurrencyCode(fromCurrencyCode);
             toCurrencyCode = NormalizeCurrencyCode(toCurrencyCode);
@@ -33,11 +29,12 @@ namespace EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService
             if (fromCurrencyCode == toCurrencyCode)
                 return 1m;
 
+            // store current rates for today on 1st call of the day
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
             await EnsureRatesForDateAsync(today);
 
-            var rates = await GetRatesForDateAsync(today);
+            // get rate for requested day of not found get fallback, closest older rate
+            var rates = await GetRatesForDateAsync(date);
 
             return CalculateCrossRate(rates, fromCurrencyCode, toCurrencyCode);
         }
@@ -73,7 +70,11 @@ namespace EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService
         private async Task<Dictionary<string, decimal>> GetRatesForDateAsync(DateOnly rateDate)
         {
             return await _context.ExchangeRates
-                .Where(r => r.RateDate == rateDate)
+                .Where(r => r.RateDate <= rateDate)
+                .GroupBy(r => r.CurrencyCode)
+                .Select(g => g
+                    .OrderByDescending(r => r.RateDate)
+                    .First())
                 .ToDictionaryAsync(
                     r => r.CurrencyCode,
                     r => r.RatePerEur);

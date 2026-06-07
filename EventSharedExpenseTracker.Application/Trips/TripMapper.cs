@@ -1,5 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common;
-using EventSharedExpenseTracker.Application.Expenses.DTOs;
+using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Models;
 
@@ -23,11 +23,11 @@ namespace EventSharedExpenseTracker.Application.Trips
                 BaseCurrencyCode = trip.BaseCurrencyCode,
 
                 Participants = trip.Participants
-                    .Select(p => new TripDetailsQueryParticipant
+                    .Select(p => new TripParticipantDetailsQuery
                     {
                         Id = p.Id,
                         IsDummy = p.UserId == null,
-                        DisplayName = TripParticipantMapper.GetDisplayName(p),
+                        DisplayName = p.DisplayName,
                         PaymentSum = p.Payments.Sum(x => x.AmountBase),
                         PaymentCount = p.Payments.Count
                     })
@@ -48,10 +48,10 @@ namespace EventSharedExpenseTracker.Application.Trips
                 ImagePath = trip.ImagePath,
                 BaseCurrencyCode = trip.BaseCurrencyCode,
                 Country = trip.Country,
-                City = trip.City,
+                City = trip.City ?? "",
                 Category = trip.Category,
                 ParticipantNames = trip.Participants
-                    .Select(p => TripParticipantMapper.GetDisplayName(p))
+                    .Select(p => p.DisplayName)
                     .ToList()
             };
         }

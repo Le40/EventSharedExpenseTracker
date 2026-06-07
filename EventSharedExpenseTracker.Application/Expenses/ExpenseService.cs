@@ -1,12 +1,11 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Authorisation;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
-using EventSharedExpenseTracker.Application.Expenses.DTOs;
-using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Application.Expenses.Commands;
+using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.PaymentProcessing;
-using Mapster;
 using Microsoft.Extensions.Logging;
 
 namespace EventSharedExpenseTracker.Application.Expenses;
@@ -26,14 +25,14 @@ public class ExpenseService : IExpenseService
         _exchangeRateService = exchangeRateService;
     }
 
-    public async Task<ServiceResult<ExpenseIndexQuery>> Index(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
+    public async Task<ServiceResult<TripExpensesQuery>> GetIndex(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
     {
         // get and autorise trip
         int userId = _requestContext.UserId;
         var tripResult = await GetTripAuthorisedForView(tripId);
 
         if (!tripResult.IsSuccess)
-            return tripResult.ToFailure<ExpenseIndexQuery>();
+            return tripResult.ToFailure<TripExpensesQuery>();
 
         var trip = tripResult.Value!;
 
@@ -50,7 +49,7 @@ public class ExpenseService : IExpenseService
         // get Expenses
         var expenses = await _unitOfWork.Expenses.GetAllFromTripAsync(tripId, options);
 
-        var query = new ExpenseIndexQuery
+        var query = new TripExpensesQuery
         {
             BaseCurrencyCode = trip.BaseCurrencyCode,
             Expenses = expenses.Select(e =>
@@ -74,24 +73,26 @@ public class ExpenseService : IExpenseService
 
         var trip = tripResult.Value!;
 
-        var exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, trip.BaseCurrencyCode);
+        var exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, trip.BaseCurrencyCode, command.Date);
 
         // process Expense's PaymentInputs to Payment entities. Validate their correctness.
         var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
         if (!paymentInputProcessingResult.IsSuccess)
             return DomainErrorMapper.ToAppErrors(paymentInputProcessingResult.Errors);
-
+        var payments = paymentInputProcessingResult.Value;
         // map expenseCommand to Expense
         var context = new ExpenseCreationContext
         {
             TripId = tripId,
             UserId = userId,
-            TripBaseCurrencyCode = trip.BaseCurrencyCode,
+            //TripBaseCurrencyCode = trip.BaseCurrencyCode,
             ExchangeRateToBase = exchangeRate
         };
-        var expense = ExpenseMapper.ToExpense(command, context);
+        var expense = ExpenseMapper.FromCommand(command, context);
         // Expense attaches processed payments
-        expense.SetPayments(paymentInputProcessingResult.Value);
+        var setPaymentsResult = expense.SetPayments(payments);
+        if (!setPaymentsResult.IsSuccess)
+            return DomainErrorMapper.ToAppErrors(setPaymentsResult.Errors);
 
         _unitOfWork.Expenses.Add(expense);
         await _unitOfWork.CompleteAsync();
@@ -134,26 +135,27 @@ public class ExpenseService : IExpenseService
             userId, id);
             return expenseResult;
         }
-
         var existingExpense = expenseResult.Value!;
 
-        var currencyChanged = existingExpense.CurrencyCode != command.CurrencyCode;
-        var dateChanged = existingExpense.Date.Date != command.Date.Date;
+        // Get trip to get baseCurrency
+        var trip = await _unitOfWork.Trips.GetByIdAsync(existingExpense.TripId);
+        if (trip == null)
+            return AppErrors.NotFound<Trip>();
 
-        var exchangeRate = existingExpense.ExchangeRateToBase;
-        if (currencyChanged || dateChanged)
-        {
-            exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, existingExpense.BaseCurrencyCode);
-        }
+        var exchangeRate = await GetExchangeRateForUpdateAsync(existingExpense, command, trip.BaseCurrencyCode);
+
         // process Expense's PaymentInputs to Payment entities. Validate their correctness.
         var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
         if (!paymentInputProcessingResult.IsSuccess)
             return DomainErrorMapper.ToAppErrors(paymentInputProcessingResult.Errors);
+        var payments = paymentInputProcessingResult.Value;
 
         // apply changes from command to Expense
         ExpenseMapper.ApplyToExpense(existingExpense, command, exchangeRate);
         // Expense attaches processed payments
-        existingExpense.SetPayments(paymentInputProcessingResult.Value);
+        var setPaymentsResult = existingExpense.SetPayments(payments);
+        if (!setPaymentsResult.IsSuccess)
+            return DomainErrorMapper.ToAppErrors(setPaymentsResult.Errors);
 
         //_unitOfWork.Expenses.Update(existingExpense);
         await _unitOfWork.CompleteAsync();
@@ -194,7 +196,7 @@ public class ExpenseService : IExpenseService
     private async Task<ServiceResult<Trip>> GetTripAuthorisedForView(int tripId)
     {
         var userId = _requestContext.UserId;
-        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
         if (trip == null)
             return AppErrors.NotFound<Trip>();
 
@@ -219,5 +221,22 @@ public class ExpenseService : IExpenseService
             return AppErrors.Forbidden<Expense>();
 
         return expense;
+    }
+
+    private async Task<decimal> GetExchangeRateForUpdateAsync(
+        Expense existingExpense,
+        ExpenseCommand command,
+        string baseCurrencyCode)
+    {
+        var currencyChanged = existingExpense.CurrencyCode != command.CurrencyCode;
+        var dateChanged = existingExpense.Date != command.Date;
+
+        if (!currencyChanged && !dateChanged)
+            return existingExpense.ExchangeRateToBase;
+
+        return await _exchangeRateService.GetRateAsync(
+            command.CurrencyCode,
+            baseCurrencyCode,
+            command.Date);
     }
 }

@@ -27,13 +27,14 @@ public class ExpensesController : BaseController
     [HttpGet("Trips/{tripId}/Expenses/")]
     public async Task<IActionResult> Index(int tripId, string? sortOrder, string? searchString, ExpenseCategory? categoryFilter, bool creator = false)
     {
-        var result = await _expenseService.Index(tripId, sortOrder, searchString, creator, categoryFilter);
+        var result = await _expenseService.GetIndex(tripId, sortOrder, searchString, creator, categoryFilter);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
+        var tripCurrencyCode = result.Value.BaseCurrencyCode;
         var vm = new ExpenseIndexViewModel
         {
-            Expenses = result.Value!.Expenses.Select(e => ExpenseVMMapper.FromQuery(e)).ToList(),
+            Expenses = result.Value!.Expenses.Select(e => ExpenseVMMapper.FromQuery(e, tripCurrencyCode)).ToList(),
             TripId = tripId,
             SearchString = searchString,
             CategoryFilter = categoryFilter,
@@ -41,7 +42,7 @@ public class ExpensesController : BaseController
             CurrentSort = sortOrder,
             NameSortParam = sortOrder == "name" ? "name_desc" : "name",
             DateSortParam = sortOrder == "date" ? "date_desc" : "date",
-            AmmSortParam = sortOrder == "amount" ? "amount_desc" : "amount",
+            AmountSortParam = sortOrder == "amount" ? "amount_desc" : "amount",
             BaseCurrencyCode = result.Value.BaseCurrencyCode
         };
 

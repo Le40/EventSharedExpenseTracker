@@ -58,7 +58,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Migrations
                     b.Property<int?>("CreatorId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateOnly>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")

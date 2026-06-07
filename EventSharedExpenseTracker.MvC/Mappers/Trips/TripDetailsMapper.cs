@@ -1,9 +1,7 @@
 ﻿using EventSharedExpenseTracker.Application.Trips.DTOs;
-using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace EventSharedExpenseTracker.MvC.Mappers.Trips
 {
@@ -40,12 +38,12 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                 ExpenseIndex = new ExpenseIndexViewModel
                 {
                     TripId = query.Id,
-                    Expenses = query.Expenses.Select(ExpenseVMMapper.FromQuery).ToList(),
+                    Expenses = query.Expenses.Select(e => ExpenseVMMapper.FromQuery(e, query.BaseCurrencyCode)).ToList(),
                     Creator = false,
                     CurrentSort = null,
                     NameSortParam = "name",
                     DateSortParam = "date",
-                    AmmSortParam = "amount",
+                    AmountSortParam = "amount",
 
                     BaseCurrencyCode = query.BaseCurrencyCode
                 }

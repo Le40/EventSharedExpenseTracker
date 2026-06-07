@@ -19,10 +19,10 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public string Name { get; set; } = "";
         [Display(Name = "Date From")]
         [DataType(DataType.Date)]
-        public DateTime DateFrom { get; set; } = DateTime.Today;
+        public DateOnly DateFrom { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         [Display(Name = "Date To")]
         [DataType(DataType.Date)]
-        public DateTime DateTo { get; set; } = DateTime.Today;
+        public DateOnly DateTo { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         public string? ImagePath { get; set; }
         [Required(ErrorMessage = "The Category field is required.")]
         public TripCategory? Category { get; set; }

@@ -1,5 +1,4 @@
-﻿
-namespace EventSharedExpenseTracker.Application.Expenses
+﻿namespace EventSharedExpenseTracker.Application.Expenses.Commands
 {
     public class ExpenseCreationContext
     {

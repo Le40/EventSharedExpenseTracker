@@ -2,7 +2,7 @@
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Expenses.DTOs;
+using EventSharedExpenseTracker.Application.Expenses.Queries;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 

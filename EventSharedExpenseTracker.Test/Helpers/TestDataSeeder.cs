@@ -73,8 +73,8 @@ namespace EventSharedExpenseTracker.Tests.Helpers
             var trip = new Trip
             {
                 Name = "Test Trip",
-                DateFrom = DateTime.Today,
-                DateTo = DateTime.Today.AddDays(1),
+                DateFrom = DateOnly.FromDateTime(DateTime.Today),
+                DateTo = DateOnly.FromDateTime(DateTime.Today).AddDays(1),
                 CreatorId = user1.Id
             };
 
@@ -120,7 +120,7 @@ namespace EventSharedExpenseTracker.Tests.Helpers
             var expense = new Expense
             {
                 Name = "Dinner",
-                Date = DateTime.Today,
+                Date = DateOnly.FromDateTime(DateTime.Today),
                 Category = ExpenseCategory.Restaurant,
                 CreatorId = trip.CreatorId
             };

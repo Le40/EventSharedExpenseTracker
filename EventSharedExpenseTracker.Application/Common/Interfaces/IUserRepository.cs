@@ -14,5 +14,5 @@ public interface IUserRepository
     Task<CustomUser?> GetByIdAsync(int id);
     void Create(CustomUser customUser);
     void Delete(CustomUser customUser);
-    void Update(CustomUser customUser);
+    Task UpdateAndSyncAsync(CustomUser customUser);
 }

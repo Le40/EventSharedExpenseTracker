@@ -59,8 +59,17 @@ public class UserRepository : IUserRepository
         _context.CustomUsers.Remove(customUser);
     }
 
-    public void Update(CustomUser customUser)
+    public async Task UpdateAndSyncAsync(CustomUser customUser)
     {
+        var participants = await _context.TripParticipants
+            .Where(tp => tp.UserId == customUser.Id)
+            .ToListAsync();
+
+        foreach (var p in participants)
+        {
+            p.DisplayName = customUser.CustomUserName;
+        }
+
         _context.CustomUsers.Update(customUser);
     }
 }

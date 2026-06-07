@@ -3,6 +3,6 @@ namespace EventSharedExpenseTracker.Application.Common.Interfaces
 {
     public interface IExchangeRateService
     {
-        Task<decimal> GetRateAsync(string currencyCode, string fromCurrencyCode);
+        Task<decimal> GetRateAsync(string currencyCode, string fromCurrencyCode, DateOnly date);
     }
 }

@@ -4,15 +4,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.Domain.Models;
 
-
-
 public class Expense
 {
     public int Id { get; set; }
     [StringLength(80)]
     public required string Name { get; set; }
     [DataType(DataType.Date)]
-    public DateTime Date { get; set; } = DateTime.Now;
+    public DateOnly Date { get; set; }
     [StringLength(25)]
     public ExpenseCategory Category { get; set; }
     [StringLength(140)]
@@ -24,8 +22,8 @@ public class Expense
 
     [StringLength(3)]
     public string CurrencyCode { get; set; } = "EUR";
-    public string BaseCurrencyCode { get; set; } = "EUR";
-    public decimal ExchangeRateToBase{ get; set; } = 1m;
+    //public string BaseCurrencyCode { get; set; } = "EUR";
+    public decimal ExchangeRateToBase{ get; set; } = 1m; //maybe also not needed, good to updates of expense without changes to date and curency, no need to call db.
 
     public ICollection<Payment> Payments { get; } = [];
 

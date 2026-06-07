@@ -1,7 +1,7 @@
-﻿using EventSharedExpenseTracker.Domain.Enums;
-using EventSharedExpenseTracker.Domain.Models;
+﻿using EventSharedExpenseTracker.Application.Expenses.Queries;
+using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.ValueObjects;
 using EventSharedExpenseTracker.MvC.Common;
-using System.Runtime.CompilerServices;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 {
@@ -12,7 +12,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         public ExpenseCategory? CategoryFilter { get; set; }
         public bool Creator { get; set; }
         public string? NameSortParam { get; set; }
-        public string? AmmSortParam { get; set; }
+        public string? AmountSortParam { get; set; }
         public string? DateSortParam { get; set; }
         public string? CurrentSort { get; set; }
 
@@ -31,11 +31,13 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         public string EIdEditExpense => UiIds.EditExpense(Id);
         public required string Name { get; set; }
         public ExpenseCategory Category { get; set; }
-        public DateTime Date { get; set; }
-        public decimal TotalPaid { get; set; }
+        public DateOnly Date { get; set; }
+        public required Money TotalPaidBase { get; set; }
+        public required Money TotalPaidOriginal { get; set; }
+        //public string CurrencyCode { get; set; } = "EUR";
 
-        public IEnumerable<PaymentDisplayViewModel> PaidPayments { get; set; } = [];
-        public IEnumerable<PaymentDisplayViewModel> OwedPayments { get; set; } = [];
+        public IEnumerable<PaymentQuery> PaidPayments { get; set; } = [];
+        public IEnumerable<PaymentQuery> OwedPayments { get; set; } = [];
     }
 
     public class PaymentDisplayViewModel

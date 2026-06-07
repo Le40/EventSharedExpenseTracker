@@ -26,7 +26,7 @@ public class TripService : ITripService
         _imageService = imageService;
     }
 
-    public async Task<ServiceResult<List<TripQuery>>> Index(string? sortOrder, string? searchString, TripCategory? categoryFilter)
+    public async Task<ServiceResult<List<TripQuery>>> GetIndex(string? sortOrder, string? searchString, TripCategory? categoryFilter)
     {
         int userId = _requestContext.UserId;
 
@@ -211,7 +211,7 @@ public class TripService : ITripService
         return ServiceResult.Ok();
     }
 
-    public async Task<ServiceResult<TripDetailsQuery>> GetParticipants(int id)
+    public async Task<ServiceResult<TripParticipantsQuery>> GetParticipants(int id)
     {
         // get and autorise trip
         var userId = _requestContext.UserId;
@@ -222,13 +222,13 @@ public class TripService : ITripService
             _logger.LogWarning(
                 "User {UserId} attempted to get participants from trip {TripId} without permission.",
                 userId, id);
-            return tripResult.ToFailure<TripDetailsQuery>();
+            return tripResult.ToFailure<TripParticipantsQuery>();
         }
 
         var trip = tripResult.Value!;
 
         // map
-        var query = trip.Adapt<TripDetailsQuery>();
+        var query = trip.Adapt<TripParticipantsQuery>();
 
         return query;
     }

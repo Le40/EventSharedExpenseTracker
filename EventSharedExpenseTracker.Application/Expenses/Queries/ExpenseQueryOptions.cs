@@ -1,7 +1,6 @@
-﻿
-using EventSharedExpenseTracker.Domain.Enums;
+﻿using EventSharedExpenseTracker.Domain.Enums;
 
-namespace EventSharedExpenseTracker.Application.Expenses.DTOs
+namespace EventSharedExpenseTracker.Application.Expenses.Queries
 {
     public class ExpenseQueryOptions
     {

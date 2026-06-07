@@ -8,10 +8,10 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         public int Id { get; set; }
         public required string Name { get; set; }
         [DataType(DataType.Date)]
-        public DateTime DateFrom { get; set; }
+        public DateOnly DateFrom { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime DateTo { get; set; }
+        public DateOnly DateTo { get; set; }
         public string? ImagePath { get; set; }
         public string BaseCurrencyCode { get; set; } = "EUR";
         public TripCategory Category { get; set; }

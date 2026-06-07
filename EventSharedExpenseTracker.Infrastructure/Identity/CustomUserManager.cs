@@ -59,7 +59,7 @@ namespace EventSharedExpenseTracker.Infrastructure.Identity
             {
                 customUser.CustomUserName = user.CustomUserName;
                 //customUser.Email = user.Email;
-                _customUserRepository.Update(customUser);
+                await _customUserRepository.UpdateAndSyncAsync(customUser);
             }
 
             return await base.UpdateAsync(user);

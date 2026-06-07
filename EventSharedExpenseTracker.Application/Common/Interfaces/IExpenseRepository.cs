@@ -1,4 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
+﻿using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Domain.Models;
 
 namespace EventSharedExpenseTracker.Application.Common.Interfaces;

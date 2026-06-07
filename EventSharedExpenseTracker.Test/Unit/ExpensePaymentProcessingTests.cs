@@ -1,13 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
-using EventSharedExpenseTracker.Domain.Enums;
-using EventSharedExpenseTracker.Domain.PaymentProcessing;
-using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
+﻿using EventSharedExpenseTracker.Domain.PaymentProcessing;
 using FluentAssertions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EventSharedExpenseTracker.Tests.Unit
 {
@@ -16,11 +8,11 @@ namespace EventSharedExpenseTracker.Tests.Unit
         [Fact]
         public void ProcessForSaving_WhenPaidEqualsOwed_ReturnsSuccess()
         {
-            ICollection<PaymentInput> drafts =
+            ICollection<PaymentDraft> drafts =
             [
-                new() { ParticipantId = 1, Amount = 20, IsOwed = false },
-                new() { ParticipantId = 1, Amount = 10, IsOwed = true, IsEquallyShared = true },
-                new() { ParticipantId = 2, Amount = 10, IsOwed = true, IsEquallyShared = true },
+                new() { ParticipantId = 1, UserEnteredAmount = 20, IsOwed = false },
+                new() { ParticipantId = 1, UserEnteredAmount = 10, IsOwed = true, IsEquallyShared = true },
+                new() { ParticipantId = 2, UserEnteredAmount = 10, IsOwed = true, IsEquallyShared = true },
             ];
 
             var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
@@ -31,11 +23,11 @@ namespace EventSharedExpenseTracker.Tests.Unit
         [Fact]
         public void ProcessForSaving_WhenPaidDoesNotEqualOwed_ReturnsFailure()
         {
-            ICollection<PaymentInput> drafts =
+            ICollection<PaymentDraft> drafts =
             [
-                new() { ParticipantId = 1, Amount = 30, IsOwed = false },
-                new() { ParticipantId = 1, Amount = 10, IsOwed = true, IsEquallyShared = true },
-                new() { ParticipantId = 2, Amount = 10, IsOwed = true, IsEquallyShared = true },
+                new() { ParticipantId = 1, UserEnteredAmount = 30, IsOwed = false },
+                new() { ParticipantId = 1, UserEnteredAmount = 10, IsOwed = true, IsEquallyShared = true },
+                new() { ParticipantId = 2, UserEnteredAmount = 10, IsOwed = true, IsEquallyShared = true },
             ];
 
             var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
@@ -46,9 +38,9 @@ namespace EventSharedExpenseTracker.Tests.Unit
         [Fact]
         public void ProcessForSaving_WhenEquallySharedOwedExists_SplitsRemainingAmount()
         {
-            ICollection<PaymentInput> drafts =
+            ICollection<PaymentDraft> drafts =
             [
-                new() { ParticipantId = 1, Amount = 30, IsOwed = false },
+                new() { ParticipantId = 1, UserEnteredAmount = 30, IsOwed = false },
                 new() { ParticipantId = 1, IsOwed = true, IsEquallyShared = true },
                 new() { ParticipantId = 2, IsOwed = true, IsEquallyShared = true },
                 new() { ParticipantId = 3, IsOwed = true, IsEquallyShared = true }
@@ -66,10 +58,10 @@ namespace EventSharedExpenseTracker.Tests.Unit
         [Fact]
         public void ProcessForSaving_WhenManualOwedAmountHasEqualShareFlag_ManualAmountWins()
         {
-            ICollection<PaymentInput> drafts =
+            ICollection<PaymentDraft> drafts =
             [
-                new() { ParticipantId = 1, Amount = 30, IsOwed = false },
-                new() { ParticipantId = 1, Amount = 5, IsOwed = true, IsEquallyShared = true },
+                new() { ParticipantId = 1, UserEnteredAmount = 30, IsOwed = false },
+                new() { ParticipantId = 1, UserEnteredAmount = 5, IsOwed = true, IsEquallyShared = true },
                 new() { ParticipantId = 2, IsOwed = true, IsEquallyShared = true }
             ];
 
@@ -84,10 +76,10 @@ namespace EventSharedExpenseTracker.Tests.Unit
         [Fact]
         public void ProcessForSaving_WhenSpentIsMoreThanPaid_ReturnsFailure()
         {
-            ICollection<PaymentInput> drafts =
+            ICollection<PaymentDraft> drafts =
             [
-                new() { ParticipantId = 1, Amount = 20, IsOwed = false },
-                new() { ParticipantId = 1, Amount = 30, IsOwed = true }
+                new() { ParticipantId = 1, UserEnteredAmount = 20, IsOwed = false },
+                new() { ParticipantId = 1, UserEnteredAmount = 30, IsOwed = true }
             ];
 
             var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
@@ -98,10 +90,10 @@ namespace EventSharedExpenseTracker.Tests.Unit
         [Fact]
         public void ProcessForSaving_WhenPaidMoreThanSpentAndNoSharedOwed_ReturnsFailure()
         {
-            ICollection<PaymentInput> drafts =
+            ICollection<PaymentDraft> drafts =
             [
-                new() { ParticipantId = 1, Amount = 30, IsOwed = false },
-                new() { ParticipantId = 1, Amount = 10, IsOwed = true }
+                new() { ParticipantId = 1, UserEnteredAmount = 30, IsOwed = false },
+                new() { ParticipantId = 1, UserEnteredAmount = 10, IsOwed = true }
             ];
 
             var result = ExpenseProcessor.ProcessForSaving(drafts,1m);

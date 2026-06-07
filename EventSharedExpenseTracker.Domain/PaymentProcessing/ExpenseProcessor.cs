@@ -5,7 +5,7 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
     public static class ExpenseProcessor
     {
-        public static DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentInput> drafts, decimal exchangeRateToBase)
+        public static DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentDraft> drafts, decimal exchangeRateToBase)
         {
             // any owed payment with amount cannot be equally shared.
             NormalizeOwedInputs(drafts);
@@ -28,10 +28,10 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
             ApplySharedOwedAmounts(sharedOwed, totals.RemainingAmountToShare);
 
             var payments = drafts
-                .Where(p => p.Amount > 0m)
+                .Where(p => p.UserEnteredAmount > 0m)
                 .Select(p =>
                 {
-                    var amount = Math.Round(p.IsOwed ? -p.Amount!.Value : p.Amount!.Value,2);
+                    var amount = Math.Round(p.IsOwed ? -p.UserEnteredAmount!.Value : p.UserEnteredAmount!.Value,2);
 
                     return new Payment
                     {
@@ -56,34 +56,34 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
         }
 
 
-        private static void NormalizeOwedInputs(ICollection<PaymentInput> paymentDrafts)
+        private static void NormalizeOwedInputs(ICollection<PaymentDraft> paymentDrafts)
         {
             foreach (var owed in paymentDrafts.Where(p => p.IsOwed))
             {
                 // Manual amount wins over equal-share checkbox.
-                if (owed.Amount > 0m)
+                if (owed.UserEnteredAmount > 0m)
                     owed.IsEquallyShared = false;
             }
         }
 
-        private static List<DomainError> ValidateInputAmounts(ICollection<PaymentInput> paymentDrafts)
+        private static List<DomainError> ValidateInputAmounts(ICollection<PaymentDraft> paymentDrafts)
         {
             var errors = new List<DomainError>();
-            if (paymentDrafts.Any(p => p.Amount < 0))
+            if (paymentDrafts.Any(p => p.UserEnteredAmount < 0))
                 errors.Add(DomainErrors.Validation<Payment>("Payment value cant be negative"));
 
             return errors;
         }
 
         private static ExpenseTotals CalculateTotals(
-            ICollection<PaymentInput> paymentDrafts,
+            ICollection<PaymentDraft> paymentDrafts,
             int sharedCount)
         {
-            var sumPaid = paymentDrafts.Where(p => !p.IsOwed).Sum(p => p.Amount ?? 0m);
+            var sumPaid = paymentDrafts.Where(p => !p.IsOwed).Sum(p => p.UserEnteredAmount ?? 0m);
 
             var sumOwed = paymentDrafts
                 .Where(p => p.IsOwed)
-                .Sum(p => p.Amount ?? 0m);
+                .Sum(p => p.UserEnteredAmount ?? 0m);
 
             var remainingAmountToShare = sumPaid - sumOwed;
 
@@ -111,7 +111,7 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
         }
 
         private static void ApplySharedOwedAmounts(
-            ICollection<PaymentInput> sharedOwed,
+            ICollection<PaymentDraft> sharedOwed,
             decimal remainingAmountToShare)
         {
             if (sharedOwed.Count == 0)
@@ -121,7 +121,7 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
             foreach (var owed in sharedOwed)
             {
-                owed.Amount = sharedAmount;
+                owed.UserEnteredAmount = sharedAmount;
             }
         }
 

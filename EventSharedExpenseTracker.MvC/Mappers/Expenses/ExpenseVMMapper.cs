@@ -1,7 +1,8 @@
-﻿using EventSharedExpenseTracker.Application.Expenses.DTOs;
+﻿using EventSharedExpenseTracker.Application.Expenses.Commands;
+using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
-using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.PaymentProcessing;
+using EventSharedExpenseTracker.Domain.ValueObjects;
 using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 
@@ -9,23 +10,10 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
 {
     public static class ExpenseVMMapper
     {
-        public static ExpenseListItemViewModel FromQuery(ExpenseQuery query)
+        public static ExpenseListItemViewModel FromQuery(ExpenseQuery query, string tripCurrencyCode)
         {
-            var paidPayments = query.Payments.Where(p => !p.IsOwed).Select(p => new PaymentDisplayViewModel
-            {
-                ParticipantName = p.ParticipantName,
-                Amount = p.AmountBase,
-                IsOwed = p.IsOwed,
-                IsEquallyShared = p.IsEquallyShared
-            }).ToList();
-
-            var owedPayments = query.Payments.Where(p => p.IsOwed).Select(p => new PaymentDisplayViewModel
-            {
-                ParticipantName = p.ParticipantName,
-                Amount = p.AmountBase,
-                IsOwed = p.IsOwed,
-                IsEquallyShared = p.IsEquallyShared
-            }).ToList();
+            var paidPayments = query.Payments.Where(p => !p.IsOwed).ToList();
+            var owedPayments = query.Payments.Where(p => p.IsOwed).ToList();
 
 
             return new ExpenseListItemViewModel
@@ -37,7 +25,8 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 CanUserEdit = query.CanUserEdit,
                 PaidPayments = paidPayments,
                 OwedPayments = owedPayments,
-                TotalPaid = paidPayments.Sum(p => p.Amount)
+                TotalPaidBase = new Money(paidPayments.Sum(p => p.AmountBase), tripCurrencyCode),
+                TotalPaidOriginal = new Money(paidPayments.Sum(p => p.AmountOriginal), query.CurrencyCode)
             };
         }
         public static ExpenseCommand ToCommand(ExpenseFormViewModel model) //, int userId
@@ -55,10 +44,10 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
             { 
                 if (participant.PaidAmount > 0) // validated in viewmodel 
                 {
-                    expenseCommand.Payments.Add(new PaymentInput
+                    expenseCommand.Payments.Add(new PaymentDraft
                     {
                         ParticipantId = participant.ParticipantId,
-                        Amount = participant.PaidAmount.Value,
+                        UserEnteredAmount = participant.PaidAmount.Value,
                         IsOwed = false,
                         IsEquallyShared = false
                     });
@@ -66,10 +55,10 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
 
                 if (participant.IsOwedSelected || participant.OwedAmount > 0) // validated in viewmodel
                 {
-                    expenseCommand.Payments.Add(new PaymentInput
+                    expenseCommand.Payments.Add(new PaymentDraft
                     {
                         ParticipantId = participant.ParticipantId,
-                        Amount = participant.OwedAmount,
+                        UserEnteredAmount = participant.OwedAmount,
                         IsOwed = true,
                         IsEquallyShared = participant.IsOwedSelected
                     });
@@ -81,7 +70,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
 
         public static ExpenseFormViewModel FromQuery(
             ExpenseQuery command,
-            IEnumerable<TripQueryParticipant> tripParticipants)
+            IEnumerable<TripParticipantQuery> tripParticipants)
         {
             var paidByParticipant = command.Payments
                 .Where(p => !p.IsOwed)

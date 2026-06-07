@@ -29,7 +29,7 @@
                 </button>
                 @*SORT BY AMOUNT - sqlite not working*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
-                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.AmmSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
+                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.AmountSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Amount
                 </button>
@@ -82,10 +82,12 @@
                     hx-trigger="dblclick once">
 
                     <div class="row">
-                        <div class="col">
+                        <h5>@(expense.Name)</h5>
+                    </div>
+                    <div class="row">
+                        <div class="col text-start">
                             <h5>
-                                @(expense.Name)
-                                <small class="text-white-50">&nbsp;&nbsp;&nbsp;@(expense.Category)</small>
+                                <small class="text-white-50">@(expense.Category)</small>
                             </h5>
                         </div>
 
@@ -96,10 +98,17 @@
                     </div>
 
                     <div class="mb-2">
-                        <b>@CurrencyFormatter.Format(expense.TotalPaid,Model.BaseCurrencyCode)</b>
+                        @if(expense.TotalPaidBase == expense.TotalPaidOriginal)
+                        {
+                            <b>@CurrencyFormatter.FormatMoney(expense.TotalPaidBase)</b>
+                        }
+                        else
+                        {
+                            <b>@CurrencyFormatter.FormatMoney(expense.TotalPaidBase) / @CurrencyFormatter.FormatMoney(expense.TotalPaidOriginal)</b>
+                        }
                         @*<b>@(expense.TotalPaid.ToString("C"))</b>*@
                         <i class="text-white-50">
-                            -
+                            - Paid By: 
                             @foreach (var payment in expense.PaidPayments)
                             {
                                 <span class="border border-light-subtle rounded bg-dark text-white-50">
@@ -107,20 +116,23 @@
                                 </span>
                                 @*<span>@payment.Amount.ToString("C2")</span>*@
                             }
+
+                            <span>
+                                for @(expense.OwedPayments.Count() == 1 ? "1 person" : $"{expense.OwedPayments.Count()} people")
+                            </span>
                         </i><br>
                     </div>
-                    <i class="text-white-50">
+                    @*<i class="text-white-50">
                         <small>
                             @foreach (var payment in expense.OwedPayments)
                             {
                                 <span class="border border-light-subtle rounded bg-danger-subtle text-white-50">
                                     @payment.ParticipantName
                                 </span>
-                                <span>@CurrencyFormatter.Format(payment.Amount, Model.BaseCurrencyCode)</span>
-                                @*<span>@payment.Amount.ToString("C2")</span>*@
+                                <span>@CurrencyFormatter.Format(payment.AmountBase, Model.BaseCurrencyCode)</span>
                             }
                         </small>
-                    </i>
+                    </i>*@
                 </div>
             </li>
         }

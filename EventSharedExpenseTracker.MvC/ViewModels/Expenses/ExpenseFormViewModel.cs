@@ -19,7 +19,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; } = "";
         [DataType(DataType.Date)]
-        public DateTime Date { get; set; } = DateTime.Now;
+        public DateOnly Date { get; set; } = DateOnly.FromDateTime(DateTime.Today);
         [Required(ErrorMessage = "The Category field is required.")]
         public ExpenseCategory? Category { get; set; }
         //public List<SelectListItem> CategoryOptions { get; set; } = [];

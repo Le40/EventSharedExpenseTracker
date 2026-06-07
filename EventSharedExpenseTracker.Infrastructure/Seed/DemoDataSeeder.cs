@@ -105,7 +105,7 @@ public class DemoDataSeeder
         int index,
         DemoDataOptions options)
     {
-        var startDate = DateTime.Today
+        var startDate = DateOnly.FromDateTime(DateTime.Today)
             .AddDays(-_random.Next(1, options.YearsBack * 365));
 
         var duration = _random.Next(template.MinDays, template.MaxDays + 1);
@@ -171,7 +171,7 @@ public class DemoDataSeeder
             Description = null,
 
             CurrencyCode = template.CurrencyCode,
-            BaseCurrencyCode = trip.BaseCurrencyCode,
+            //BaseCurrencyCode = trip.BaseCurrencyCode,
             ExchangeRateToBase = 1m
         };
 
@@ -254,10 +254,10 @@ public class DemoDataSeeder
         return Math.Round(value, 2);
     }
 
-    private DateTime RandomDate(DateTime from, DateTime to)
+    private DateOnly RandomDate(DateOnly from, DateOnly to)
     {
-        var days = Math.Max(1, (to - from).Days);
-        return from.AddDays(_random.Next(0, days + 1));
+        var dayOffset = _random.Next(0, (to.DayNumber - from.DayNumber) + 1);
+        return from.AddDays(dayOffset);
     }
 
     private T Pick<T>(IReadOnlyList<T> values)
