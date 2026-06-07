@@ -8,7 +8,6 @@ using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static EventSharedExpenseTracker.MvC.ViewModels.Expenses.ExpenseFormViewModel;
 
 namespace EventSharedExpenseTracker.MvC.Controllers;
 
@@ -17,13 +16,11 @@ public class ExpensesController : BaseController
 {
     private readonly IExpenseService _expenseService;
     private readonly ExpenseFormFactory _expenseFormFactory;
-    private readonly IExpenseAiService _aiService;
 
-    public ExpensesController(IExpenseService expenseService, ExpenseFormFactory expenseFormFactory, IExpenseAiService aiService    )
+    public ExpensesController(IExpenseService expenseService, ExpenseFormFactory expenseFormFactory)
     {
         _expenseService = expenseService;
         _expenseFormFactory = expenseFormFactory;
-        _aiService = aiService;
     }
 
     [HttpPost]
@@ -32,21 +29,40 @@ public class ExpensesController : BaseController
         if (string.IsNullOrWhiteSpace(name) || name.Length < 4)
             return NoContent();
 
-        var categories = Enum.GetNames<ExpenseCategory>();
-
-        var suggestion = await _aiService.SuggestCategoryAsync(
-            name,
-            categories);
-
-        var selectedCategory = Enum.Parse<ExpenseCategory>(suggestion.SuggestedCategory);
+        var resultAi = await _expenseService.SuggestCategoryAsync(name);
+        if (!resultAi.IsSuccess)
+            return HandleServiceErrors(resultAi.Errors);
+        var suggestion = resultAi.Value!;
 
         var vm = new CategorySelectViewModel
         {
             FormId = formId,
-            SelectedCategory = selectedCategory
+            SelectedCategory = suggestion
         };
 
         return PartialView("_ExpenseForm_CategorySelect", vm);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult>ParseReceipt(int tripId, IFormFile receiptImage)
+    {
+        if (receiptImage is null || receiptImage.Length == 0)
+            return BadRequest("Receipt image is required.");
+
+        using var stream = receiptImage.OpenReadStream();
+        var resultAi = await _expenseService.ExtractReceiptDataAsync(stream);
+        if (!resultAi.IsSuccess)
+            return HandleServiceErrors(resultAi.Errors);
+        var parsedReceipt = resultAi.Value!;
+
+        var result = await _expenseFormFactory.BuildCreateFromReceiptAsync(tripId, parsedReceipt);
+
+        if (!result.IsSuccess)
+            return HandleServiceErrors(result.Errors);
+
+        var vm = result.Value!;
+
+        return PartialView("_ExpenseForm", vm);
     }
 
     // EXPENSES : INDEX

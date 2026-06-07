@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.8.34601.278
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E9877A47-F629-4802-851C-B28EC5EB813D}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventSharedExpenseTracker.Domain", "EventSharedExpenseTracker.Domain\EventSharedExpenseTracker.Domain.csproj", "{935E5248-25AD-4F50-BE2B-2ECAEA7EF421}"
 EndProject

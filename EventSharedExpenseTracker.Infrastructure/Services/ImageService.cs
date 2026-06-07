@@ -55,24 +55,39 @@ public class ImageService : IImageService
     {
         using (var image = Image.Load(imageFileStream))
         {
-            // Resize the image to fit within 1980x1080 bounds while preserving aspect ratio
-            image.Mutate(x => x.Resize(new ResizeOptions
-            {
-                Size = new Size(1980, 1080),
-                Mode = ResizeMode.Max
-            }));
-
-            // Compress the image
-            var jpegEncoder = new JpegEncoder
-            {
-                Quality = 70 // Adjust the quality level here (0-100)
-            };
+            var processedImageBytes =
+                await ResizeAndCompressAsync(imageFileStream,1920,1080,70);
             // Save the processed image to a byte array
-            using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
-            {
-                await image.SaveAsync(stream, jpegEncoder);
-                _logger.LogInformation("Image uploaded to {ImagePath}", filePath);
-            }
+            await File.WriteAllBytesAsync(filePath, processedImageBytes);
+
+            _logger.LogInformation("Image uploaded to {ImagePath}", filePath);
         }
+    }
+
+    public async Task<byte[]> ResizeAndCompressAsync(
+        Stream imageStream,
+        int maxWidth,
+        int maxHeight,
+        int quality)
+    {
+        using var image = await Image.LoadAsync(imageStream);
+
+        // Resize the image to fit within 1980x1080 bounds while preserving aspect ratio
+        image.Mutate(x => x.Resize(new ResizeOptions
+        {
+            Size = new Size(maxWidth, maxHeight),
+            Mode = ResizeMode.Max
+        }));
+
+        // Compress the image
+        var encoder = new JpegEncoder
+        {
+            Quality = quality
+        };
+
+        using var output = new MemoryStream();
+        await image.SaveAsync(output, encoder);
+
+        return output.ToArray();
     }
 }

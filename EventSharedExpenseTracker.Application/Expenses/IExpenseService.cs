@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Common.Results;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses.Commands;
 using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Domain.Enums;
@@ -13,4 +14,7 @@ public interface IExpenseService
     Task<ServiceResult<Expense>> Add(ExpenseCommand command, int tripId);
     Task<ServiceResult<Expense>> Update(int id, ExpenseCommand command);
     Task<ServiceResult> Delete(int id);
+
+    Task<ServiceResult<ReceiptParseResult>> ExtractReceiptDataAsync(Stream imageStream);
+    Task<ServiceResult<ExpenseCategory>> SuggestCategoryAsync(string expenseName);
 }

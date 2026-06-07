@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Domain.Enums;
+﻿using EventSharedExpenseTracker.Domain.Constants;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -6,19 +7,22 @@ using System.ComponentModel.DataAnnotations;
 
 namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 {
+
+    public enum ExpenseFormMode
+    {
+        Create,
+        Edit
+    }
+
+
     public class ExpenseFormViewModel
     {
-        public enum ExpenseFormMode
-        {
-            Create,
-            Edit
-        }
         [ValidateNever]
         public string FormId { get; set; } = default!;
 
         public int Id { get; set; }
         public int TripId { get; set; }
-        [StringLength(25)]
+        [StringLength(ExpenseConstants.NameMaxLength)]
         [Required(ErrorMessage = "Name is required.")]
         public string Name { get; set; } = "";
         [DataType(DataType.Date)]
@@ -26,7 +30,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         [Required(ErrorMessage = "The Category field is required.")]
         public ExpenseCategory? Category { get; set; }
         //public List<SelectListItem> CategoryOptions { get; set; } = [];
-        [StringLength(80)]
+        [StringLength(ExpenseConstants.DescriptionMaxLength)]
         public string? Description { get; set; }
 
         public string CurrencyCode { get; set; } = "EUR";
@@ -45,6 +49,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
     {
         public int ParticipantId { get; set; }
         public required string ParticipantName { get; set; }
+
+        public bool IsCurrentUser { get; set; }
 
         public int? PaidPaymentId { get; set; }   // only needed for Edit
         [Range(0.01, 999999, ErrorMessage = "Value must be positive.")]

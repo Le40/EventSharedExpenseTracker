@@ -26,6 +26,36 @@ namespace EventSharedExpenseTracker.MvC.Factories
             _expenseService = expenseService;
         }
 
+        public async Task<ServiceResult<ExpenseFormViewModel>> BuildCreateFromReceiptAsync(int tripId, ReceiptParseResult parsedReceipt)
+        {
+            var result = await BuildCreateAsync(tripId);
+
+            if (!result.IsSuccess)
+                return result;
+
+            var vm = result.Value!;
+
+            ApplyReceiptValues(vm, parsedReceipt);
+
+            return vm;
+        }
+
+        private static void ApplyReceiptValues(
+            ExpenseFormViewModel vm,
+            ReceiptParseResult parsedReceipt)
+        {
+            vm.Name = parsedReceipt.Name ?? vm.Name;
+            vm.Date = parsedReceipt.Date ?? vm.Date;
+            vm.CurrencyCode = parsedReceipt.CurrencyCode ?? vm.CurrencyCode;
+            vm.Category = parsedReceipt.Category ?? vm.Category;
+
+            var currentParticipant = vm.Participants
+                .FirstOrDefault(p => p.IsCurrentUser);
+
+            if (currentParticipant is not null)
+                currentParticipant.PaidAmount = parsedReceipt.TotalAmount;
+        }
+
         public async Task<ServiceResult<ExpenseFormViewModel>> BuildCreateAsync(int tripId)
         {
             var tripResult = await _tripService.GetParticipants(tripId);
@@ -56,6 +86,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
                     {
                         ParticipantId = p.Id,
                         ParticipantName = p.DisplayName,
+                        IsCurrentUser = p.DisplayName == userName,
                         PaidAmount = null,
                         IsOwedSelected = false,
                         OwedAmount = null
@@ -70,7 +101,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
             var queryResult = await _expenseService.GetExpenseForm(expenseId);
             if (!queryResult.IsSuccess)
                 return ServiceResult<ExpenseFormViewModel>.Fail(queryResult.Errors);
-                
+
             var query = queryResult.Value!;
 
             var tripResult = await _tripService.GetParticipants(query.TripId);
@@ -84,5 +115,6 @@ namespace EventSharedExpenseTracker.MvC.Factories
 
             return ServiceResult<ExpenseFormViewModel>.Ok(model);
         }
+
     }
 }

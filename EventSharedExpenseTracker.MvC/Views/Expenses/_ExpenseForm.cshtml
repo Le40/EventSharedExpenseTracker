@@ -7,9 +7,22 @@
 }
 
 <div class="col-lg-7 md-6 sm-5">
-    <form asp-action="@Model.Mode.ToString()">
+    <form asp-action="@Model.Mode.ToString()" enctype="multipart/form-data">
+        @*@if (Model.Mode == ExpenseFormMode.Create)
+        {
+            <input type="file"
+                   name="receiptImage"
+                   accept="image/*"
+                   hx-post="/Expenses/ParseReceipt"
+                   hx-vals='{"tripId": "@Model.TripId"}'
+                   hx-trigger="change"
+                   hx-encoding="multipart/form-data"
+                   hx-target="#createExpense"
+                   />
+        }*@
         <input type="hidden" asp-for="CanUserEdit" /> @*Needed so that form retains this if modelstate get back invalid, with errors.*@
         <input type="hidden" asp-for="FormId" />
+        <input type="hidden" name="tripId" value="@Model.TripId" />
         <div class="form-group mb-1">
             <input asp-for="Name" class="form-control" placeholder="Expense Name"
                 id = "expenseName-@Model.FormId"

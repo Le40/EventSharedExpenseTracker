@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Domain.Enums;
 
 namespace EventSharedExpenseTracker.Infrastructure.Services
 {
@@ -20,6 +21,20 @@ namespace EventSharedExpenseTracker.Infrastructure.Services
                 category,
                 0.8m,
                 "Fake local suggestion for testing."));
+        }
+
+        public Task<ReceiptParseResult> ParseReceiptAsync(
+        byte[] imageBytes,
+        string contentType)
+        {
+            return Task.FromResult(new ReceiptParseResult
+            {
+                Date = DateOnly.FromDateTime(DateTime.Today),
+                TotalAmount = 18.72m,
+                CurrencyCode = "EUR",
+                Category = ExpenseCategory.Groceries,
+                Confidence = 0.95m
+            });
         }
     }
 }

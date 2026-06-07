@@ -1,73 +1,113 @@
 # Event Shared Expense Tracker
 
-Web application for tracking shared expenses during trips, events, and group activities.
+A web application for managing shared trip expenses. The application supports multi-currency expense tracking and AI-assisted features such as automatic expense categorization and receipt parsing.
 
-Users can create trips, manage participants, add expenses, and track who paid and who owes money.
+The project was built primarily as a personal/learning project to explore ASP.NET Core, Entity Framework Core, application architecture, testing, authentication, deployment, and cloud services and others.
 
-Live demo: https://eventsharedexpensetracker.azurewebsites.net
+https://eventsharedexpensetracker.azurewebsites.net/
+(if trying out, its deployed on the free server, and it takes quite a while until the site warms up, until then it seems like it doesnt work, but its just parked.)
 
 ## Features
 
-- ASP.NET Core Identity authentication
-- Trip and participant management
-- Shared expense tracking
-- Equal-share expense calculation
-- Dummy/non-registered participants
-- Image upload and compression
-- Authorization rules for trips and expenses
-- Structured error/result handling
-- Logging
-- Automated tests
-- Azure deployment
+* Create and manage trips with multiple participants
+* Track shared expenses
+* Flexible expense splitting between participants
+* Expense categories and filtering
+* Support for multiple currencies with automatic conversion to trip base currency
+* AI-assisted expense categorization based on expense name
+* AI-assisted receipt parsing to prefill expense forms from uploaded receipt photos
+* HTMX-powered partial updates for a responsive user experience
+* Image upload and compression
+* ASP.NET Core Identity authentication
+* Authorization rules for trips and expenses
+* Structured error/result handling
+* Automated tests
+* Azure deployment with Azure SQL Database and Key Vault integration
 
-## Tech Stack
+## Technology Stack
 
-- C#
-- ASP.NET Core MVC
-- Entity Framework Core
-- SQL Server / SQLite
-- Bootstrap
-- htmx
-- Mapster
-- Azure App Service
+* ASP.NET Core MVC
+* Entity Framework Core
+* SQL Server / Azure SQL Database
+* ASP.NET Core Identity
+* HTMX
+* Bootstrap
+* Mapster
+* xUnit
+* OpenAI API
+* Azure App Service
+* Azure Key Vault
 
-## Architecture Overview
+## Project Structure
 
-The solution is separated into multiple layers/projects:
+The application is organized into several layers:
 
-```text
-Domain
-Application
-Infrastructure
-MVC
-Tests
+* Domain
+
+  * Entities
+  * Value Objects
+  * Business rules
+
+* Application
+
+  * Commands
+  * Queries
+  * Services
+
+* Infrastructure
+
+  * Entity Framework Core
+  * Repositories
+  * External integrations
+
+* Presentation
+
+  * MVC Controllers
+  * Razor Views
+  * HTMX interactions
+
+## Testing
+
+The solution includes:
+
+* Unit tests
+* Integration tests
+* GitHub Actions CI workflow
+
+## Running Locally
+
+Requirements:
+
+* .NET 8 SDK
+* SQL Server (or Azure SQL)
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Le40/EventSharedExpenseTracker.git
 ```
 
-The project uses:
+Apply migrations:
 
-- layered architecture inspired by Clean Architecture concepts
-- `ServiceResult` / `DomainResult` patterns for structured error handling
-- domain-level payment processing and validation
-- repository + unit of work pattern
-- DTO/query/view model mapping
-- authorization rules separated from controllers
-
-One notable modeling concept is separating unfinished payment input from persisted payment entities:
-
-```text
-PaymentInput -> ExpenseProcessor -> Payment
+```bash
+dotnet ef database update
 ```
 
-which allows validation and equal-share calculation before creating final payment entities.
+Run the application:
 
-## Purpose
+```bash
+dotnet run
+```
 
-This project is mainly a portfolio and learning project focused on:
+### Planned Features
 
-- backend architecture
-- ASP.NET Core MVC
-- domain modeling
-- validation and error handling
-- authentication and authorization
-- deployment and logging
-- building a real-world CRUD/business application
+- Mobile application
+- REST API
+- Offline expense entry
+- Vertical Slice Architecture
+
+## Notes
+
+This project is still evolving and is used as a place to experiment with new ideas and technologies while improving development practices.
+
+

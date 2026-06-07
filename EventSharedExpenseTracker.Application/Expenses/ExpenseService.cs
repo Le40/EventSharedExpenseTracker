@@ -7,6 +7,9 @@ using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.PaymentProcessing;
 using Microsoft.Extensions.Logging;
+using System.IO;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace EventSharedExpenseTracker.Application.Expenses;
 
@@ -16,13 +19,17 @@ public class ExpenseService : IExpenseService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRequestContext _requestContext;
     private readonly IExchangeRateService _exchangeRateService;
+    private readonly IImageService _imageService;
+    private readonly IExpenseAiService _aiService;
 
-    public ExpenseService(IUnitOfWork unitOfWork, IRequestContext requestContext, ILogger<ExpenseService> logger, IExchangeRateService exchangeRateService)
+    public ExpenseService(IUnitOfWork unitOfWork, IRequestContext requestContext, ILogger<ExpenseService> logger, IExchangeRateService exchangeRateService, IImageService imageService, IExpenseAiService aiService)
     {
         _logger = logger;
         _unitOfWork = unitOfWork;
         _requestContext = requestContext;
         _exchangeRateService = exchangeRateService;
+        _imageService = imageService;
+        _aiService = aiService;
     }
 
     public async Task<ServiceResult<TripExpensesQuery>> GetIndex(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
@@ -238,5 +245,30 @@ public class ExpenseService : IExpenseService
             command.CurrencyCode,
             baseCurrencyCode,
             command.Date);
+    }
+
+    public async Task<ServiceResult<ReceiptParseResult>> ExtractReceiptDataAsync(Stream imageStream)
+    {
+        var imageBytes = await _imageService.ResizeAndCompressAsync(
+            imageStream,
+            maxWidth: 1920,
+            maxHeight: 1920,
+            quality: 90);
+
+        return await _aiService.ParseReceiptAsync(
+            imageBytes,
+            "image/jpeg");
+    }
+
+    public async Task<ServiceResult<ExpenseCategory>> SuggestCategoryAsync(string expenseName)
+    {
+        var categories = Enum.GetNames<ExpenseCategory>();
+
+        var suggestion =  await _aiService.SuggestCategoryAsync(
+            expenseName,
+            categories);
+
+        return Enum.Parse<ExpenseCategory>(suggestion.SuggestedCategory);
+
     }
 }

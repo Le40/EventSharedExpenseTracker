@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Domain.Enums;
+﻿using EventSharedExpenseTracker.Domain.Constants;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Result;
 using System.ComponentModel.DataAnnotations;
 
@@ -7,13 +8,13 @@ namespace EventSharedExpenseTracker.Domain.Models;
 public class Expense
 {
     public int Id { get; set; }
-    [StringLength(80)]
+    [StringLength(ExpenseConstants.NameMaxLength)]
     public required string Name { get; set; }
     [DataType(DataType.Date)]
     public DateOnly Date { get; set; }
-    [StringLength(25)]
+    [StringLength(ExpenseConstants.CategoryMaxLength)]
     public ExpenseCategory Category { get; set; }
-    [StringLength(140)]
+    [StringLength(ExpenseConstants.DescriptionMaxLength)]
     public string? Description { get; set; }
     public int? CreatorId { get; set; }
     public CustomUser? Creator { get; set; }
