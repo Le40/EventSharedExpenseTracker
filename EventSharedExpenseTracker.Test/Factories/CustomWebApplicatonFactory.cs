@@ -1,4 +1,6 @@
-﻿using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+using EventSharedExpenseTracker.Infrastructure.Services;
 using EventSharedExpenseTracker.Tests.Helpers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -73,6 +75,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             });
 
             services.AddScoped<TestDataSeeder>();
+
+            services.RemoveAll<IExpenseAiService>();
+
+            services.AddScoped<IExpenseAiService, FakeExpenseAiService>();
+
         });
     }
     protected override void Dispose(bool disposing)

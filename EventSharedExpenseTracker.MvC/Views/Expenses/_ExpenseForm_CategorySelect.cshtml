@@ -1,0 +1,24 @@
+﻿@using EventSharedExpenseTracker.Domain.Enums
+@using EventSharedExpenseTracker.MvC.ViewModels.Expenses
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model CategorySelectViewModel
+
+<select name="Category"
+        class="form-select"
+        id="category-select-@Model.FormId">
+
+    <option value="">Select Category</option>
+
+    @{
+        var selectedValue = Model.SelectedCategory.HasValue
+        ? ((int)Model.SelectedCategory.Value).ToString()
+        : "";
+    }
+
+    @foreach (var item in Html.GetEnumSelectList<ExpenseCategory>())
+    {
+        <option value="@item.Value" selected="@(item.Value == selectedValue)">
+            @item.Text
+        </option>
+    }
+</select>

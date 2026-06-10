@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Common.Results;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
@@ -16,11 +17,36 @@ public class ExpensesController : BaseController
 {
     private readonly IExpenseService _expenseService;
     private readonly ExpenseFormFactory _expenseFormFactory;
+    private readonly IExpenseAiService _aiService;
 
-    public ExpensesController(IExpenseService expenseService, ExpenseFormFactory expenseFormFactory)
+    public ExpensesController(IExpenseService expenseService, ExpenseFormFactory expenseFormFactory, IExpenseAiService aiService    )
     {
         _expenseService = expenseService;
         _expenseFormFactory = expenseFormFactory;
+        _aiService = aiService;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> SuggestCategory(string name, string formId)
+    {
+        if (string.IsNullOrWhiteSpace(name) || name.Length < 4)
+            return NoContent();
+
+        var categories = Enum.GetNames<ExpenseCategory>();
+
+        var suggestion = await _aiService.SuggestCategoryAsync(
+            name,
+            categories);
+
+        var selectedCategory = Enum.Parse<ExpenseCategory>(suggestion.SuggestedCategory);
+
+        var vm = new CategorySelectViewModel
+        {
+            FormId = formId,
+            SelectedCategory = selectedCategory
+        };
+
+        return PartialView("_ExpenseForm_CategorySelect", vm);
     }
 
     // EXPENSES : INDEX

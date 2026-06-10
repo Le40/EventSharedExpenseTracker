@@ -1,6 +1,7 @@
 ﻿using EventSharedExpenseTracker.Application.Expenses.Commands;
 using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.PaymentProcessing;
 using EventSharedExpenseTracker.Domain.ValueObjects;
 using EventSharedExpenseTracker.MvC.Common;
@@ -69,29 +70,30 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
         }
 
         public static ExpenseFormViewModel FromQuery(
-            ExpenseQuery command,
+            ExpenseQuery query,
             IEnumerable<TripParticipantQuery> tripParticipants)
         {
-            var paidByParticipant = command.Payments
+            var paidByParticipant = query.Payments
                 .Where(p => !p.IsOwed)
                 .ToDictionary(p => p.ParticipantId);
 
-            var owedByParticipant = command.Payments
+            var owedByParticipant = query.Payments
                 .Where(p => p.IsOwed)
                 .ToDictionary(p => p.ParticipantId);
 
             var expenseViewModel = new ExpenseFormViewModel
             {
-                Id = command.Id,
-                TripId = command.TripId,
-                CanUserEdit = command.CanUserEdit,
+                FormId = $"expense-edit-{query.Id}",
+                Id = query.Id,
+                TripId = query.TripId,
+                CanUserEdit = query.CanUserEdit,
 
-                Name = command.Name,
-                Date = command.Date,
-                Category = command.Category,
+                Name = query.Name,
+                Date = query.Date,
+                Category = query.Category,
                 //CategoryOptions = ExpenseCategorySelectList.Get(),
-                Description = command.Description,
-                CurrencyCode = command.CurrencyCode,
+                Description = query.Description,
+                CurrencyCode = query.CurrencyCode,
                 CurrencyOptions = CurrencySelectList.Get("EUR")
             };
 

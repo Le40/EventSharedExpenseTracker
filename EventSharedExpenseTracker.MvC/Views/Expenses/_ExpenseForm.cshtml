@@ -9,8 +9,15 @@
 <div class="col-lg-7 md-6 sm-5">
     <form asp-action="@Model.Mode.ToString()">
         <input type="hidden" asp-for="CanUserEdit" /> @*Needed so that form retains this if modelstate get back invalid, with errors.*@
+        <input type="hidden" asp-for="FormId" />
         <div class="form-group mb-1">
-            <input asp-for="Name" class="form-control" placeholder="Expense Name" />
+            <input asp-for="Name" class="form-control" placeholder="Expense Name"
+                id = "expenseName-@Model.FormId"
+                hx-post="/Expenses/SuggestCategory"
+                hx-vals='{"formId": "@Model.FormId"}'
+                hx-trigger="keyup changed delay:800ms"
+                hx-target="#category-select-@Model.FormId"
+                hx-swap="outerHTML" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         <div class="row">
@@ -19,9 +26,10 @@
                 <span asp-validation-for="Date" class="text-danger"></span>
             </div>
             <div class="col">
-                <select class="form-select" asp-for="Category"
-                    asp-items="Html.GetEnumSelectList<ExpenseCategory>()">
-                    <option value="">Select Category</option>
+                <select class="form-select" id="category-select-@Model.FormId"
+                        asp-for="Category"
+                   asp-items="Html.GetEnumSelectList<ExpenseCategory>()">
+                   <option value="">Select Category</option>
                 </select>
                 <span asp-validation-for="Category" class="text-danger"></span>
             </div>

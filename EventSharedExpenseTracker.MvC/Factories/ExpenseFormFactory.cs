@@ -44,6 +44,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
             var model = new ExpenseFormViewModel
             {
                 //CreatorId = userId,
+                FormId = "expense-createForm",
                 CanUserEdit = true,
                 TripId = tripId,
                 CurrencyCode = tripResult.Value.BaseCurrencyCode,

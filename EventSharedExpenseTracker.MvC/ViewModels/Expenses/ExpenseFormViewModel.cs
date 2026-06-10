@@ -1,5 +1,6 @@
 ﻿using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -12,6 +13,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
             Create,
             Edit
         }
+        [ValidateNever]
+        public string FormId { get; set; } = default!;
 
         public int Id { get; set; }
         public int TripId { get; set; }
