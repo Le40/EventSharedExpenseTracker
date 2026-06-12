@@ -24,7 +24,7 @@ public class DemoDataSeeder
         _context = context;
     }
 
-    public async Task SeedAsync(DemoDataOptions? options = null)
+    public async Task SeedBiDataAsync(DemoDataOptions? options = null)
     {
         options ??= new DemoDataOptions();
 

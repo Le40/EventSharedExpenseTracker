@@ -15,7 +15,7 @@ namespace EventSharedExpenseTracker.MvC.Controllers
                 return Forbid();
             }
 
-            await seeder.SeedAsync(new DemoDataOptions
+            await seeder.SeedBiDataAsync(new DemoDataOptions
             {
                 UserCount = 30,
                 TripCount = 80,

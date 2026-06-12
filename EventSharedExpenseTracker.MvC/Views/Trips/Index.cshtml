@@ -11,7 +11,7 @@
         @*CARD FOR CREATING NEW TRIP*@
         <div class="col-auto p-2">
 
-            <div class="card shadow bg-light border-0 rounded-0 p-2" style="min-width: 11rem; min-height:260px; max-width:15rem;">
+            <div class="card shadow bg-light border-0 rounded-0 p-2" style="min-width: 165px; min-height:260px; max-width:325px;">
                 <div class="bg-dark">
 
                     <div id="@Model.EIdCreateTrip"
@@ -32,23 +32,24 @@
         </div>
 
         @*REST OF TRIP CARDS*@
+  
         @foreach (var trip in Model.Trips)
         {
             int randRotate = rnd.Next(1, 5);
-            <div class="col p-2" style="max-width:330px;">
-                <div class="card shadow bg-light border-0 rounded-0 p-2 rotated-@randRotate" style="min-width: 165px; min-height:260px; max-width:325px;">
+            <div class="col p-2 trip-card-wrapper">
+                <div class="card shadow bg-light border-0 rounded-0 p-2 rotated-@randRotate">
                     <a href="@Url.Action("Details", "Trips", new { id = trip.Id })" class="stretched-link"></a>
                     <div class="position-relative">
                         @*<a href="@Url.Action("Details", "Trips", new { id = item.Id })" class="stretched-link"></a>*@
                         <div class="img-frame border border-secondary">
                         @if (trip.ImagePath != null)
                         {
-                            <img src="@Url.Content(trip.ImagePath)" alt="image" class="card-img-top rounded-0 zoom-on-hover" width="200" height="200" role="img" preserveAspectRatio="xMidYMid slice" style="object-fit: cover">
+                            <img src="@Url.Content(trip.ImagePath)" alt="image" class="card-img-top rounded-0 zoom-on-hover">
                         }
                         else
                         {
                             <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="image"
-                                 class="card-img-top rounded-0" width="200" height="200" role="img" preserveAspectRatio="xMidYMid slice" style="object-fit: cover">
+                                 class="card-img-top rounded-0">
                         }
                         </div>
 

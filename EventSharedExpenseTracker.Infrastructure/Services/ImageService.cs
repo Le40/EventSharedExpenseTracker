@@ -53,15 +53,12 @@ public class ImageService : IImageService
 
     private async Task UploadImageAsync(Stream imageFileStream, string filePath)
     {
-        using (var image = Image.Load(imageFileStream))
-        {
-            var processedImageBytes =
-                await ResizeAndCompressAsync(imageFileStream,1920,1080,70);
-            // Save the processed image to a byte array
-            await File.WriteAllBytesAsync(filePath, processedImageBytes);
+        var processedImageBytes =
+            await ResizeAndCompressAsync(imageFileStream,1920,1080,70);
+        // Save the processed image to a byte array
+        await File.WriteAllBytesAsync(filePath, processedImageBytes);
 
-            _logger.LogInformation("Image uploaded to {ImagePath}", filePath);
-        }
+        _logger.LogInformation("Image uploaded to {ImagePath}", filePath); 
     }
 
     public async Task<byte[]> ResizeAndCompressAsync(
