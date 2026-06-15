@@ -67,7 +67,7 @@
                     1. Save was not validated, so response (which is this), needs to go inside the targeting div, otherwise any other target on that div will not work
                     2. Save was successful - then whole body is taken from response (because also participants sums need to be updated), and in that case it doesnt matter
                 *@
-                <button type="submit" class="btn btn-info" data-offline-expense-save="true"
+                <button type="submit" class="btn btn-info"
                         hx-post="@Url.Action(Model.Mode.ToString(), "Expenses", new { tripId = Model.TripId, id = Model.Id })"
                         hx-target="#tripDetails-target"
                         hx-select="#tripDetails-target"
@@ -94,6 +94,7 @@
             {
 
                 <button type="button" class="btn btn-outline-danger"
+                        data-requires-online="true"
                         hx-post="@Url.Action("Delete", "Expenses", new { id = Model.Id, tripId = Model.TripId })"
                         hx-target="#tripDetails-target"
                         hx-select="#tripDetails-target"

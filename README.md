@@ -13,9 +13,6 @@ https://eventsharedexpensetracker.azurewebsites.net/
 * Track shared expenses
 * Flexible expense splitting between participants
 * Expense categories and filtering
-* Support for multiple currencies with automatic conversion to trip base currency
-* AI-assisted expense categorization based on expense name
-* AI-assisted receipt parsing to prefill expense forms from uploaded receipt photos
 * HTMX-powered partial updates for a responsive user experience
 * Image upload and compression
 * ASP.NET Core Identity authentication
@@ -23,6 +20,11 @@ https://eventsharedexpensetracker.azurewebsites.net/
 * Structured error/result handling
 * Automated tests
 * Azure deployment with Azure SQL Database and Key Vault integration
+* Support for multiple currencies with automatic conversion to trip base currency
+* AI-assisted expense categorization based on expense name
+* AI-assisted receipt parsing to prefill expense forms from uploaded receipt photos
+* PWA support for installing as app on mobile and desktop
+* Offline Expense entry and sync with server
 
 ## Technology Stack
 
@@ -30,7 +32,7 @@ https://eventsharedexpensetracker.azurewebsites.net/
 * Entity Framework Core
 * SQL Server / Azure SQL Database
 * ASP.NET Core Identity
-* HTMX
+* HTMX, JavaScript
 * Bootstrap
 * Mapster
 * xUnit
@@ -103,7 +105,6 @@ dotnet run
 
 - Mobile application
 - REST API
-- Offline expense entry
 - Vertical Slice Architecture
 
 ## Notes

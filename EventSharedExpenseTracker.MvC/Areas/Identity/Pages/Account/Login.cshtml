@@ -83,13 +83,4 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const isPwa =
-                window.matchMedia('(display-mode: standalone)').matches ||
-                window.navigator.standalone === true;
-
-            document.getElementById("isPwaInput").value = isPwa;
-        });
-    </script>
 }

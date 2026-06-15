@@ -111,3 +111,58 @@ function renderOfflineValidationErrors(form, validationErrors) {
 
     form.prepend(alert);
 }
+
+// navbar counter
+async function updatePendingSyncUi() {
+
+    const drafts = await getAllOfflineExpenses();
+
+    const pendingCount = drafts.filter(d =>
+        d.syncState === "pendingCreate"
+    ).length;
+
+    const failedCount = drafts.filter(d =>
+        d.syncState === "failedValidation"
+    ).length;
+
+    const pendingBadge = document.getElementById("pendingSyncBadge");
+    const failedBadge = document.getElementById("failedValidationBadge");
+    const syncButton = document.getElementById("syncNowButton");
+
+    if (!pendingBadge || !failedBadge || !syncButton) {
+        return;
+    }
+
+    pendingBadge.classList.toggle("d-none", pendingCount === 0);
+    failedBadge.classList.toggle("d-none", failedCount === 0);
+
+    const showSyncButton = navigator.onLine && pendingCount > 0;
+    syncButton.classList.toggle("d-none", !showSyncButton);
+
+    pendingBadge.textContent = `${pendingCount} Pending`;
+    failedBadge.textContent = `${failedCount} Need review`;
+}
+
+// connection status in navbar
+async function updateConnectionStatus() {
+    const status = document.getElementById("connectionStatus");
+
+    if (!status) {
+        return;
+    }
+
+    await updatePendingSyncUi();
+
+    const online = navigator.onLine;
+
+    if (online) {
+        status.classList.add("d-none");
+        return;
+    }
+
+    status.classList.remove("d-none");
+    status.textContent = "Offline Mode";
+    status.classList.remove("bg-success");
+    status.classList.add("bg-danger");
+}
+console.log("offline 2/5 - rendering.js loaded");

@@ -121,3 +121,5 @@ async function getAllOfflineTrips() {
         request.onerror = event => reject(event.target.error);
     });
 }
+
+console.log("offline 3/5 - storage.js loaded");

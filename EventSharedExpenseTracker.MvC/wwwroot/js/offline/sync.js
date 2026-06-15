@@ -1,4 +1,6 @@
-﻿
+﻿// sync lock
+let syncInProgress = false;
+
 async function syncPendingDraftsIfOnline() {
     if (!navigator.onLine) {
         return;
@@ -8,42 +10,56 @@ async function syncPendingDraftsIfOnline() {
 }
 
 async function syncPendingExpenseDrafts() {
-    const drafts = await getAllOfflineExpenses();
 
-    const pendingDrafts = drafts.filter(d => d.syncState === "pendingCreate");
-
-    if (pendingDrafts.length === 0) {
+    if (syncInProgress) {
+        console.log("Sync already running.");
         return;
     }
 
-    for (const draft of pendingDrafts) {
-        const formData = new FormData();
+    syncInProgress = true;
 
-        for (const [key, value] of draft.fields) {
-            formData.append(key, value);
+    try {
+        const drafts = await getAllOfflineExpenses();
+
+        const pendingDrafts = drafts.filter(d => d.syncState === "pendingCreate");
+
+        if (pendingDrafts.length === 0) {
+            return;
         }
 
-        formData.append("IsOfflineSync", "true");
-        replaceAntiforgeryToken(formData);
+        for (const draft of pendingDrafts) {
+            const formData = new FormData();
 
-        const response = await fetch(draft.url, {
-            method: "POST",
-            body: formData
-        });
+            for (const [key, value] of draft.fields) {
+                formData.append(key, value);
+            }
 
-        if (response.ok) {
-            await deleteOfflineExpense(draft.localId);
-        } else {
-            const errorData = await response.json();
-            draft.syncState = "failedValidation";
-            draft.validationErrors = errorData.errors;
-            draft.errorMessage = `Sync failed with status ${response.status}`;
-            await saveOfflineExpense(draft);
-            continue;
+            formData.append("IsOfflineSync", "true");
+            replaceAntiforgeryToken(formData);
+
+            const response = await fetch(draft.url, {
+                method: "POST",
+                body: formData
+            });
+
+            if (response.ok) {
+                await deleteOfflineExpense(draft.localId);
+            } else {
+                const errorData = await response.json();
+                draft.syncState = "failedValidation";
+                draft.validationErrors = errorData.errors;
+                draft.errorMessage = `Sync failed with status ${response.status}`;
+                await saveOfflineExpense(draft);
+                continue;
+            }
         }
+
+        await refreshTripDetails();
+        await updatePendingSyncUi();
     }
-
-    await refreshTripDetails();
+    finally {
+        syncInProgress = false;
+    }
 }
 
 async function refreshTripDetails() {
@@ -69,3 +85,5 @@ function replaceAntiforgeryToken(formData) {
 
     formData.set("__RequestVerificationToken", tokenInput.value);
 }
+
+console.log("offline 4/5 - sync.js loaded");

@@ -109,3 +109,44 @@ body.pwa .navbar {
     padding-top: env(safe-area-inset-top);
 
 }
+
+.navbar-account .navbar-nav {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.app-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.app-tab {
+    flex: 1 1 9rem;
+    min-width: 7rem;
+    max-width: 12rem;
+    padding: 0.45rem 1rem;
+    text-align: center;
+    color: var(--bs-secondary-color);
+    text-decoration: none;
+    border-left: 1px solid var(--bs-border-color);
+}
+
+    .app-tab:last-child {
+        border-right: 1px solid var(--bs-border-color);
+    }
+
+.icon-button {
+    min-width: 40px;
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-light {
+    filter: brightness(0) invert(1);
+}
+
+
+

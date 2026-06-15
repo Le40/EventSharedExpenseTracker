@@ -58,7 +58,7 @@ public static class DIInfrastructure
         services.AddScoped<IFriendshipRepository, FriendshipRepository>();
         services.AddScoped<IExpenseAiService, OpenAiExpenseAiService>();
 
-        services.AddScoped<DemoDataSeeder>();
+        //services.AddScoped<DemoDataSeeder>();
 
         return services;
     }

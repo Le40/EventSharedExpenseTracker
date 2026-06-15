@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@using EventSharedExpenseTracker.Infrastructure.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+<!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 <head>
     <meta charset="utf-8" />
@@ -17,35 +21,95 @@
 </head>
 
 <body hx-boost ="false">
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <button class="navbar-toggler"
-                        type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse"
-                        aria-controls="navbarSupportedContent"
-                        aria-expanded="false"
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+    <header class="bg-dark border-bottom box-shadow mb-3">
+        <div class="container-fluid pt-2 pb-0">
 
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-muted"
-                               asp-area=""
-                               asp-controller="Trips"
-                               asp-action="Index">
-                                Home
-                            </a>
-                        </li>
-                    </ul>
+            @if (SignInManager.IsSignedIn(User))
+            {
 
+                <div class="d-flex align-items-end flex-wrap gap-2">
+                    <!-- Navigation row -->
+                    <nav class="nav nav-tabs justify-content-left">
+                        <a class="nav-link app-tab active"
+                           asp-controller="Trips"
+                           asp-action="Index">
+                            Trips
+                        </a>
+                        @*<a class="nav-link app-tab">Expenses</a>
+                        <a class="nav-link app-tab">Friends</a>
+                        <a class="nav-link app-tab">Settings</a>*@
+                     </nav>
+
+                        @*<nav class="app-tabs mt-2">
+                        <a class="nav-link app-tab"
+                           asp-controller="Trips"
+                           asp-action="Index">
+                            Trips
+                        </a>
+
+                        <a class="nav-link app-tab"
+                           asp-controller="Expenses"
+                           asp-action="Index">
+                            Expenses
+                        </a>
+
+                        <a class="nav-link app-tab"
+                           asp-controller="Friends"
+                           asp-action="Index">
+                            Friends
+                        </a>
+
+                        <a class="nav-link app-tab"
+                           asp-controller="Settings"
+                           asp-action="Index">
+                            Settings
+                        </a>
+                        </nav>*@
+
+                    <!-- Top status/account row -->
+                    <div class="navbar-actions d-flex align-items-center gap-2 flex-wrap ms-auto">
+                            <div>
+                                <span id="connectionStatus"
+                                      class="badge rounded-pill bg-success">
+                                    Online
+                                </span>
+
+                                <span id="failedValidationBadge"
+                                      class="badge rounded-pill bg-danger d-none">
+                                    0 Review
+                                </span>
+
+                                <span id="pendingSyncBadge"
+                                      class="badge rounded-pill bg-warning text-dark d-none">
+                                    0 Pending
+                                </span>
+
+                                <button id="syncNowButton"
+                                        type="button"
+                                        class="btn btn-sm btn-outline-warning d-none">
+                                    Sync
+                                </button>
+
+                                <button id="installAppButton"
+                                        type="button"
+                                        class="btn btn-sm btn-outline-info d-none">
+                                    Install
+                                </button>
+                            </div>
+
+                            <div class="navbar-account">
+                                <partial name="_LoginPartial" />
+                            </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="navbar-account">
                     <partial name="_LoginPartial" />
                 </div>
-            </div>
-        </nav>
+            }
+        </div>
     </header>
 
     <div class="container">
@@ -62,11 +126,13 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="~/js/offline/listeners.js" asp-append-version="true"></script>
     <script src="~/js/offline/storage.js" asp-append-version="true"></script>
     <script src="~/js/offline/editing.js" asp-append-version="true"></script>
     <script src="~/js/offline/rendering.js" asp-append-version="true"></script>
     <script src="~/js/offline/sync.js" asp-append-version="true"></script>
+    <script src="~/js/offline/listeners.js" asp-append-version="true"></script>
+    <script src="~/js/pwa/pwa.js" asp-append-version="true"></script>
+    <script src="~/js/pwa/install.js" asp-append-version="true"></script>
 
     <script>
         if ("serviceWorker" in navigator) {

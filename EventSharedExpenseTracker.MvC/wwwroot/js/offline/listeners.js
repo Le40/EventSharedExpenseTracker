@@ -1,39 +1,8 @@
 ﻿
-// PWA LISTENERS
-// detect online / offline
-window.addEventListener("offline", () => {
-    console.log("Offline");
-});
-
-window.addEventListener("online", () => {
-    console.log("Online");
-});
-
-// detect PWA
-document.addEventListener("DOMContentLoaded", () => {
-
-    const isPwa =
-        window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true;
-
-    if (isPwa) {
-        document.body.classList.add("pwa");
-    }
-});
-
-// status helper
-window.App = {
-    isPwa: () =>
-        window.matchMedia("(display-mode: standalone)").matches ||
-        window.navigator.standalone === true
-};
-
-
-
 // SAVE EDIT LISTENER
 document.body.addEventListener("click", async event => {
     // get button that called
-    const button = event.target.closest("[data-offline-expense-save='true']");
+    const button = event.target.closest("button[type='submit']");
     if (!button) {
         return;
     }
@@ -48,15 +17,22 @@ document.body.addEventListener("click", async event => {
 });
 
 // SAVE CREATE LISTENER
+// listener tries to to its htmx call, if it is fail, it goes here.
+// offine every draft is created from createForm.
+// so only those should have active save button offline.
 document.body.addEventListener("htmx:sendError", async event => {
-    // get button that called htmx
     const button = event.detail.elt;
-    if (button.dataset.offlineExpenseSave !== "true") {
+    const form = button.closest("form");
+
+    const formId = form?.querySelector("[name='FormId']")?.value;
+
+    if (formId !== "expense-createForm") {
         return;
     }
+
     event.preventDefault();
 
-    await handleOfflineDraftSave(button);
+    await handleOfflineDraftSave(button, form);
 });
 
 // DELETE LISTENER
@@ -108,3 +84,27 @@ document.addEventListener("DOMContentLoaded", async () => {
         await syncPendingExpenseDrafts();
     }
 });
+// pending sync count
+document.addEventListener("DOMContentLoaded", async () => {
+    await updatePendingSyncUi();
+});
+// manual sync now button
+document.addEventListener("click", async event => {
+    const button = event.target.closest("#syncNowButton");
+
+    if (!button) {
+        return;
+    }
+    // anti spam click
+    button.disabled = true;
+
+    try {
+        await syncPendingExpenseDrafts();
+    }
+    finally {
+        button.disabled = false;
+    }
+});
+
+
+console.log("offline 5/5 - listeners.js loaded");

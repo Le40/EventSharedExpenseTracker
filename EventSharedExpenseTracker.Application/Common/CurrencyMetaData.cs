@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace EventSharedExpenseTracker.Application.Common
 {
     public static class CurrencyMetadata
@@ -56,7 +51,34 @@ namespace EventSharedExpenseTracker.Application.Common
                 ["AUD"] = new("Australian Dollar", "A$", true),
                 ["NZD"] = new("New Zealand Dollar", "NZ$", true),
 
-                ["ZAR"] = new("South African Rand", "R", true)
+                ["ZAR"] = new("South African Rand", "R", true),
+
+                ["ALL"] = new("Albanian Lek", "L", false),
+                ["AMD"] = new("Armenian Dram", "֏", true),
+                ["ARS"] = new("Argentine Peso", "$", true),
+                ["AZN"] = new("Azerbaijani Manat", "₼", true),
+                ["BAM"] = new("Bosnia and Herzegovina Convertible Mark", "KM", false),
+                ["BRL"] = new("Brazilian Real", "R$", true),
+
+                ["CLP"] = new("Chilean Peso", "$", true),
+                ["COP"] = new("Colombian Peso", "$", true),
+
+                ["GEL"] = new("Georgian Lari", "₾", true),
+
+                ["KGS"] = new("Kyrgyzstani Som", "с", false),
+
+                ["LKR"] = new("Sri Lankan Rupee", "Rs", false),
+                ["MDL"] = new("Moldovan Leu", "L", false),
+                ["MKD"] = new("Macedonian Denar", "ден", false),
+                ["MNT"] = new("Mongolian Tögrög", "₮", true),
+                ["NPR"] = new("Nepalese Rupee", "Rs", false),
+                ["OMR"] = new("Omani Rial", "OMR", false),
+                ["PEN"] = new("Peruvian Sol", "S/", false),
+                ["QAR"] = new("Qatari Riyal", "QAR", false),
+                ["RSD"] = new("Serbian Dinar", "дин", false),
+                ["TJS"] = new("Tajikistani Somoni", "ЅМ", false),
+                ["UAH"] = new("Ukrainian Hryvnia", "₴", true),
+                ["UZS"] = new("Uzbekistani Som", "so'm", false),
             };
     }
 

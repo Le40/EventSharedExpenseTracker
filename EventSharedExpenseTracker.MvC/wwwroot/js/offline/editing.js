@@ -16,6 +16,7 @@ async function handleOfflineDraftSave(button) {
 
     form.remove();
     alert("Expense saved offline. It will sync when you are online.");
+    await updatePendingSyncUi();
 }
 
 async function saveOfflineDraft(button, form) {
@@ -94,6 +95,8 @@ function validateOfflineExpenseDraft(draft) {
     return errors;
 }
 
+// EDIT FORM
+// trigger dbl click from card creation
 async function openOfflineDraftForEdit(localId) {
     const drafts = await getAllOfflineExpenses();
     const draft = drafts.find(d => d.localId === localId);
@@ -127,6 +130,8 @@ async function openOfflineDraftForEdit(localId) {
     if (deleteButton) {
         deleteButton.classList.remove("d-none");
     }
+
+
 
     fillFormFromDraft(form, draft);
     renderOfflineValidationErrors(form, draft.validationErrors);
@@ -174,4 +179,7 @@ async function handleOfflineDraftDelete(button) {
 
     await deleteOfflineExpense(draftId);
     await renderPendingExpensesForCurrentTrip();
+    await updatePendingSyncUi();
 }
+
+console.log("offline 1/5 - editing.js loaded");

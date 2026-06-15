@@ -1,10 +1,10 @@
 {
-  "name": "Expense Tracker",
-  "short_name": "Tracker",
+  "name": "Trip Expense Tracker",
+  "short_name": "Trips",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0d6efd",
+  "background_color": "212529",
+  "theme_color": "212529",
   "icons": [
     {
       "src": "/icons/icon-192.png",
