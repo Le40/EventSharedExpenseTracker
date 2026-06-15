@@ -1,5 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Common.Results;
+﻿using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
@@ -113,14 +112,17 @@ public class ExpensesController : BaseController
     public async Task<IActionResult> Create([FromRoute] int tripId, ExpenseFormViewModel model)
     {
         if (!ModelState.IsValid)
-            return RenderExpenseForm(model, ExpenseFormMode.Create);
+            return TryReturnOfflineValidationBadRequest()
+                ?? RenderExpenseForm(model, ExpenseFormMode.Create);
 
         var expenseCommand = ExpenseVMMapper.ToCommand(model);//, _requestContext.UserId
 
         var result = await _expenseService.Add(expenseCommand, tripId);
 
         if (!result.IsSuccess)
+        {
             return ReturnFormOrError(result, model, ExpenseFormMode.Create);
+        }
 
         return RedirectToAction("Details", "Trips", new { id = tripId });
     }
@@ -171,7 +173,8 @@ public class ExpensesController : BaseController
     private IActionResult ReturnFormOrError(ServiceResult result, ExpenseFormViewModel model, ExpenseFormMode mode)
     {
         if (TryAddValidationErrorsToModelState(result.Errors))
-            return RenderExpenseForm(model, mode);
+            return TryReturnOfflineValidationBadRequest()
+                ?? RenderExpenseForm(model, mode);
 
         return HandleServiceErrors(result.Errors);
     }
@@ -183,5 +186,20 @@ public class ExpensesController : BaseController
 
         Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
         return PartialView("_ExpenseForm", model);
+    }
+
+    private IActionResult? TryReturnOfflineValidationBadRequest()
+    {
+        if (Request.Form["IsOfflineSync"] != "true")
+            return null;
+        // so offline htmx knows its an error, added error messages also.
+        return BadRequest(new
+        {
+            Errors = ModelState
+                .Where(x => x.Value?.Errors.Any() == true)
+                .ToDictionary(
+                    x => x.Key,
+                    x => x.Value!.Errors.Select(e => e.ErrorMessage))
+        });
     }
 }

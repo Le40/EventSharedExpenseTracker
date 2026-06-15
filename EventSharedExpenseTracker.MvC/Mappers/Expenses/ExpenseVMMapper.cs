@@ -83,7 +83,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
 
             var expenseViewModel = new ExpenseFormViewModel
             {
-                FormId = $"expense-edit-{query.Id}",
+                FormId = $"expense-editForm-{query.Id}",
                 Id = query.Id,
                 TripId = query.TripId,
                 CanUserEdit = query.CanUserEdit,

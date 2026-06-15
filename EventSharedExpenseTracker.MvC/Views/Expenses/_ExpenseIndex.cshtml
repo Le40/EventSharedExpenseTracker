@@ -69,9 +69,13 @@
         </div>
     </div>
 
-    <ul class="list-group list-group-flush">
+    <ul class="list-group list-group-flush"
+        data-expense-list="true"
+        data-trip-id="@Model.TripId">
         
-        <li class="list-group-item" id="@Model.EIdCreateExpense">
+        <li class="list-group-item" id="@Model.EIdCreateExpense"
+            data-expense-create-row="true"
+            data-restorable="true">
 
             <form asp-action="ParseReceipt" enctype="multipart/form-data">
                 <label for="receipt-upload" class="btn btn-sm btn-outline-info h-100 rounded">
@@ -93,65 +97,7 @@
 
         @foreach (var expense in Model.Expenses)
         {
-            <li class="list-group-item">
-                <div id="@expense.EIdEditExpense"
-                    hx-get="@Url.Action("Edit", "Expenses", new { tripId = Model.TripId, id = expense.Id })"
-                    hx-trigger="dblclick once">
-
-                    <div class="row">
-                        <h5>@(expense.Name)</h5>
-                    </div>
-                    <div class="row">
-                        <div class="col text-start">
-                            <h5>
-                                <small class="text-white-50">@(expense.Category)</small>
-                            </h5>
-                        </div>
-
-                        <div class="col text-end">
-                            <i class="text-muted">@(expense.Date.ToShortDateString())</i>
-                            @*<i class="text-muted">@($"Created by: {expense.Creator?.CustomUserName}")</i>*@
-                        </div>
-                    </div>
-
-                    <div class="mb-2">
-                        @if(expense.TotalPaidBase == expense.TotalPaidOriginal)
-                        {
-                            <b>@CurrencyFormatter.FormatMoney(expense.TotalPaidBase)</b>
-                        }
-                        else
-                        {
-                            <b>@CurrencyFormatter.FormatMoney(expense.TotalPaidBase) / @CurrencyFormatter.FormatMoney(expense.TotalPaidOriginal)</b>
-                        }
-                        @*<b>@(expense.TotalPaid.ToString("C"))</b>*@
-                        <i class="text-white-50">
-                            - Paid By: 
-                            @foreach (var payment in expense.PaidPayments)
-                            {
-                                <span class="border border-light-subtle rounded bg-dark text-white-50">
-                                    @payment.ParticipantName
-                                </span>
-                                @*<span>@payment.Amount.ToString("C2")</span>*@
-                            }
-
-                            <span>
-                                for @(expense.OwedPayments.Count() == 1 ? "1 person" : $"{expense.OwedPayments.Count()} people")
-                            </span>
-                        </i><br>
-                    </div>
-                    @*<i class="text-white-50">
-                        <small>
-                            @foreach (var payment in expense.OwedPayments)
-                            {
-                                <span class="border border-light-subtle rounded bg-danger-subtle text-white-50">
-                                    @payment.ParticipantName
-                                </span>
-                                <span>@CurrencyFormatter.Format(payment.AmountBase, Model.BaseCurrencyCode)</span>
-                            }
-                        </small>
-                    </i>*@
-                </div>
-            </li>
+            <partial name="~/Views/Expenses/_ExpenseIndex_Card.cshtml" model="expense" />
         }
     </ul>
 </div>

@@ -1,4 +1,21 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿
+// UI/UX
+document.body.addEventListener("htmx:beforeSwap", event => {
+    const target = event.detail.target;
 
-// Write your JavaScript code.
+    if (!target?.matches("[data-restorable='true']")) {
+        return;
+    }
+    console.log("saving", target);
+    target.dataset.originalHtml = target.innerHTML;
+});
+
+function restoreOriginal(button) {
+    const target = button.closest("[data-restorable='true']");
+
+    if (!target) {
+        return;
+    }
+    console.log("restoring", target);
+    target.innerHTML = target.dataset.originalHtml || "";
+}
