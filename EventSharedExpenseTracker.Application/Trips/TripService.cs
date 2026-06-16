@@ -197,7 +197,7 @@ public class TripService : ITripService
         // get image path for deletion
         var imagePath = trip.ImagePath;
 
-        _unitOfWork.Trips.Delete(trip);
+        await _unitOfWork.Trips.Delete(trip);
         await _unitOfWork.CompleteAsync();
 
         // delete image after deleting trip

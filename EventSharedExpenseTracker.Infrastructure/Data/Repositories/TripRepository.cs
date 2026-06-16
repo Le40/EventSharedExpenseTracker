@@ -4,6 +4,7 @@ using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Settlements;
+using System.Threading.Tasks;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 
@@ -83,11 +84,19 @@ public class TripRepository : ITripRepository
         _context.Update(trip);
     }
 
-    public void Delete(Trip trip)
+    public async Task Delete(Trip trip)
     {
-        _context.Payments.RemoveRange(
-            trip.Expenses.SelectMany(e => e.Payments));
+        await _context.Entry(trip)
+            .Collection(t => t.Expenses)
+            .Query()
+            .Include(p => p.Payments)
+            .LoadAsync();
 
+        var payments = trip.Expenses
+            .SelectMany(e => e.Payments)
+            .ToList();
+
+        _context.Payments.RemoveRange(payments);
         _context.Expenses.RemoveRange(trip.Expenses);
         _context.TripParticipants.RemoveRange(trip.Participants);
         _context.Trips.Remove(trip);

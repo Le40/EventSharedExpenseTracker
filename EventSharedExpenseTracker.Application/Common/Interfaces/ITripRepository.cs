@@ -11,7 +11,7 @@ public interface ITripRepository
     Task<Trip?> GetByIdWithExpensesAsync(int id);
     void Add(Trip trip);
     void Update(Trip trip);
-    void Delete(Trip trip);
+    Task Delete(Trip trip);
 
     Task<List<ParticipantBalance>> GetParticipantBalancesAsync(int tripId);
 }
