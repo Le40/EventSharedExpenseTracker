@@ -25,8 +25,11 @@ document.body.addEventListener("htmx:sendError", async event => {
     const form = button.closest("form");
 
     const formId = form?.querySelector("[name='FormId']")?.value;
+    const isCreateForm = formId === "expense-createForm";
 
-    if (formId !== "expense-createForm") {
+    const isSubmitButton = button.matches("button[type='submit']");
+
+    if (!isCreateForm || !isSubmitButton) {
         return;
     }
 
@@ -34,6 +37,32 @@ document.body.addEventListener("htmx:sendError", async event => {
 
     await handleOfflineDraftSave(button, form);
 });
+
+
+// EDIT DBLCLICK LISTENER
+document.body.addEventListener("dblclick", async event => {
+    const card = event.target.closest("[data-pending-expense-card='true']");
+
+    if (!card) {
+        return;
+    }
+
+    if (card.querySelector("form")) {
+        return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const localId = Number(card.dataset.offlineDraftId);
+
+    if (!localId) {
+        return;
+    }
+
+    await openOfflineDraftForEdit(localId, card);
+}, true ); // true at the end makes it run before any htmx, so it should prevent any other dblclick on draft form from firing.
 
 // DELETE LISTENER
 document.body.addEventListener("click", async event => {

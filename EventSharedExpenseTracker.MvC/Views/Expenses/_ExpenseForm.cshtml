@@ -21,7 +21,8 @@
                 hx-vals='{"formId": "@Model.FormId"}'
                 hx-trigger="keyup changed delay:800ms"
                 hx-target="#category-select-@Model.FormId"
-                hx-swap="outerHTML" />
+                hx-swap="outerHTML"
+                />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         <div class="row">
@@ -100,7 +101,8 @@
                         hx-select="#tripDetails-target"
                         hx-swap="outerHTML"
                         hx-push-url="true"
-                        hx-confirm="Are you sure you want to delete this item?">
+                        @*hx-confirm="Are you sure you want to delete this item?"*@
+                        data-confirm-message="Are you sure you want to delete this item?">
                     Delete
                 </button>
                

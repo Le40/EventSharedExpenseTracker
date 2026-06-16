@@ -255,9 +255,11 @@ public class ExpenseService : IExpenseService
             maxHeight: 1920,
             quality: 90);
 
-        return await _aiService.ParseReceiptAsync(
-            imageBytes,
-            "image/jpeg");
+        var parsedReceipt = await _aiService.ParseReceiptAsync(imageBytes, "image/jpeg");
+        if (parsedReceipt.Confidence < 0.5m || parsedReceipt.TotalAmount is null)
+            return AppErrors.Validation<ReceiptParseResult>("The receipt could not be parsed reliably. Please try another photo.");
+
+        return parsedReceipt;
     }
 
     public async Task<ServiceResult<ExpenseCategory>> SuggestCategoryAsync(string expenseName)

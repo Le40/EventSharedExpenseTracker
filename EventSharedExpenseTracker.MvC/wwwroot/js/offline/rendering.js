@@ -1,6 +1,8 @@
 ﻿
 // RENDER all pending
 async function renderPendingExpensesForCurrentTrip() {
+    // ai suggested to make sure there are no double cards or something.
+    removeOfflineDraftDom();
     // remove previous ones - cause htmx, aferswap will cause massive duplicaion
     document.querySelectorAll("[data-pending-expense-card='true']")
         .forEach(card => card.remove());
@@ -78,10 +80,6 @@ function addPendingExpenseCard(draft) {
     pendingCard.dataset.offlineDraftId = draft.localId;
     pendingCard.dataset.pendingExpenseCard = "true";
 
-    pendingCard.addEventListener("dblclick", async () => {
-        await openOfflineDraftForEdit(draft.localId);
-    });
-
     const createRow = document.querySelector("[data-expense-create-row='true']");
     createRow?.insertAdjacentElement("afterend", pendingCard);
 }
@@ -155,6 +153,12 @@ async function updateConnectionStatus() {
 
     const online = navigator.onLine;
 
+    // ai receript parsing not available offline.
+    const uploadReceiptButton = document.getElementById("receiptUploadButton");
+    if (uploadReceiptButton) {
+        uploadReceiptButton.classList.toggle("d-none", !online);
+    }
+
     if (online) {
         status.classList.add("d-none");
         return;
@@ -164,5 +168,11 @@ async function updateConnectionStatus() {
     status.textContent = "Offline Mode";
     status.classList.remove("bg-success");
     status.classList.add("bg-danger");
+}
+
+function removeOfflineDraftDom() {
+    document
+        .querySelectorAll("[data-pending-expense-card='true'], [data-offline-draft-id]")
+        .forEach(element => element.remove());
 }
 console.log("offline 2/5 - rendering.js loaded");

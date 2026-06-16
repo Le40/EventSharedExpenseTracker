@@ -8,7 +8,7 @@
          data-expense-card="true"
          data-restorable="true"
          hx-get="@Url.Action("Edit", "Expenses", new { id = Model.Id })"
-         hx-trigger="dblclick">
+         hx-trigger="dblclick[!event.target.closest('form')]">
 
         <div class="row">
             <h5 data-expense-name>@Model.Name</h5>

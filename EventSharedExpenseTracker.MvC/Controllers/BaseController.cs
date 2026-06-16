@@ -1,5 +1,6 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Results;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace EventSharedExpenseTracker.MvC.Controllers
 {
@@ -38,6 +39,21 @@ namespace EventSharedExpenseTracker.MvC.Controllers
                     error.Message);
             }
             return true;
+        }
+
+        protected void TriggerToast(
+            string message,
+            string type = "info")
+        {
+            Response.Headers["HX-Trigger"] =
+                JsonSerializer.Serialize(new
+                {
+                    showToast = new
+                    {
+                        message,
+                        type
+                    }
+                });
         }
     }
 }

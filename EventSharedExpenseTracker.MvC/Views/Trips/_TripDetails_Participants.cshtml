@@ -24,7 +24,7 @@
                                  hx-select="#@Model.EIdTripParticipants"
                                  hx-target="#@Model.EIdTripParticipants"
                                  hx-swap="outerHTML"
-                                 hx-confirm="@(participant.PaymentCount == 0 ? "Are you sure you want to delete Participant?" : "You cant delete participant that has payments")">
+                                 data-confirm-message="@(participant.PaymentCount == 0 ? "Are you sure you want to delete Participant?" : "You cant delete participant that has payments")">
 
                                 <h5 class="card-text text-black">
                                     @(participant.UserName)

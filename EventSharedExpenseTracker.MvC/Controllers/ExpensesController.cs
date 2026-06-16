@@ -51,7 +51,12 @@ public class ExpensesController : BaseController
         using var stream = receiptImage.OpenReadStream();
         var resultAi = await _expenseService.ExtractReceiptDataAsync(stream);
         if (!resultAi.IsSuccess)
-            return HandleServiceErrors(resultAi.Errors);
+        {
+            var message = resultAi.Errors.FirstOrDefault()?.Message;
+            TriggerToast(message, "warning");
+            return NoContent();
+        }
+
         var parsedReceipt = resultAi.Value!;
 
         var result = await _expenseFormFactory.BuildCreateFromReceiptAsync(tripId, parsedReceipt);

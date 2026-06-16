@@ -126,6 +126,8 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/userMessages/toast.js" asp-append-version="true"></script>
+    <script src="~/js/userMessages/modal.js" asp-append-version="true"></script>
     <script src="~/js/offline/storage.js" asp-append-version="true"></script>
     <script src="~/js/offline/editing.js" asp-append-version="true"></script>
     <script src="~/js/offline/rendering.js" asp-append-version="true"></script>
@@ -143,5 +145,38 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+
+    @*//// MODAL /////*@
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Please confirm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body" id="confirmModalMessage">
+                    Are you sure?
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="button" class="btn btn-danger" id="confirmModalConfirmButton">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    @*////TOAST//////*@
+    <div id="toastContainer"
+         class="toast-container position-fixed top-0 end-0 p-3"
+         style="z-index: 1100;">
+    </div>
 </body>
 </html>

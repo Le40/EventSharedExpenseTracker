@@ -1,5 +1,6 @@
 ﻿
 // UI/UX
+
 // store html with data-restorable
 document.body.addEventListener("htmx:beforeSwap", event => {
     const target = event.detail.target;
@@ -21,7 +22,7 @@ function restoreOriginal(button) {
     target.innerHTML = target.dataset.originalHtml || "";
 }
 // prevents htms messages from firing offline
-document.body.addEventListener("click", event => {
+document.body.addEventListener("htmx:beforeRequest", event => {
     const button = event.target.closest("[data-requires-online='true']");
 
     if (!button) {
@@ -35,8 +36,11 @@ document.body.addEventListener("click", event => {
     event.preventDefault();
     event.stopPropagation();
 
-    alert("This action needs an internet connection.");
+    //alert("This action needs an internet connection.");
+    Toast.show("This action needs an internet connection.", "info");
 }, true);
+
+
 
 console.log("site.js loaded");
 

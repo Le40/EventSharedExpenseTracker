@@ -3,7 +3,8 @@ async function handleOfflineDraftEdit(button, form) {
     const draft = await saveOfflineDraft(button, form);
     if (!draft) return;
 
-    alert("Offline draft updated.");
+    //alert("Offline draft updated.");
+    Toast.show("Offline draft updated.", "success");
 
     await syncPendingDraftsIfOnline();
 }
@@ -15,7 +16,8 @@ async function handleOfflineDraftSave(button) {
     if (!draft) return;
 
     form.remove();
-    alert("Expense saved offline. It will sync when you are online.");
+    //alert("Expense saved offline. It will sync when you are online.");
+    Toast.show("Expense saved offline. It will sync when you are online.", "success");
     await updatePendingSyncUi();
 }
 
@@ -97,20 +99,21 @@ function validateOfflineExpenseDraft(draft) {
 
 // EDIT FORM
 // trigger dbl click from card creation
-async function openOfflineDraftForEdit(localId) {
+async function openOfflineDraftForEdit(localId, pendingCard) {
     const drafts = await getAllOfflineExpenses();
     const draft = drafts.find(d => d.localId === localId);
 
     if (!draft || !draft.formHtml) {
-        alert("Offline draft form was not found.");
+        //alert("Offline draft form was not found.");
+        Toast.show("Offline draft form was not found.", "error");
         return;
     }
 
-    const pendingCard = document.querySelector(`[data-offline-draft-id='${localId}']`);
+    //const pendingCard = document.querySelector(`[data-offline-draft-id='${localId}']`);
 
-    if (!pendingCard) {
-        return;
-    }
+    //if (!pendingCard) {
+    //    return;
+    //}
     // storing the pending card html before swaping it for expenseForm - so cancel works
     pendingCard.dataset.originalHtml = pendingCard.innerHTML;
     pendingCard.dataset.restorable = "true";
@@ -120,7 +123,8 @@ async function openOfflineDraftForEdit(localId) {
     const form = pendingCard.querySelector("[data-offline-expense='true']");
 
     if (!form) {
-        alert("Stored form is missing offline marker.");
+        //alert("Stored form is missing offline marker.");
+        Toast.show("Stored form is missing offline marker.", "error");
         return;
     }
 
@@ -173,13 +177,17 @@ async function handleOfflineDraftDelete(button) {
         return;
     }
 
-    if (!confirm("Delete this pending expense?")) {
-        return;
-    }
+    //if (!confirm("Delete this pending expense?")) {
+    //    return;
+    //}
 
-    await deleteOfflineExpense(draftId);
-    await renderPendingExpensesForCurrentTrip();
-    await updatePendingSyncUi();
+    showConfirmModal(
+    "Delete this pending expense?",
+    async () => {
+        await deleteOfflineExpense(draftId);
+        await renderPendingExpensesForCurrentTrip();
+        await updatePendingSyncUi();
+    });
 }
 
 console.log("offline 1/5 - editing.js loaded");
