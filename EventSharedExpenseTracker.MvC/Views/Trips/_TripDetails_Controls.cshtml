@@ -13,7 +13,7 @@
                 hx-trigger="keyup changed delay:300ms" />
 
         <button type="button"
-                class="btn btn-sm btn-outline-info border-info rounded-top-0 border-top-0"
+                class="btn btn-sm btn-outline-info border-info rounded-top-0 border-top-0 photo-card-font"
                 hx-post="@Url.Action("AddDummy", "Trips", new { id = Model.Id })"
                 hx-target="#@Model.EIdTripParticipants"
                 hx-select="#@Model.EIdTripParticipants"
@@ -24,13 +24,13 @@
 
         @*EDIT + DELETE*@
         <button type="button" 
-                class="btn btn-sm btn-outline-secondary border-top-0 rounded-top-0"
+                class="btn btn-sm btn-outline-secondary border-top-0 rounded-top-0 photo-card-font"
                 hx-get="@Url.Action("Edit", "Trips", new { id = Model.Id })"
                 hx-target="#@Model.EIdEditTrip">
             Edit
         </button>
         <button type="button"
-                class="btn btn-sm btn-outline-danger border-top-0 rounded-top-0"
+                class="btn btn-sm btn-outline-danger border-top-0 rounded-top-0 photo-card-font"
                 hx-post="@Url.Action("Delete", "Trips", new { id = Model.Id })"
                 hx-target="body"
                 hx-push-url="true"

@@ -17,6 +17,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                 DateFrom = query.DateFrom,
                 DateTo = query.DateTo,
                 ImagePath = query.ImagePath,
+                Category = query.Category,
                 //BaseCurrencyCode = query.BaseCurrencyCode,
 
                 TripParticipants = new TripDetailsParticipantsViewModel {

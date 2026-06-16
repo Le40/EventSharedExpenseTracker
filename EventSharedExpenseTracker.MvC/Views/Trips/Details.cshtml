@@ -1,4 +1,5 @@
-﻿@using EventSharedExpenseTracker.MvC.ViewModels.Trips
+﻿@using EventSharedExpenseTracker.MvC.Common
+@using EventSharedExpenseTracker.MvC.ViewModels.Trips
 @model TripDetailsViewModel
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 
@@ -10,12 +11,18 @@
 
 @*PEOPLE + EXPENSES*@
 <div class="row mb-1" id="tripDetails-target">
-    <div class="col" style="min-width: 375px; max-width:450px;">
+    <div class="col-auto">
 
-        <div class="card shadow bg-light border-0 rounded-0 p-2 mb-3 rotated-@randRotate" style="min-height: 300px;">
+        <div class="photo-card photo-card--big card shadow bg-light border-0 rounded-0 p-2 mb-3"
+             style="--trip-color:@TripCategoryUiMetadata.Categories[Model.Category].Color">
+
+            @*<div class="photo-corner top-left"></div>
+            <div class="photo-corner top-right"></div>
+            <div class="photo-corner bottom-left"></div>
+            <div class="photo-corner bottom-right"></div>*@
 
             @*PHOTO CARD*@
-            <partial name="_TripDetails_Card" model="Model" />
+            <partial name="_TripDetails_Photo" model="Model" />
 
             @*TRIP CONTROLS*@
             @if (Model.CanUserEdit)

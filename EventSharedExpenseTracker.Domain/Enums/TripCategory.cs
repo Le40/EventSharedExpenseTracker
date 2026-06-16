@@ -10,7 +10,7 @@ namespace EventSharedExpenseTracker.Domain.Enums
             BeachHoliday,
             [Display(Name = "Nature / Hiking")]
             HikingNature,
-            [Display(Name = "Read Trip")]
+            [Display(Name = "Road Trip")]
             RoadTrip,
             [Display(Name = "Ski Trip")]
             SkiTrip,
@@ -18,8 +18,8 @@ namespace EventSharedExpenseTracker.Domain.Enums
             BusinessTrip,
             [Display(Name = "Festival / Event")]
             FestivalEvent,
-            [Display(Name = "Family Visit")]
-            FamilyVisit,
+            [Display(Name = "Action Packed")]
+            ActionPacked,
             Backpacking,
             Other
         }

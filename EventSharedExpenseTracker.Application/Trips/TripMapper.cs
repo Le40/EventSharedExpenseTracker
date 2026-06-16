@@ -20,6 +20,7 @@ namespace EventSharedExpenseTracker.Application.Trips
                 DateFrom = trip.DateFrom,
                 DateTo = trip.DateTo,
                 ImagePath = trip.ImagePath,
+                Category = trip.Category,
                 BaseCurrencyCode = trip.BaseCurrencyCode,
 
                 Participants = trip.Participants

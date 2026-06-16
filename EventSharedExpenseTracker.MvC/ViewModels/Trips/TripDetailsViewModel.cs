@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.MvC.Common;
+﻿using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using System.ComponentModel.DataAnnotations;
 
@@ -16,6 +17,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}")]
         public DateOnly DateTo { get; set; }
         public string? ImagePath { get; set; }
+
+        public TripCategory Category { get; set; }
 
         public string BaseCurrencyCode { get; set; } = "EUR";
 

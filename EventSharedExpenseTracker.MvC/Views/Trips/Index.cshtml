@@ -1,9 +1,11 @@
-﻿@using EventSharedExpenseTracker.MvC.ViewModels.Trips 
+﻿@using EventSharedExpenseTracker.MvC.Common
+@using EventSharedExpenseTracker.MvC.ViewModels.Trips 
 @model TripIndexViewModel
 
 @{
     ViewData["Title"] = "Index";
     Random rnd = new Random();
+    string[] rotations = ["-2deg", "-1deg", "0deg", "1deg", "2deg"];
 }
 
 <div class="container-fluid">
@@ -11,8 +13,8 @@
         @*CARD FOR CREATING NEW TRIP*@
         <div class="col-auto p-2">
 
-            <div class="card shadow bg-light border-0 rounded-0 p-2" style="min-width: 165px; min-height:260px; max-width:325px;">
-                <div class="bg-dark">
+            <div class="photo-card photo-card--small card shadow bg-light border-0 rounded-0 p-2">
+       
 
                     <div id="@Model.EIdCreateTrip"
                          hx-get="@Url.Action("Create", "Trips")"
@@ -22,12 +24,11 @@
                             <rect width="100%" height="100%" fill="#332D2D"></rect>
                         </svg>
 
-                        <div class="polaroid card-img-overlay text-white d-flex flex-column justify-content-center align-items-end">
-                            <h2 class="polaroid card-title m-0">+ Trip to be</h2>
+                        <div class="photo-card-font card-img-overlay text-white d-flex flex-column justify-content-center align-items-end">
+                            <h2 class="card-title m-0">+ Trip to be</h2>
                         </div>
-
                     </div>
-                </div>
+         
             </div>
         </div>
 
@@ -35,38 +36,42 @@
   
         @foreach (var trip in Model.Trips)
         {
-            int randRotate = rnd.Next(1, 5);
-            <div class="col p-2 trip-card-wrapper">
-                <div class="card shadow bg-light border-0 rounded-0 p-2 rotated-@randRotate">
+            var categoryInfo = TripCategoryUiMetadata.Categories[trip.Category];
+            var imagePath = trip.ImagePath != null
+                ? Url.Content(trip.ImagePath)
+                : Url.Content(categoryInfo.DefaultImagePath);
+
+            var randRotateDeg = rotations[rnd.Next(rotations.Length)];
+            <div class="col p-2 event-index-card-wrapper photo-card-font">
+                <div class="photo-card card shadow bg-light border-0 rounded-0 p-2"
+                     style="
+                        --trip-color:@categoryInfo.Color;
+                        --rotation:@randRotateDeg;">
+
+                    <div class="photo-corner top-left"></div>
+                    <div class="photo-corner top-right"></div>
+                    <div class="photo-corner bottom-left"></div>
+                    <div class="photo-corner bottom-right"></div>
+
+
                     <a href="@Url.Action("Details", "Trips", new { id = trip.Id })" class="stretched-link"></a>
                     <div class="position-relative">
-                        @*<a href="@Url.Action("Details", "Trips", new { id = item.Id })" class="stretched-link"></a>*@
-                        <div class="img-frame border border-secondary">
-                        @if (trip.ImagePath != null)
-                        {
-                            <img src="@Url.Content(trip.ImagePath)" alt="image" class="card-img-top rounded-0 zoom-on-hover">
-                        }
-                        else
-                        {
-                            <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80" alt="image"
+                        <div class="photo-card-image-frame border border-secondary">
+
+                            <img src="@imagePath"
+                                 alt="image"
                                  class="card-img-top rounded-0">
-                        }
                         </div>
 
                         <div class="position-absolute bottom-0 end-0 text-white p-2">
-                            <h2 class="polaroid card-title m-0">@Html.DisplayFor(modelItem => trip.Name)</h2>
-                            <h5 class="polaroid card-title m-0 text-muted">@trip.DateFrom.Year</h5>
+                            <h2 class="card-title m-0">@Html.DisplayFor(modelItem => trip.Name)</h2>
+                            <h5 class="card-title text-end m-0">@trip.DateFrom.ToString("MMMM yyyy")</h5>
 
                         </div>
-                        @*applies to next div besides its origin - i hope --- now only on picture so i can flip it with css to do some cool stuff :)*@
-                        @*<a href="@Url.Action("Details", "Trips", new { id = item.Id })" class="stretched-link image-link" onclick="storeImagePosition(this)"></a>*@
                     </div>
 
-                    <i class="text-white-50">
-                    @foreach (var name in trip.ParticipantNames)
-                    {
-                       <span class="polaroid bg-white text-dark">@name</span>
-                    }
+                    <i class="photo-card-font bg-white text-dark">
+                        @string.Join(", ", trip.ParticipantNames)
                     </i>
 
                 </div>

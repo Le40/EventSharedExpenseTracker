@@ -24,6 +24,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public required string Name { get; set; }
         public DateOnly DateFrom { get; set; }
         public DateOnly DateTo { get; set; }
+        public TripCategory Category { get; set; }
         public string? ImagePath { get; set; }
         public IEnumerable<string> ParticipantNames { get; set; } = [];
     }

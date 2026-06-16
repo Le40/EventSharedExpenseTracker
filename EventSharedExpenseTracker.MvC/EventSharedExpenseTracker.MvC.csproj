@@ -20,8 +20,4 @@
     <ProjectReference Include="..\EventSharedExpenseTracker.Infrastructure\EventSharedExpenseTracker.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\media\" />
-  </ItemGroup>
-
 </Project>

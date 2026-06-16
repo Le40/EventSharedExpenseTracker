@@ -1,0 +1,110 @@
+﻿
+.photo-card {
+    position: relative;
+}
+.photo-card-image-frame {
+    overflow: hidden;
+    position: relative;
+}
+.photo-card-font {
+    font-family: 'Unseeness', sans-serif;
+}
+
+/* only handle hover and generic things*/
+.photo-card img {
+    width: 100%;
+    object-fit: cover;
+    transform: scale(1);
+    transition: transform 0.5s ease-in-out;
+}
+
+.photo-card:hover img {
+    transform: scale(1.2);
+}
+
+.photo-card-image {
+    min-height: 220px;
+    max-height: 325px;
+}
+
+@media (min-width: 992px) {
+    .photo-card-image {
+        min-height: 400px;
+        max-height: 450px;
+    }
+}
+
+.photo-card--small {
+    min-width: 165px;
+    max-width: 325px;
+    min-height: 260px;
+}
+
+.photo-card--big {
+    min-width: 375px;
+    max-width: 500px;
+    min-height: 300px;
+}
+
+/*on div with all the cards, so it can better manage the grid between min and max width
+    Used for index, as there are many photo-cards
+*/
+.event-index-card-wrapper {
+    flex: 1 1 165px;
+    max-width: 325px;
+    min-width: 165px;
+}
+
+@media (min-width: 768px) {
+    .event-index-card-wrapper {
+        flex: 1 1 220px;
+    }
+}
+
+.event-index-card-wrapper .card {
+    min-height: 260px;
+    transform: rotate(var(--rotation));
+}
+
+.event-index-card-wrapper img {
+    height: 200px;
+}
+
+
+/*PHOTO CORRNERS*/
+.photo-corner {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 11px solid color-mix( in srgb, var(--trip-color, #adb5bd) 75%, white );
+    pointer-events: none;
+    /*box-shadow: 1px 1px 3px rgba(0,0,0,.35);
+    filter: drop-shadow( 1px 1px 2px rgba(0,0,0,.2) );*/
+    z-index: 10;
+    pointer-events: none;
+}
+
+    .photo-corner.top-left {
+        top: -3px;
+        left: -3px;
+        clip-path: polygon(0 0, 100% 0, 0 100%);
+    }
+
+    .photo-corner.top-right {
+        top: -3px;
+        right: -3px;
+        clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
+
+    .photo-corner.bottom-left {
+        bottom: -3px;
+        left: -3px;
+        clip-path: polygon(0 0, 0 100%, 100% 100%);
+        filter: drop-shadow( 1px 1px 2px rgba(0,0,0,.2) )
+    }
+
+    .photo-corner.bottom-right {
+        bottom: -3px;
+        right: -3px;
+        clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    }
