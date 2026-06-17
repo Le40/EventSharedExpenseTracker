@@ -3,7 +3,8 @@
     position: relative;
     background: #f8f7f2;
     filter: drop-shadow( 1px 1px 2px rgba(0,0,0,.2) );
-    transform: rotate(var(--rotation, 0deg));*/
+    transform: rotate(var(--rotation, 0deg));
+    container-type: inline-size;
 }
 
 .photo-card:hover img {
@@ -19,9 +20,15 @@
     display: flex;
     justify-content: end;
     align-items: center;
-    min-width: 225px;
+    min-width: 165px;
     max-width: 325px;
     min-height: 260px;
+}
+
+@media (min-width: 992px) {
+    .photo-card-slot {
+        min-width: 225px;
+    }
 }
 
 /* Light theme */
@@ -66,64 +73,52 @@
     height: 200px;
 }
 
-.photo-card--big {
-    min-width: 375px;
+.photo-card--details {
+    width: 100%;
     max-width: 500px;
-    min-height: 300px;
+    min-height: 325px;
 }
 
-.photo-card--big .photo-card-media {
+.details-card-wrapper {
+    width: min(100%, 520px);
+}
+
+.photo-card--details .photo-card-media {
     height: 285px;
 }
 
 @media (min-width: 992px) {
-    .photo-card--big .photo-card-media {
+    .photo-card--details .photo-card-media {
         height: 450px;
     }
 }
-
-
-/* only handle hover and generic things*/
-/*.photo-card img {
-    width: 100%;
-    object-fit: cover;
-    transform: scale(1);
-    transition: transform 0.5s ease-in-out;
-}*/
-
-
-
-
-
-/*.photo-card-image {
-    min-height: 220px;
-    max-height: 325px;
-}
-
-@media (min-width: 992px) {
-    .photo-card-image {
-        min-height: 400px;
-        max-height: 450px;
-    }
-}*/
 
 .p-2-5 {
     padding: 0.75rem;
 }
 
+.photo-card-title {
+    font-family: 'Unseeness', sans-serif;
+    font-size: clamp(1rem, 11cqw, 3rem);
+    line-height: 1;
+}
 
+.photo-card-subtitle {
+    font-family: 'Unseeness', sans-serif;
+    font-size: clamp(0.75rem, 5cqw, 1.1rem);
+}
 
 /*on div with all the cards, so it can better manage the grid between min and max width
     Used for index, as there are many photo-cards
 */
-.event-index-card-wrapper {
+.event-grid {
     flex: 1 1 165px;
     max-width: 325px;
     min-width: 165px;
 }
 
 @media (min-width: 768px) {
-    .event-index-card-wrapper {
+    .event-grid {
         flex: 1 1 250px;
     }
 }

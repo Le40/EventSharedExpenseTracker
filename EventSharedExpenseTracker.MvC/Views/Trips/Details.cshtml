@@ -11,15 +11,10 @@
 
 @*PEOPLE + EXPENSES*@
 <div class="row mb-1" id="tripDetails-target">
-    <div class="col-auto">
+    <div class="details-card-wrapper">
 
-        <div class="photo-card photo-card--big card shadow bg-light border-0 rounded-0 p-2 mb-3"
+        <div class="photo-card photo-card--details card shadow bg-light border-0 rounded-0 p-2 mb-3"
              style="--trip-color:@TripCategoryUiMetadata.Categories[Model.Category].Color">
-
-            @*<div class="photo-corner top-left"></div>
-            <div class="photo-corner top-right"></div>
-            <div class="photo-corner bottom-left"></div>
-            <div class="photo-corner bottom-right"></div>*@
 
             @*PHOTO CARD*@
             <partial name="_TripDetails_Photo" model="Model" />

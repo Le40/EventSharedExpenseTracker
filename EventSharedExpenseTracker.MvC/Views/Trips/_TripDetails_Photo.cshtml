@@ -18,7 +18,7 @@
     @*--PHOTO - INFO--*@
     <div id="@Model.EIdEditTrip" class="text-white position-absolute bottom-0 end-0 p-3 zoom-on-hover">
 
-        <h1 class="photo-card-font display-4">@Html.DisplayFor(modelItem => Model.Name)</h1>
-        <small class="photo-card-font">@Html.DisplayFor(model => model.DateFrom) -  @Html.DisplayFor(model => model.DateTo)</small>
+        <div class="photo-card-title display-4 text-end">@Html.DisplayFor(modelItem => Model.Name)</div>
+        <div class="photo-card-subtitle text-end">@Html.DisplayFor(model => model.DateFrom) -  @Html.DisplayFor(model => model.DateTo)</div>
     </div>
 </div>

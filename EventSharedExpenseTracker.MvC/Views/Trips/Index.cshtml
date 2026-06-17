@@ -5,7 +5,7 @@
 @{
     ViewData["Title"] = "Index";
     Random rnd = new Random();
-    string[] rotations = ["-2deg", "-1deg", "0deg", "1deg", "2deg"];
+    string[] rotations = ["-1.75deg", "-1.25deg", "-1deg", "-0.75deg","-0.5deg","-0.25deg","0.deg", "0.25deg", "0.5deg", "0.75deg", "1deg", "1.25deg", "1.75deg"];
 }
 
 <div class="container-fluid">
@@ -62,7 +62,7 @@
                 : Url.Content(categoryInfo.DefaultImagePath);
 
             var randRotateDeg = rotations[rnd.Next(rotations.Length)];
-            <div class="col p-2-5 event-index-card-wrapper photo-card-font">
+            <div class="col p-2-5 event-grid photo-card-font">
                 <div class="photo-card photo-card--small border-0 rounded-0 p-2"
                      style="
                         --trip-color:@categoryInfo.Color;
@@ -84,8 +84,8 @@
                         </div>
 
                         <div class="position-absolute bottom-0 end-0 text-white p-2">
-                            <h2 class="card-title text-end m-0">@Html.DisplayFor(modelItem => trip.Name)</h2>
-                            <h5 class="card-title text-end m-0">@trip.DateFrom.ToString("MMMM yyyy")</h5>
+                            <div class="photo-card-title text-end m-0">@Html.DisplayFor(modelItem => trip.Name)</div>
+                            <div class="photo-card-subtitle title text-end m-0">@trip.DateFrom.ToString("MMMM yyyy")</div>
 
                         </div>
                     </div>
