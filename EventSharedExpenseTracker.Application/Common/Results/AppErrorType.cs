@@ -7,6 +7,7 @@ namespace EventSharedExpenseTracker.Application.Common.Results
         NotFound,
         Forbidden,
         Conflict,
-        Unexpected
+        Unexpected,
+        Notification
     }
 }

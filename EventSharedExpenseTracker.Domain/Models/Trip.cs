@@ -74,6 +74,9 @@ public class Trip
         if (participant.HasPayments)
             return DomainErrors.ParticipantHasPayments;
 
+        if (Participants.Count == 1)
+            return DomainErrors.LastParticipant;
+
         Participants.Remove(participant);
 
         return DomainResult.Ok();
@@ -97,6 +100,13 @@ public class Trip
             return DomainErrors.InvalidTripDateRange;
 
         return DomainResult.Ok();
+    }
+
+    public bool CanDeleteParticipant(int participantId)
+    {
+        var participant = Participants.Single(p => p.Id == participantId);
+
+        return Participants.Count() > 1 && !participant.HasPayments; 
     }
 
     public DomainResult ChangeCurrency(string currencyCode)

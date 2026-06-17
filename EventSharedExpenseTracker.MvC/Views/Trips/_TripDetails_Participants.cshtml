@@ -23,7 +23,8 @@
                             @*ALTERNATIVE not select, and target= body*@
                             <div class="card-body p-1"
                                  hx-post=@Url.Action("DeleteParticipant", "Trips", new { id = Model.TripId, participantId = participant.Id })
-                                 hx-trigger="dblclick[canUserEditTrip()]"
+                                 data-can-delete="@participant.CanBeDeleted"
+                                 hx-trigger="dblclick[canDelete(this)]"
                                  hx-select="#@Model.EIdTripParticipants"
                                  hx-target="#@Model.EIdTripParticipants"
                                  hx-swap="outerHTML"
@@ -51,7 +52,7 @@
 </form>
 
 <script>
-    function canUserEditTrip() {
-        return @Json.Serialize(Model.CanUserEdit);
+    function canDelete(element) {
+        return element.dataset.canDelete === "True";
     }
 </script>

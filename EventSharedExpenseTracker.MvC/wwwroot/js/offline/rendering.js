@@ -159,15 +159,7 @@ async function updateConnectionStatus() {
         uploadReceiptButton.classList.toggle("d-none", !online);
     }
 
-    if (online) {
-        status.classList.add("d-none");
-        return;
-    }
-
-    status.classList.remove("d-none");
-    status.textContent = "Offline Mode";
-    status.classList.remove("bg-success");
-    status.classList.add("bg-danger");
+    status.classList.toggle("d-none", online);
 }
 
 function removeOfflineDraftDom() {

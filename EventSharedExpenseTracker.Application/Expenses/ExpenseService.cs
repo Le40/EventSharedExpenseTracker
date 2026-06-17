@@ -257,7 +257,7 @@ public class ExpenseService : IExpenseService
 
         var parsedReceipt = await _aiService.ParseReceiptAsync(imageBytes, "image/jpeg");
         if (parsedReceipt.Confidence < 0.5m || parsedReceipt.TotalAmount is null)
-            return AppErrors.Validation<ReceiptParseResult>("The receipt could not be parsed reliably. Please try another photo.");
+            return AppErrors.Notification<ReceiptParseResult>("The receipt could not be parsed reliably. Please try another photo.");
 
         return parsedReceipt;
     }

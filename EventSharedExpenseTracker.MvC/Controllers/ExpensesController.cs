@@ -51,11 +51,7 @@ public class ExpensesController : BaseController
         using var stream = receiptImage.OpenReadStream();
         var resultAi = await _expenseService.ExtractReceiptDataAsync(stream);
         if (!resultAi.IsSuccess)
-        {
-            var message = resultAi.Errors.FirstOrDefault()?.Message;
-            TriggerToast(message, "warning");
-            return NoContent();
-        }
+            return HandleServiceErrors(resultAi.Errors);
 
         var parsedReceipt = resultAi.Value!;
 

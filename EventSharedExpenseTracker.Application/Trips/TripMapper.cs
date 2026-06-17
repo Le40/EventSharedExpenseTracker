@@ -30,7 +30,8 @@ namespace EventSharedExpenseTracker.Application.Trips
                         IsDummy = p.UserId == null,
                         DisplayName = p.DisplayName,
                         PaymentSum = p.Payments.Sum(x => x.AmountBase),
-                        PaymentCount = p.Payments.Count
+                        PaymentCount = p.Payments.Count,
+                        CanBeDeleted = trip.CanDeleteParticipant(p.Id)
                     })
                     .ToList(),
 

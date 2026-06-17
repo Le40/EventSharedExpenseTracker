@@ -28,6 +28,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                         .Select(p => new TripDetailsParticipantViewModel
                         {
                             Id = p.Id,
+                            CanBeDeleted = p.CanBeDeleted,
                             IsDummy = p.IsDummy,
                             UserName = p.DisplayName,
                             PaymentSum = p.PaymentSum,

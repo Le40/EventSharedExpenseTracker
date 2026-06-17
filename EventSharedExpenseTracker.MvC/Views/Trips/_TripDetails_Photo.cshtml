@@ -3,7 +3,7 @@
 @model TripDetailsViewModel
 
 @*--PHOTO-FRAME--*@
-<div class="photo-card-image-frame border-secondary position-relative" id="tripPhoto">
+<div class="photo-card-media border-secondary position-relative" id="tripPhoto">
     @{
         var categoryInfo = TripCategoryUiMetadata.Categories[Model.Category];
         var imagePath = Model.ImagePath != null
@@ -12,8 +12,8 @@
     }
 
     <img src="@imagePath" 
-        alt="image" 
-       class="photo-card-image card-img-top rounded-0 img-fluid">
+        alt="image"
+         class="card-img-top rounded-0">
 
     @*--PHOTO - INFO--*@
     <div id="@Model.EIdEditTrip" class="text-white position-absolute bottom-0 end-0 p-3 zoom-on-hover">

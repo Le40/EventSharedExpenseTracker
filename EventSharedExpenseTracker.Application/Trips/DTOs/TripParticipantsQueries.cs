@@ -13,6 +13,7 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         public decimal PaymentSum { get; set; }
 
         public int PaymentCount { get; set; }
+        public bool CanBeDeleted { get; set; }
     }
 
     public record TripParticipantsQuery

@@ -8,6 +8,13 @@ namespace EventSharedExpenseTracker.MvC.Controllers
     {
         protected IActionResult HandleServiceErrors(IEnumerable<AppError> errors)
         {
+            var toastError = errors.FirstOrDefault(e => e.Type == AppErrorType.Notification);
+            if (toastError is not null)
+            {
+                TriggerToast(toastError.Message, "warning");
+                return NoContent();
+            }
+
             if (errors.Any(e => e.Type == AppErrorType.NotFound))
                 return NotFound();
 

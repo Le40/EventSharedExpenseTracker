@@ -32,6 +32,20 @@ namespace EventSharedExpenseTracker.Application.Common.Results
             PropertyName = propertyName
         };
 
+        public static AppError Notification(string message) => new()
+        {
+            Type = AppErrorType.Notification,
+            Code = "Notification",
+            Message = message
+        };
+
+        public static AppError Notification<T>(string message) => new()
+        {
+            Type = AppErrorType.Validation,
+            Code = $"{typeof(T).Name}.Notification",
+            Message = message,
+        };
+
     }
 
 }

@@ -30,6 +30,11 @@ namespace EventSharedExpenseTracker.Domain.Result
                 "Trip.ParticipantHasPayments",
                 "Participant has payments.");
 
+        public static readonly DomainError LastParticipant =
+            new(DomainErrorType.Validation,
+                "Trip.ParticipantHasPayments",
+                "Cannot delete last participant");
+
         public static readonly DomainError NoPayments =
              new(DomainErrorType.Validation,
                  "Expense.HasNoPayments",

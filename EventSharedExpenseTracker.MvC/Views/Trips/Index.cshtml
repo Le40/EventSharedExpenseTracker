@@ -11,25 +11,45 @@
 <div class="container-fluid">
     <div class="row">
         @*CARD FOR CREATING NEW TRIP*@
-        <div class="col-auto p-2">
+        <div class="col-auto p-2-5">
 
-            <div class="photo-card photo-card--small card shadow bg-light border-0 rounded-0 p-2">
-       
+            <div class="photo-card-slot rounded-0 p-2"
+                 hx-get="@Url.Action("Create", "Trips")"
+                 hx-target="#@Model.EIdCreateTrip"
+                 hx-trigger="click once">
 
-                    <div id="@Model.EIdCreateTrip"
-                         hx-get="@Url.Action("Create", "Trips")"
-                         hx-trigger="click once">
+                <div class="photo-corner top-left"></div>
+                <div class="photo-corner top-right"></div>
+                <div class="photo-corner bottom-left"></div>
+                <div class="photo-corner bottom-right"></div>
 
-                        <svg class="bd-placeholder-img card-img-top rounded-0" width="200" height="200" role="img">
-                            <rect width="100%" height="100%" fill="#332D2D"></rect>
-                        </svg>
+                <div id="@Model.EIdCreateTrip">
 
-                        <div class="photo-card-font card-img-overlay text-white d-flex flex-column justify-content-center align-items-end">
-                            <h2 class="card-title m-0">+ Trip to be</h2>
-                        </div>
-                    </div>
+                    @*<div class="photo-card-font text-white d-flex flex-column justify-content-center align-items-end">*@
+                    <h2 class="photo-card-font text-end"
+                        style="transform: translateY(30px)">+ Trip to be</h2>
+                    @*</div>*@
+                </div>
          
             </div>
+
+            @*<div class="photo-card photo-card--small card border-0 rounded-0 p-2">
+
+
+                <div id="@Model.EIdCreateTrip"
+                     hx-get="@Url.Action("Create", "Trips")"
+                     hx-trigger="click once">
+
+                    <svg class="bd-placeholder-img card-img-top rounded-0" width="200" height="200" role="img">
+                        <rect width="100%" height="100%" fill="#332D2D"></rect>
+                    </svg>
+
+                    <div class="photo-card-font card-img-overlay text-white d-flex flex-column justify-content-center align-items-end">
+                        <h2 class="card-title m-0">+ Trip to be</h2>
+                    </div>
+                </div>
+
+            </div>*@
         </div>
 
         @*REST OF TRIP CARDS*@
@@ -42,8 +62,8 @@
                 : Url.Content(categoryInfo.DefaultImagePath);
 
             var randRotateDeg = rotations[rnd.Next(rotations.Length)];
-            <div class="col p-2 event-index-card-wrapper photo-card-font">
-                <div class="photo-card card shadow bg-light border-0 rounded-0 p-2"
+            <div class="col p-2-5 event-index-card-wrapper photo-card-font">
+                <div class="photo-card photo-card--small border-0 rounded-0 p-2"
                      style="
                         --trip-color:@categoryInfo.Color;
                         --rotation:@randRotateDeg;">
@@ -56,7 +76,7 @@
 
                     <a href="@Url.Action("Details", "Trips", new { id = trip.Id })" class="stretched-link"></a>
                     <div class="position-relative">
-                        <div class="photo-card-image-frame border border-secondary">
+                        <div class="photo-card-media border border-secondary">
 
                             <img src="@imagePath"
                                  alt="image"
@@ -64,7 +84,7 @@
                         </div>
 
                         <div class="position-absolute bottom-0 end-0 text-white p-2">
-                            <h2 class="card-title m-0">@Html.DisplayFor(modelItem => trip.Name)</h2>
+                            <h2 class="card-title text-end m-0">@Html.DisplayFor(modelItem => trip.Name)</h2>
                             <h5 class="card-title text-end m-0">@trip.DateFrom.ToString("MMMM yyyy")</h5>
 
                         </div>

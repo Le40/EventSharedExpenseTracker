@@ -50,5 +50,6 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public decimal PaymentSum { get; set; }
         public int PaymentCount { get; set; }
         public bool IsDummy { get; set; }
+        public bool CanBeDeleted { get; set; }
     }
 }
