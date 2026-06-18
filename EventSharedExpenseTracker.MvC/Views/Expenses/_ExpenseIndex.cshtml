@@ -50,19 +50,12 @@
         <div class="col ps-1">
             <div class="btn-group d-flex flex-wrap align-content-center h-100">
                 @*SORT BY NAME*@
-                <button type="button" class="btn btn-sm btn-outline-secondary"
+                @*<button type="button" class="btn btn-sm btn-outline-secondary"
                         data-requires-online="true"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.NameSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Name
-                </button>
-                @*SORT BY AMOUNT - sqlite not working*@
-                <button type="button" class="btn btn-sm btn-outline-secondary"
-                        data-requires-online="true"
-                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.AmountSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
-                        hx-target="#@Model.EIdExpenseCollection">
-                    Amount
-                </button>
+                </button>*@
                 @*SORT BY DATE*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                         data-requires-online="true"
@@ -70,29 +63,34 @@
                         hx-target="#@Model.EIdExpenseCollection">
                     Date
                 </button>
+                @*SORT BY AMOUNT - sqlite not working*@
+                <button type="button" class="btn btn-sm btn-outline-secondary d-none d-lg-inline-block"
+                        data-requires-online="true"
+                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.AmountSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
+                        hx-target="#@Model.EIdExpenseCollection">
+                    Amount
+                </button>
                 @*FILTER BY CATEGORY*@
-                <select id="categoryDropdown" class="btn btn-sm btn-outline-secondary" 
+                <select id="categoryDropdown" class="btn btn-sm btn-outline-secondary w-auto" 
                         data-requires-online="true"
                         asp-for="CategoryFilter"
                         asp-items ="@Html.GetEnumSelectList<ExpenseCategory>()"
                         name="categoryFilter"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, searchString = Model.SearchString, creator = Model.Creator })"
                         hx-target="#@Model.EIdExpenseCollection">
-                    <option value="">Select Category</option>
+                    <option value="">Category</option>
                 </select>
                 @*FILTER BY CREATED BY USER*@
-                <div id="expControls">
                     <button type="button"
                             data-requires-online="true"
                             class="btn btn-sm btn-outline-secondary @(Model.Creator ? "active" : "")"
                             hx-get='@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, searchString = Model.SearchString, creator = !Model.Creator, categoryFilter = Model.CategoryFilter })'
                             hx-target="#@Model.EIdExpenseCollection"
                             hx-swap="outerHTML">
-                        CreatedByMe
+                        Mine
                     </button>
-                </div>
                 @*SEARCH*@
-                <input type="text" id="searchInput" name="searchString" autocomplete="off" placeholder="search expense" value="@Model.SearchString" class="btn btn-sm btn-outline-secondary bg-secondary-subtle"
+                <input type="text" id="searchInput" name="searchString" autocomplete="off" placeholder="search expense" value="@Model.SearchString" class="btn btn-sm btn-outline-secondary bg-secondary-subtle w-auto"
                         data-requires-online="true"
                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                        hx-target="#@Model.EIdExpenseCollection"

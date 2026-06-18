@@ -29,13 +29,9 @@ public class FriendsController : BaseController
 
     // SEARCH : GET
     [HttpGet("Friends/Search/")]
-    public async Task<IActionResult> Search(string searchString, int? tripId)
+    public async Task<IActionResult> Search(string searchString, int tripId)
     {
-        ViewBag.SearchString = searchString;
-        if (tripId.HasValue)
-            ViewBag.TripId = tripId.Value;
-
-        var result = await _friendService.Search(searchString);
+        var result = await _friendService.Search(tripId, searchString);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 

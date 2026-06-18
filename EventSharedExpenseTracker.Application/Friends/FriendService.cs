@@ -31,9 +31,12 @@ public class FriendService : IFriendService
         return (ServiceResult<List<Friendship>>)user.Friends;
     }
 
-    public async Task<ServiceResult<List<CustomUser>>> Search(string? searchString)
+    public async Task<ServiceResult<List<CustomUser>>> Search(int tripId, string? searchString)
     {
         int userId = _requestContext.UserId;
+        var trip = await _unitOfWork.Trips.GetByIdAsync(tripId);
+        if (trip == null)
+            return AppErrors.NotFound<List<CustomUser>>();
         //var user = await _unitOfWork.Users.GetUserWithFriends(userId);
 
         var options = new FriendshipQueryOptions
@@ -42,6 +45,14 @@ public class FriendService : IFriendService
         };
 
         var users = await _unitOfWork.Users.GetAllAsync(userId, options);
+
+        var participantIds = trip.Participants
+            .Select(p => p.UserId)
+            .ToHashSet();
+
+        users = users
+            .Where(u => !participantIds.Contains(u.Id))
+            .ToList();
 
         return users;
     }
