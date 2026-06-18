@@ -108,6 +108,19 @@ document.body.addEventListener("change", event => {
         dateTo.value = dateFrom.value;
     }
 });
+// UPDATES SITE HEADER HEIGHT FOR CSS CONTROLS
+function updateHeaderHeight() {
+    const header = document.getElementById('site-header');
+
+    document.documentElement.style.setProperty(
+        '--mobile-header-height',
+        `${header.offsetHeight}px`
+    );
+}
+
+updateHeaderHeight();
+
+window.addEventListener('resize', updateHeaderHeight);
 
 
 

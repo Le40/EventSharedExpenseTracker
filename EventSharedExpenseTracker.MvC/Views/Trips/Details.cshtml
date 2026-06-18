@@ -11,7 +11,7 @@
 
 @*PEOPLE + EXPENSES*@
 <div class="row mb-1" id="tripDetails-target">
-    <div class="details-card-wrapper">
+    <div class="details-card-wrapper bg-body">
 
         <div class="photo-card photo-card--details card shadow bg-light border-0 rounded-0 p-2 mb-3"
              style="--trip-color:@TripCategoryUiMetadata.Categories[Model.Category].Color">
@@ -40,7 +40,7 @@
 
 
     @*COL OF EXPENSES*@
-    <div class="col" style="min-width: 330px; min-height: 750px; max-height: 750px;overflow-y: auto;">
+    <div class="col expense-list">
         <section>
                 <partial name="~/Views/Expenses/_ExpenseIndex.cshtml" model="Model.ExpenseIndex" />
         </section>

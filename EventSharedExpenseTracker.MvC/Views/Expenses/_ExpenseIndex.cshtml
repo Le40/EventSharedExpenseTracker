@@ -9,41 +9,46 @@
 }
 
 <div id="@Model.EIdExpenseCollection" onload="autoFocus()">
-    <div class="row bg-dark sticky-top">
-        <div class="col col-2 pe-1">
+    <div class="row expense-controls-sticky bg-body">
+        <div class="col-auto pe-1">
+            <div class="d-flex h-100 gap-2">
             @* ADD EXPENSE *@
-            <button class="btn btn-sm btn-outline-warning w-100 h-100 rounded d-none d-md-flex"
-                    hx-get="@Url.Action("Create", "Expenses", new { tripId = Model.TripId })"
-                    hx-target="#@Model.EIdCreateExpense">
-                + Expense
-            </button>
-            <button class="fab-add-expense"
-                    hx-get="@Url.Action("Create", "Expenses", new { tripId = Model.TripId })"
-                    hx-target="#@Model.EIdCreateExpense">
-                +
-            </button>
+            @*<button class="btn btn-sm btn-outline-warning w-100 h-100 rounded d-none d-md-flex"*@
+                <button class="btn btn-info btn-sm trip-action-btn"
+                        hx-get="@Url.Action("Create", "Expenses", new { tripId = Model.TripId })"
+                        hx-target="#@Model.EIdCreateExpense">
+                    <span class="d-none d-md-inline"
+                          style="font-size:1.5rem; line-height:1;">
+                        ✛
+                    </span>
 
-            <form asp-action="ParseReceipt" enctype="multipart/form-data">
-                <label id="receiptUploadButton" for="receipt-upload" class="fab-scan-expense">
-                    Scan
-                </label>
-                <input id="receipt-upload" class="d-none"
-                       type="file"
-                       name="receiptImage"
-                       accept="image/*"
-                       capture="environment"
-                       hx-post="/Expenses/ParseReceipt"
-                       hx-vals='{"tripId": "@Model.TripId"}'
-                       hx-trigger="change"
-                       hx-encoding="multipart/form-data"
-                       hx-target="#@Model.EIdCreateExpense" />
-            </form>
+                    <span class="d-md-none fw-bold fs-1">
+                        ✛
+                    </span>
+                </button>
 
+                <form asp-action="ParseReceipt" enctype="multipart/form-data" class="d-flex m-0">
+                    <label id="receiptUploadButton" for="receipt-upload" class="btn btn-outline-info btn-sm trip-action-btn">
+                        <span class="emoji">📷</span>
+                        <span class="d-none d-md-inline">Scan</span>
+                    </label>
+                    <input id="receipt-upload" class="d-none"
+                           type="file"
+                           name="receiptImage"
+                           accept="image/*"
+                           capture="environment"
+                           hx-post="/Expenses/ParseReceipt"
+                           hx-vals='{"tripId": "@Model.TripId"}'
+                           hx-trigger="change"
+                           hx-encoding="multipart/form-data"
+                           hx-target="#@Model.EIdCreateExpense" />
+                </form>
 
+            </div>
         </div>
 
         <div class="col ps-1">
-            <div class="btn-group align-items-end bg-dark flex-wrap">
+            <div class="btn-group d-flex flex-wrap align-content-center h-100">
                 @*SORT BY NAME*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
                         data-requires-online="true"
@@ -95,33 +100,23 @@
                  />
             </div>
         </div>
+    
+
+        <ul class="list-group list-group-flush px-2"
+            data-expense-list="true"
+            data-trip-id="@Model.TripId">
+        
+            <li class="list-group-item" id="@Model.EIdCreateExpense"
+                data-expense-create-row="true"
+                data-restorable="true">           
+            </li>
+        </ul>
     </div>
 
-    <ul class="list-group list-group-flush"
-        data-expense-list="true"
-        data-trip-id="@Model.TripId">
-        
-        <li class="list-group-item" id="@Model.EIdCreateExpense"
-            data-expense-create-row="true"
-            data-restorable="true">
+     <ul class="list-group list-group-flush"
+            data-expense-list="true"
+            data-trip-id="@Model.TripId">
 
-            <form asp-action="ParseReceipt" enctype="multipart/form-data">
-                <label id="receiptUploadButton" for="receipt-upload" class="btn btn-sm btn-outline-info h-100 rounded d-none d-md-flex">
-                    Scan Receipt
-                </label>
-                <input id="receipt-upload" class="d-none"
-                       type="file"
-                       name="receiptImage"
-                       accept="image/*"
-                       capture="environment"
-                       hx-post="/Expenses/ParseReceipt"
-                       hx-vals='{"tripId": "@Model.TripId"}'
-                       hx-trigger="change"
-                       hx-encoding="multipart/form-data"
-                       hx-target="#@Model.EIdCreateExpense" />
-            </form>
-           
-        </li>
 
         @foreach (var expense in Model.Expenses)
         {
