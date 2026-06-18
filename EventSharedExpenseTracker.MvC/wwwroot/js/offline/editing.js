@@ -26,7 +26,8 @@ async function saveOfflineDraft(button, form) {
     const errors = validateOfflineExpenseDraft(draft);
 
     if (errors.length > 0) {
-        alert(errors.join("\n"));
+        //alert(errors.join("\n"));
+        Toast.show(errors.join("\n"), "error");
         return null;
     }
 
@@ -37,7 +38,6 @@ async function saveOfflineDraft(button, form) {
 }
 
 function buildExpenseDraftFromForm(form, button) {
-
     const formData = new FormData(form);
     const fields = Array.from(formData.entries());
 
@@ -49,6 +49,9 @@ function buildExpenseDraftFromForm(form, button) {
     const categorySelect = form.querySelector("[name='Category']");
     const rawDate = formData.get("Date");
     const currency = formData.get("CurrencyCode");
+
+    // Mark stored form as offline draft so openOfflineDraftForEdit can find it.
+    form.dataset.offlineExpense = "true";
 
     const draft = {
         tripId: Number(form.dataset.tripId),

@@ -12,11 +12,33 @@
     <div class="row bg-dark sticky-top">
         <div class="col col-2 pe-1">
             @* ADD EXPENSE *@
-            <button class="btn btn-sm btn-outline-warning w-100 h-100 rounded"
+            <button class="btn btn-sm btn-outline-warning w-100 h-100 rounded d-none d-md-flex"
                     hx-get="@Url.Action("Create", "Expenses", new { tripId = Model.TripId })"
                     hx-target="#@Model.EIdCreateExpense">
                 + Expense
             </button>
+            <button class="fab-add-expense"
+                    hx-get="@Url.Action("Create", "Expenses", new { tripId = Model.TripId })"
+                    hx-target="#@Model.EIdCreateExpense">
+                +
+            </button>
+
+            <form asp-action="ParseReceipt" enctype="multipart/form-data">
+                <label id="receiptUploadButton" for="receipt-upload" class="fab-scan-expense">
+                    Scan
+                </label>
+                <input id="receipt-upload" class="d-none"
+                       type="file"
+                       name="receiptImage"
+                       accept="image/*"
+                       capture="environment"
+                       hx-post="/Expenses/ParseReceipt"
+                       hx-vals='{"tripId": "@Model.TripId"}'
+                       hx-trigger="change"
+                       hx-encoding="multipart/form-data"
+                       hx-target="#@Model.EIdCreateExpense" />
+            </form>
+
 
         </div>
 
@@ -24,24 +46,28 @@
             <div class="btn-group align-items-end bg-dark flex-wrap">
                 @*SORT BY NAME*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
+                        data-requires-online="true"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.NameSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Name
                 </button>
                 @*SORT BY AMOUNT - sqlite not working*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
+                        data-requires-online="true"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.AmountSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Amount
                 </button>
                 @*SORT BY DATE*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
+                        data-requires-online="true"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.DateSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Date
                 </button>
                 @*FILTER BY CATEGORY*@
                 <select id="categoryDropdown" class="btn btn-sm btn-outline-secondary" 
+                        data-requires-online="true"
                         asp-for="CategoryFilter"
                         asp-items ="@Html.GetEnumSelectList<ExpenseCategory>()"
                         name="categoryFilter"
@@ -52,6 +78,7 @@
                 @*FILTER BY CREATED BY USER*@
                 <div id="expControls">
                     <button type="button"
+                            data-requires-online="true"
                             class="btn btn-sm btn-outline-secondary @(Model.Creator ? "active" : "")"
                             hx-get='@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, searchString = Model.SearchString, creator = !Model.Creator, categoryFilter = Model.CategoryFilter })'
                             hx-target="#@Model.EIdExpenseCollection"
@@ -61,6 +88,7 @@
                 </div>
                 @*SEARCH*@
                 <input type="text" id="searchInput" name="searchString" autocomplete="off" placeholder="search expense" value="@Model.SearchString" class="btn btn-sm btn-outline-secondary bg-secondary-subtle"
+                        data-requires-online="true"
                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                        hx-target="#@Model.EIdExpenseCollection"
                        hx-trigger="keyup changed delay:500ms" 
@@ -78,7 +106,7 @@
             data-restorable="true">
 
             <form asp-action="ParseReceipt" enctype="multipart/form-data">
-                <label id="receiptUploadButton" for="receipt-upload" class="btn btn-sm btn-outline-info h-100 rounded">
+                <label id="receiptUploadButton" for="receipt-upload" class="btn btn-sm btn-outline-info h-100 rounded d-none d-md-flex">
                     Scan Receipt
                 </label>
                 <input id="receipt-upload" class="d-none"

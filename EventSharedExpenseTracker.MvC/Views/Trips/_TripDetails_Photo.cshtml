@@ -16,7 +16,7 @@
          class="card-img-top rounded-0">
 
     @*--PHOTO - INFO--*@
-    <div id="@Model.EIdEditTrip" class="text-white position-absolute bottom-0 end-0 p-3 zoom-on-hover">
+    <div id="@Model.EIdEditTrip" class="text-white position-absolute bottom-0 end-0 p-3 zoom-on-hover" data-restorable="true">
 
         <div class="photo-card-title display-4 text-end">@Html.DisplayFor(modelItem => Model.Name)</div>
         <div class="photo-card-subtitle text-end">@Html.DisplayFor(model => model.DateFrom) -  @Html.DisplayFor(model => model.DateTo)</div>

@@ -74,3 +74,48 @@ body.pwa .navbar {
     filter: brightness(0) invert(1);
 }
 
+.fab-add-expense {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+    text-decoration: none;
+    z-index: 1000;
+    background: var(--bs-info);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+}
+
+.fab-scan-expense {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1rem;
+    text-decoration: none;
+    z-index: 1000;
+    background: var(--bs-info);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3);
+}
+
+@media (max-width: 768px) {
+    .form-control,
+    .form-select,
+    .btn {
+        min-height: 35px;
+        min-width: 35px;
+        font-size: 1.1rem;
+    }
+}

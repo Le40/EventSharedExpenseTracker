@@ -7,9 +7,9 @@
     container-type: inline-size;
 }
 
-.photo-card:hover img {
-    transform: scale(1.2);
-}
+    .photo-card:hover img {
+        transform: scale(1.2);
+    }
 
 .photo-card-slot {
     --slot-color: black;
@@ -55,13 +55,13 @@
     position: relative;
 }
 
-.photo-card-media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scale(1);
-    transition: transform 0.5s ease-in-out;
-}
+    .photo-card-media img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transform: scale(1);
+        transition: transform 0.5s ease-in-out;
+    }
 
 .photo-card--small {
     min-width: 165px;
@@ -69,9 +69,9 @@
     min-height: 260px;
 }
 
-.photo-card--small .photo-card-media {
-    height: 200px;
-}
+    .photo-card--small .photo-card-media {
+        height: 200px;
+    }
 
 .photo-card--details {
     width: 100%;
@@ -108,9 +108,7 @@
     font-size: clamp(0.75rem, 5cqw, 1.1rem);
 }
 
-/*on div with all the cards, so it can better manage the grid between min and max width
-    Used for index, as there are many photo-cards
-*/
+
 .event-grid {
     flex: 1 1 165px;
     max-width: 325px;
@@ -122,15 +120,6 @@
         flex: 1 1 250px;
     }
 }
-
-/*.event-index-card-wrapper .photo-card {
-    transform: rotate(var(--rotation));
-}*/
-
-/*.event-index-card-wrapper img {
-    height: 200px;
-}*/
-
 
 /*PHOTO CORRNERS*/
 .photo-corner {
@@ -145,26 +134,26 @@
     pointer-events: none;
 }
 
-    .photo-corner.top-left {
-        top: -3px;
-        left: -3px;
-        clip-path: polygon(0 0, 100% 0, 0 100%);
-    }
+.photo-corner.top-left {
+    top: -3px;
+    left: -3px;
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+}
 
-    .photo-corner.top-right {
-        top: -3px;
-        right: -3px;
-        clip-path: polygon(0 0, 100% 0, 100% 100%);
-    }
+.photo-corner.top-right {
+    top: -3px;
+    right: -3px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%);
+ }
 
-    .photo-corner.bottom-left {
-        bottom: -3px;
-        left: -3px;
-        clip-path: polygon(0 0, 0 100%, 100% 100%);
-    }
+.photo-corner.bottom-left {
+    bottom: -3px;
+    left: -3px;
+    clip-path: polygon(0 0, 0 100%, 100% 100%);
+}
 
-    .photo-corner.bottom-right {
-        bottom: -3px;
-        right: -3px;
-        clip-path: polygon(100% 0, 0 100%, 100% 100%);
-    }
+.photo-corner.bottom-right {
+    bottom: -3px;
+    right: -3px;
+    clip-path: polygon(100% 0, 0 100%, 100% 100%);
+}

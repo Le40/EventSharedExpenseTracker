@@ -1,15 +1,28 @@
-﻿
+﻿function isOffline() {
+    return !navigator.onLine;
+}
+
 // UI/UX
+const restoreCache = new Map();
+
 
 // store html with data-restorable
-document.body.addEventListener("htmx:beforeSwap", event => {
+document.body.addEventListener("htmx:beforeRequest", event => {
     const target = event.detail.target;
 
     if (!target?.matches("[data-restorable='true']")) {
         return;
     }
     console.log("saving", target);
-    target.dataset.originalHtml = target.innerHTML;
+    //target.dataset.originalHtml = target.innerHTML;
+
+    // storing in the cache at first entry, so send back validation errors from server dont affect stored version.
+    if (!restoreCache.has(target.id)) {
+        restoreCache.set(
+            target.id,
+            target.innerHTML
+        );
+    }
 });
 // reload html with data-restorable
 function restoreOriginal(button) {
@@ -19,9 +32,32 @@ function restoreOriginal(button) {
         return;
     }
     console.log("restoring", target);
-    target.innerHTML = target.dataset.originalHtml || "";
+    //target.innerHTML = target.dataset.originalHtml || "";
+    target.innerHTML = restoreCache.get(target.id);
+    htmx.process(target); // to make 'click once' able to fire again
+    restoreCache.delete(target.id);
 }
-// prevents htms messages from firing offline
+
+
+
+/*// prevents htmx from firing offline
+document.body.addEventListener("htmx:beforeRequest", event => {
+
+    if (!isOffline)
+        return;
+
+    const action = event.target.closest("[data-offline-capable='true']");
+
+    if (action)
+        return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    Toast.show("This action requires an internet connection.", "info");
+
+}, true);*/
+
 document.body.addEventListener("htmx:beforeRequest", event => {
     const button = event.target.closest("[data-requires-online='true']");
 
@@ -37,8 +73,11 @@ document.body.addEventListener("htmx:beforeRequest", event => {
     event.stopPropagation();
 
     //alert("This action needs an internet connection.");
-    Toast.show("This action needs an internet connection.", "info");
+    Toast.show("This action requires an internet connection.", "info");
 }, true);
+
+
+
 
 // TRIP FORM so date to is set to the same as datefrom as default choice.
 document.body.addEventListener("change", event => {

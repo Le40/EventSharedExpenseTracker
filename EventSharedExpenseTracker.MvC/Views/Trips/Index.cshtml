@@ -13,43 +13,27 @@
         @*CARD FOR CREATING NEW TRIP*@
         <div class="col-auto p-2-5">
 
-            <div class="photo-card-slot rounded-0 p-2"
-                 hx-get="@Url.Action("Create", "Trips")"
-                 hx-target="#@Model.EIdCreateTrip"
-                 hx-trigger="click once">
+            <div class="photo-card-slot rounded-0 p-2">
 
                 <div class="photo-corner top-left"></div>
                 <div class="photo-corner top-right"></div>
                 <div class="photo-corner bottom-left"></div>
                 <div class="photo-corner bottom-right"></div>
 
-                <div id="@Model.EIdCreateTrip">
-
-                    @*<div class="photo-card-font text-white d-flex flex-column justify-content-center align-items-end">*@
-                    <h2 class="photo-card-font text-end"
-                        style="transform: translateY(30px)">+ Trip to be</h2>
-                    @*</div>*@
+                <div id="@Model.EIdCreateTrip"
+                     data-restorable="true">
+                    <div hx-get="@Url.Action("Create", "Trips")"
+                        data-requires-online="true"
+                         hx-target="#@Model.EIdCreateTrip"
+                         hx-swap="innerHTML"
+                         hx-trigger="click once">
+                        <h2 class="photo-card-font text-end"
+                            style="transform: translateY(30px)">+ Trip to be</h2>
+                    </div>
                 </div>
          
             </div>
 
-            @*<div class="photo-card photo-card--small card border-0 rounded-0 p-2">
-
-
-                <div id="@Model.EIdCreateTrip"
-                     hx-get="@Url.Action("Create", "Trips")"
-                     hx-trigger="click once">
-
-                    <svg class="bd-placeholder-img card-img-top rounded-0" width="200" height="200" role="img">
-                        <rect width="100%" height="100%" fill="#332D2D"></rect>
-                    </svg>
-
-                    <div class="photo-card-font card-img-overlay text-white d-flex flex-column justify-content-center align-items-end">
-                        <h2 class="card-title m-0">+ Trip to be</h2>
-                    </div>
-                </div>
-
-            </div>*@
         </div>
 
         @*REST OF TRIP CARDS*@

@@ -22,7 +22,7 @@ namespace EventSharedExpenseTracker.MvC.Common
                 [TripCategory.FestivalEvent] = new("#C77DFF", "~/images/festival.jpg"),         // vibrant purple
                 [TripCategory.ActionPacked] = new("#495057", "~/images/action-packed.jpg"),     // Soft Anthracite
                 [TripCategory.Backpacking] = new("#BC6C25", "~/images/backpacking.jpg"),        // leather brown
-                [TripCategory.Other] = new("#ADB5BD", "~/images/travel.jpg")                   // neutral gray
+                [TripCategory.Other] = new("#ADB5BD", "~/images/travel.jpg")                    // neutral gray
             };
     }
 }

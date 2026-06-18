@@ -113,19 +113,17 @@ public class ExpensesController : BaseController
     public async Task<IActionResult> Create([FromRoute] int tripId, ExpenseFormViewModel model)
     {
         if (!ModelState.IsValid)
-            return TryReturnOfflineValidationBadRequest()
-                ?? RenderExpenseForm(model, ExpenseFormMode.Create);
+            return FormValidationResponse(model, ExpenseFormMode.Create);
 
         var expenseCommand = ExpenseVMMapper.ToCommand(model);//, _requestContext.UserId
 
         var result = await _expenseService.Add(expenseCommand, tripId);
 
         if (!result.IsSuccess)
-        {
-            return ReturnFormOrError(result, model, ExpenseFormMode.Create);
-        }
+            return ServiceErrorResponse(result, model, ExpenseFormMode.Create);
 
-        return RedirectToAction("Details", "Trips", new { id = tripId });
+        Response.Headers["HX-Redirect"] = Url.Action("Details", "Trips", new { id = model.TripId });
+        return new EmptyResult();
     }
 
     // EDIT: GET
@@ -154,9 +152,10 @@ public class ExpensesController : BaseController
         var result = await _expenseService.Update(id, expenseCommand);
 
         if (!result.IsSuccess)
-            return ReturnFormOrError(result, model, ExpenseFormMode.Edit);
- 
-        return RedirectToAction("Details", "Trips", new { id = result.Value!.TripId });
+            return ServiceErrorResponse(result, model, ExpenseFormMode.Edit);
+
+        Response.Headers["HX-Redirect"] = Url.Action("Details", "Trips", new { id = model.TripId });
+        return new EmptyResult();
     }
 
     // DELETE: POST
@@ -168,16 +167,8 @@ public class ExpensesController : BaseController
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
-        return RedirectToAction("Details", "Trips", new { id = tripId });
-    }
-
-    private IActionResult ReturnFormOrError(ServiceResult result, ExpenseFormViewModel model, ExpenseFormMode mode)
-    {
-        if (TryAddValidationErrorsToModelState(result.Errors))
-            return TryReturnOfflineValidationBadRequest()
-                ?? RenderExpenseForm(model, mode);
-
-        return HandleServiceErrors(result.Errors);
+        Response.Headers["HX-Redirect"] = Url.Action("Details", "Trips", new { id = tripId });
+        return new EmptyResult();
     }
 
     private PartialViewResult RenderExpenseForm(ExpenseFormViewModel model, ExpenseFormMode mode)
@@ -185,15 +176,34 @@ public class ExpensesController : BaseController
         model.Mode = mode;
         model.CurrencyOptions = CurrencySelectList.Get("EUR");
 
-        Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
         return PartialView("_ExpenseForm", model);
     }
 
-    private IActionResult? TryReturnOfflineValidationBadRequest()
+    private IActionResult FormValidationResponse(ExpenseFormViewModel model, ExpenseFormMode mode)
     {
-        if (Request.Form["IsOfflineSync"] != "true")
-            return null;
-        // so offline htmx knows its an error, added error messages also.
+        if (IsOfflineSync())
+            return OfflineValidation();
+
+        return RenderExpenseForm(model, mode);
+    }
+
+    private IActionResult ServiceErrorResponse(ServiceResult result, ExpenseFormViewModel model, ExpenseFormMode mode)
+    {
+        if (HasValidationErrors(result.Errors))
+        {
+            AddValidationErrorsToModelState(result.Errors);
+            return FormValidationResponse(model, mode);
+        }
+
+        return HandleServiceErrors(result.Errors);
+    }
+    private bool IsOfflineSync()
+    {
+        return Request.Form["IsOfflineSync"] == "true";
+    }
+
+    private IActionResult OfflineValidation()
+    {
         return BadRequest(new
         {
             Errors = ModelState

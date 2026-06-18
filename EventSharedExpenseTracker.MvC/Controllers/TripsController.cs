@@ -93,7 +93,9 @@ public class TripsController : BaseController
         if (!result.IsSuccess)
             return ReturnFormOrError(result, model, TripFormMode.Create);
 
-        return RedirectToAction(nameof(Index));
+        Response.Headers["HX-Redirect"] = Url.Action("Index", "Trips");
+        return new EmptyResult();
+        //return RedirectToAction(nameof(Index));
     }
 
     // EDIT: GET
@@ -127,7 +129,9 @@ public class TripsController : BaseController
         if (!result.IsSuccess)
             return ReturnFormOrError(result, model, TripFormMode.Edit);
 
-        return RedirectToAction(nameof(Details), new { id = model.Id });
+        Response.Headers["HX-Redirect"] = Url.Action("Details", "Trips", new { id = model.Id });
+        return new EmptyResult();
+        //return RedirectToAction(nameof(Details), new { id = model.Id });
     }
 
     // DELETE: POST
@@ -186,14 +190,13 @@ public class TripsController : BaseController
 
 
 
-
-
-
-
     private IActionResult ReturnFormOrError(ServiceResult result, TripFormViewModel model, TripFormMode mode)
     {
-        if (TryAddValidationErrorsToModelState(result.Errors))
+        if (HasValidationErrors(result.Errors))
+        {
+            AddValidationErrorsToModelState(result.Errors);
             return RenderTripForm(model, mode);
+        }
 
         return HandleServiceErrors(result.Errors);
     }
@@ -208,7 +211,7 @@ public class TripsController : BaseController
         model.CurrencyOptions = CurrencySelectList.Get("EUR");
         model.CountryOptions = CountrySelectList.Get();
 
-        Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
+        //Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
         return PartialView($"_TripForm", model);
     }
 }

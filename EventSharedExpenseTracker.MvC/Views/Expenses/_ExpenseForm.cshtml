@@ -8,8 +8,7 @@
 
 <div class="col-lg-7 md-6 sm-5">
     <form asp-action="@Model.Mode.ToString()" enctype="multipart/form-data"
-        data-trip-id ="@Model.TripId"
-          data-offline-expense="true">
+        data-trip-id ="@Model.TripId">
 
         <input type="hidden" asp-for="CanUserEdit" /> @*Needed so that form retains this if modelstate get back invalid, with errors.*@
         <input type="hidden" asp-for="FormId" /> @* Needed for SuggestCategory knows which form to target*@
@@ -61,59 +60,9 @@
             </div>
         }
          
-        <div class="btn-group">
-            @if (Model.CanUserEdit)
-            {
-                @*innerHTML - there are two ways:
-                    1. Save was not validated, so response (which is this), needs to go inside the targeting div, otherwise any other target on that div will not work
-                    2. Save was successful - then whole body is taken from response (because also participants sums need to be updated), and in that case it doesnt matter
-                *@
-                <button type="submit" class="btn btn-info"
-                        hx-post="@Url.Action(Model.Mode.ToString(), "Expenses", new { tripId = Model.TripId, id = Model.Id })"
-                        hx-target="#tripDetails-target"
-                        hx-select="#tripDetails-target"
-                        hx-swap="outerHTML">
-                    Save
-                </button>
-            }
 
-            @*outerHTML - because im selecting the ID from response for whole page*@
-            @*<button type="button" class="btn btn-outline-secondary"
-                    hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId , id = Model.Id})" 
-                    hx-target="#@Model.ElementId"
-                    hx-select="#@Model.ElementId"
-                    hx-swap="outerHTML">
-                Cancel
-            </button>*@
-
-            <button type="button" class="btn btn-outline-secondary"
-                    onclick="restoreOriginal(this)">
-                Cancel
-            </button>
-
-            @if (Model.CanUserEdit && Model.FormIsEdit)
-            {
-
-                <button type="button" class="btn btn-outline-danger"
-                        data-requires-online="true"
-                        hx-post="@Url.Action("Delete", "Expenses", new { id = Model.Id, tripId = Model.TripId })"
-                        hx-target="#tripDetails-target"
-                        hx-select="#tripDetails-target"
-                        hx-swap="outerHTML"
-                        hx-push-url="true"
-                        @*hx-confirm="Are you sure you want to delete this item?"*@
-                        data-confirm-message="Are you sure you want to delete this item?">
-                    Delete
-                </button>
-               
-            }
-            @*Offline delete*@
-            <button type="button"
-                    class="btn btn-outline-danger d-none"
-                    data-offline-draft-delete="true">
-                Delete
-            </button>
-        </div>
+        <partial name="_ExpenseForm_Controls" model="Model" />
+        
     </form>
 </div>
 

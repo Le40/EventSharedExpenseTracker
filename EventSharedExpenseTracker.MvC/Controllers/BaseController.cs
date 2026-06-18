@@ -24,28 +24,26 @@ namespace EventSharedExpenseTracker.MvC.Controllers
             if (errors.Any(e => e.Type == AppErrorType.Conflict))
                 return Conflict();
 
-            if (TryAddValidationErrorsToModelState(errors.ToList()))
+            if (HasValidationErrors(errors))
+            {
+                AddValidationErrorsToModelState(errors.ToList());
                 return BadRequest(ModelState);
+            }
 
             return StatusCode(500);
         }
 
-        protected bool TryAddValidationErrorsToModelState(IEnumerable<AppError> errors)
+        protected bool HasValidationErrors(IEnumerable<AppError> errors)
         {
-            var validationErrors = errors
-                .Where(e => e.Type == AppErrorType.Validation)
-                .ToList();
+            return errors.Any(e => e.Type == AppErrorType.Validation);
+        }
 
-            if (!validationErrors.Any())
-                return false;
-
-            foreach (var error in validationErrors)
+        protected void AddValidationErrorsToModelState(IEnumerable<AppError> errors)
+        {
+            foreach (var error in errors.Where(e => e.Type == AppErrorType.Validation))
             {
-                ModelState.AddModelError(
-                    error.PropertyName ?? "",
-                    error.Message);
+                ModelState.AddModelError(error.PropertyName ?? "", error.Message);
             }
-            return true;
         }
 
         protected void TriggerToast(
