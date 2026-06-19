@@ -60,6 +60,35 @@ async function getAllOfflineExpenses() {
     });
 }
 
+async function getTripWithMostOfflineExpenses() {
+
+    const db = await openOfflineDb();
+
+    const tx = db.transaction("expenses", "readonly");
+    const store = tx.objectStore("expenses");
+
+    const expenses = await getAllOfflineExpenses();
+
+    const tripCounts = {};
+
+    for (const expense of expenses) {
+
+        if (!["pendingCreate", "failedValidation"].includes(expense.syncState))
+            continue;
+
+        tripCounts[expense.tripId] ??= {
+            tripId: expense.tripId,
+            tripName: expense.tripName,
+            count: 0
+        };
+
+        tripCounts[expense.tripId].count++;
+    }
+
+    return Object.values(tripCounts)
+        .sort((a, b) => b.count - a.count)[0];
+}
+
 async function getOfflineExpenses(tripId) {
     const db = await openOfflineDb();
 
@@ -86,36 +115,6 @@ async function deleteOfflineExpense(id) {
         const store = transaction.objectStore("expenses");
 
         const request = store.delete(id);
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = event => reject(event.target.error);
-    });
-}
-
-
-// maybe later
-async function saveOfflineTrip(trip) {
-    const db = await openOfflineDb();
-
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction("trips", "readwrite");
-        const store = transaction.objectStore("trips");
-
-        const request = store.put(trip);
-
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = event => reject(event.target.error);
-    });
-}
-
-async function getAllOfflineTrips() {
-    const db = await openOfflineDb();
-
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction("trips", "readonly");
-        const store = transaction.objectStore("trips");
-
-        const request = store.getAll();
 
         request.onsuccess = () => resolve(request.result);
         request.onerror = event => reject(event.target.error);

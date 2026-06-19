@@ -43,6 +43,39 @@ body.pwa .navbar {
     padding-top: env(safe-area-inset-top);
 }
 
+.header-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+    align-items: end;
+}
+
+.nav-row {
+    display: flex;
+    flex-wrap: nowrap; /* never stack Events/Friends */
+}
+
+.navbar-actions {
+    display: flex;
+    flex-wrap: nowrap; /* never stack notifications */
+    align-items: center;
+    gap: .5rem;
+    margin-left: auto;
+}
+
+@media (max-width: 768px) {
+
+    .header-layout {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .navbar-actions {
+        margin-left: 0;
+        justify-content: flex-end;
+    }
+}
+/**********************************************/
 .navbar-account .navbar-nav {
     flex-direction: row;
     align-items: center;

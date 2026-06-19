@@ -30,12 +30,17 @@
 
                 <div class="d-flex align-items-end flex-wrap gap-2">
                     <!-- Navigation row -->
-                    <nav class="nav nav-tabs justify-content-left">
+                    <nav class="nav nav-tabs nav-row">
                         <a class="nav-link app-tab active"
                            asp-controller="Trips"
                            asp-action="Index">
                             Events
                         </a>
+                        @*<a class="nav-link app-tab active"
+                           asp-controller="Friends"
+                           asp-action="Index">
+                            Friends
+                        </a>*@
                         @*<a class="nav-link app-tab">Expenses</a>
                         <a class="nav-link app-tab">Friends</a>
                         <a class="nav-link app-tab">Settings</a>*@
@@ -68,7 +73,7 @@
                         </nav>*@
 
                     <!-- Top status/account row -->
-                    <div class="navbar-actions d-flex align-items-center gap-2 flex-wrap ms-auto">
+                    <div class="navbar-actions">
                             <div>
                                 <span id="connectionStatus"
                                   class="badge rounded-pill bg-danger d-none">

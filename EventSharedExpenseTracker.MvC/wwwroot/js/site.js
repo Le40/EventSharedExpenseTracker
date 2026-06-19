@@ -108,7 +108,11 @@ document.body.addEventListener("change", event => {
         dateTo.value = dateFrom.value;
     }
 });
+
+
 // UPDATES SITE HEADER HEIGHT FOR CSS CONTROLS
+updateHeaderHeight(); // call once to get base
+window.addEventListener('resize', updateHeaderHeight);
 function updateHeaderHeight() {
     const header = document.getElementById('site-header');
 
@@ -118,9 +122,66 @@ function updateHeaderHeight() {
     );
 }
 
-updateHeaderHeight();
 
-window.addEventListener('resize', updateHeaderHeight);
+// PENDING BADGE CLICK REDIRECTS TO TRIP WITH MOST PENDING EXPENSES.
+document
+    .getElementById("failedValidationBadge")
+    .addEventListener("click", handlePendingExpensesClick);
+
+document
+    .getElementById("pendingSyncBadge")
+    .addEventListener("click", handlePendingExpensesClick);
+
+async function handlePendingExpensesClick() {
+    const tripSummary = await getTripWithMostOfflineExpenses();
+
+    if (!tripSummary) {
+        return;
+    }
+
+    const targetTripId = tripSummary.tripId;
+    const currentTripId = getCurrentTripId();
+
+    if (currentTripId === targetTripId) {
+        scrollToPendingExpenses();
+        return;
+    }
+
+    if (!navigator.onLine) {
+        const cachedTripUrl = `/Trips/Details/${targetTripId}`;
+
+        const cachedResponse = await caches.match(cachedTripUrl);
+
+        if (cachedResponse) {
+            window.location.href = cachedTripUrl + "?focus=pending";
+            return;
+        }
+
+        // no cached trip available
+        Toast.show("This trip is not available offline yet.", "info");
+        return;
+    }
+
+    window.location.href = `/Trips/Details/${targetTripId}?focus=pending`;
+}
+
+function getCurrentTripId() {
+    const page = document.getElementById("tripDetailsPage");
+
+    if (!page)
+        return null;
+
+    return Number(page.dataset.tripId);
+}
+
+function scrollToPendingExpenses() {
+    document
+        .getElementById("createExpense")
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+}
 
 
 
