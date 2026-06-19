@@ -183,6 +183,27 @@ function scrollToPendingExpenses() {
         });
 }
 
+//floating controls with mobile keyboard shit.
+function updateFloatingControlsForKeyboard() {
+    if (!window.visualViewport) return;
+
+    const keyboardOffset =
+        window.innerHeight
+        - window.visualViewport.height
+        - window.visualViewport.offsetTop;
+
+    document.documentElement.style.setProperty(
+        "--keyboard-offset",
+        `${Math.max(0, keyboardOffset)}px`
+    );
+}
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", updateFloatingControlsForKeyboard);
+    window.visualViewport.addEventListener("scroll", updateFloatingControlsForKeyboard);
+}
+
+window.addEventListener("resize", updateFloatingControlsForKeyboard);
 
 
 console.log("site.js loaded");

@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-using EventSharedExpenseTracker.Domain.Models;
-using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
-using EventSharedExpenseTracker.Application.Common.Interfaces;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.Settlements;
+using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
+using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
@@ -26,8 +27,16 @@ public class TripRepository : ITripRepository
 
         if (!string.IsNullOrWhiteSpace(options.SearchString))
         {
+            var matchingCategories = Enum.GetValues<TripCategory>()
+                .Where(c => c.ToString().Contains(options.SearchString, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
             query = query.Where(t =>
-            t.Name.Contains(options.SearchString));
+            t.Name.Contains(options.SearchString) ||
+            (t.City != null && t.City.Contains(options.SearchString)) ||
+            t.Country.Contains(options.SearchString) ||
+            matchingCategories.Contains(t.Category) ||
+            t.Participants.Any(p => p.DisplayName.ToLower().Contains(options.SearchString)));
         }
 
         //if (options.Category.HasValue)

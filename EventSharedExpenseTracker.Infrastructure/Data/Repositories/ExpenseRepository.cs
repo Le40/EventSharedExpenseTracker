@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+using EventSharedExpenseTracker.Application.Expenses.Queries;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
-using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Expenses.Queries;
+using Microsoft.EntityFrameworkCore;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 
@@ -23,8 +24,13 @@ public class ExpenseRepository : IExpenseRepository
 
         if (!string.IsNullOrWhiteSpace(options.SearchString))
         {
+            var matchingCategories = Enum.GetValues<ExpenseCategory>()
+                .Where(c => c.ToString().Contains(options.SearchString, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
             query = query.Where(e =>
             e.Name.Contains(options.SearchString) ||
+            matchingCategories.Contains(e.Category) ||
             e.Description != null && e.Description.Contains(options.SearchString));
         }
 

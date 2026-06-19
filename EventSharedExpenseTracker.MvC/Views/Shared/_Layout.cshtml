@@ -22,7 +22,7 @@
     <script src="https://unpkg.com/htmx.org@1.9.10/dist/htmx.min.js"></script>
 </head>
 
-<body hx-boost ="false">
+<body hx-boost="false">
     <header id="site-header" class="bg-dark border-bottom box-shadow mb-3 sticky-top">
         <div class="container-fluid pt-2 pb-0">
 
@@ -120,7 +120,7 @@
     </header>
 
     <div class="container">
-        <main role="main" class="pb-3">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
@@ -182,7 +182,6 @@
 
     @*////TOAST//////*@
     <div id="toastContainer"
-         @*class="toast-container position-fixed top-0 end-0 p-3"*@
          class="toast-container position-fixed top-0 start-50 translate-middle-x mt-5"
          style="z-index: 1100;">
     </div>
