@@ -1,0 +1,34 @@
+﻿.app-floating-controls {
+    position: fixed;
+    left: 10rem;
+    bottom: 2rem;
+    right: 10rem;
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.app-floating-search {
+    /*width: min(70vw, 320px);*/
+    flex: 1 1 auto;
+    min-width: 0;
+    height: 45px;
+    border-radius: 999px;
+    padding-inline: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+}
+
+.app-floating-add {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .25);
+    flex: 0 0 auto;
+}

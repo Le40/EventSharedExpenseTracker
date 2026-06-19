@@ -13,8 +13,11 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public string? CurrentSort { get; set; }
 
         public string EIdCreateTrip => UiIds.CreateTrip;
+        public string EIdTripsCollection => UiIds.TripsCollection;
 
         public IEnumerable<TripIndexItemViewModel> Trips { get; set; } = [];
+
+        public PageControlsViewModel Controls { get; set; } = new();
     }
 
     public class TripIndexItemViewModel

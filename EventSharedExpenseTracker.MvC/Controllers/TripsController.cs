@@ -5,6 +5,7 @@ using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.Mappers.Trips;
+using EventSharedExpenseTracker.MvC.ViewModels;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
@@ -42,7 +43,19 @@ public class TripsController : BaseController
             DateSortParam = sortOrder == "date" ? "date_desc" : "date",
             Trips = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList()
         };
-  
+
+        vm.Controls = new PageControlsViewModel()
+        {
+            ModeLabel = "Trips",
+            SearchPlaceholder = "Search trips ...",
+            SearchUrl = Url.Action("Index", "Trips")!,
+            SearchTargetId = vm.EIdTripsCollection,
+            AddUrl = "/Trips/Create",
+            AddTargetId = "createExpenseForm",
+            CssThemeClass = ""
+        };
+
+
         return View(vm);
     }
 

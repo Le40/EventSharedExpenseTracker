@@ -1,0 +1,27 @@
+﻿@using EventSharedExpenseTracker.MvC.ViewModels
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model PageControlsViewModel;
+
+<div class="app-floating-controls @Model.CssThemeClass">
+
+    @*<button class="btn app-floating-add bg-info"
+            hx-get="@Model.AddUrl"
+            hx-target="#@Model.AddTargetId">
+        +
+    </button>*@
+
+    <input class="form-control app-floating-search"
+            name="searchString"
+           placeholder="@Model.SearchPlaceholder"
+           hx-get="@Model.SearchUrl"
+           hx-target ="#@Model.SearchTargetId"
+           hx-select="#@Model.SearchTargetId"
+           hx-swap="outerHTML"
+           hx-trigger="keyup changed delay:300ms"/>
+
+</div>

@@ -8,6 +8,7 @@
         public const string CreateTrip = "createTrip";
         public const string CreateExpense = "createExpense";
         public const string ExpenseCollection = "expCollection";
+        public const string TripsCollection = "tripsCollection";
 
         public static string EditExpense(int id) => $"expense{id}";
     }
