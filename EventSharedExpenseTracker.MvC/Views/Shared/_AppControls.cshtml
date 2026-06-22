@@ -1,22 +1,77 @@
 ﻿@using EventSharedExpenseTracker.MvC.ViewModels
-@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
 
 @model PageControlsViewModel;
 
 <div class="app-floating-controls @Model.CssThemeClass">
 
-    @*<button class="btn app-floating-add bg-info"
+    @if (Model.Label == "Expenses")
+    {
+        <div class="fab-dial">
+            <div class="fab-options"
+                 onclick="this.closest('.fab-dial').classList.remove('open')">
+
+                <button class="btn app-floating-add bg-info"
+                        hx-get="@Model.AddUrl"
+                        hx-target="#@Model.AddTargetId"
+                        data-bs-toggle="offcanvas"
+                        data-bs-target="#appOffcanvas">
+                    ✛
+                </button>
+
+                <form asp-action="ParseReceipt"
+                      enctype="multipart/form-data"
+                      class="m-0">
+
+                    <label for="receipt-upload"
+                           class="btn app-floating-add bg-info">
+                        📷
+                    </label>
+
+                    <input id="receipt-upload"
+                           class="d-none"
+                           type="file"
+                           name="receiptImage"
+                           accept="image/*"
+                           capture="environment"
+                           hx-post="@Model.ParseUrl"
+                           hx-trigger="change"
+                           hx-encoding="multipart/form-data"
+                           hx-target="#@Model.AddTargetId" />
+                </form>
+
+            </div>
+
+            <button type="button"
+                    class="btn app-floating-add bg-info"
+                    onclick="this.closest('.fab-dial').classList.toggle('open')">
+                ✛
+            </button>
+        </div>
+    }
+    else
+    {
+        <button class="btn app-floating-add bg-info"
+                hx-get="@Model.AddUrl"
+                hx-target="#@Model.AddTargetId"
+                data-bs-toggle="offcanvas"
+                data-bs-target="#appOffcanvas">
+            ✛
+        </button>
+    }
+   
+
+    @*<button type="button"
+            class="btn app-floating-add bg-info"
             hx-get="@Model.AddUrl"
-            hx-target="#@Model.AddTargetId">
-        +
+            hx-target="#@Model.AddTargetId"
+            hx-swap="innerHTML"
+            data-open-bottom-sheet>
+        ✛
     </button>*@
 
     <input class="form-control app-floating-search"
             name="searchString"
+           data-scroll-target-id="@Model.SearchTargetId"
            placeholder="@Model.SearchPlaceholder"
            hx-get="@Model.SearchUrl"
            hx-target ="#@Model.SearchTargetId"

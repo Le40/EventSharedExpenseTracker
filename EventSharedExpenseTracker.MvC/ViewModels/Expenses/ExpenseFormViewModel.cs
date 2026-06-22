@@ -40,7 +40,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 
         // for determining which version of the form to use.
         public ExpenseFormMode Mode { get; set; }
-        public string ElementId => Mode == ExpenseFormMode.Create ? UiIds.CreateExpense : UiIds.EditExpense(Id);
+        public string ElementId = "appOffCanvasBody"; //=> Mode == ExpenseFormMode.Create ? UiIds.CreateExpense : UiIds.EditExpense(Id);
         public bool FormIsEdit => Mode == ExpenseFormMode.Edit;
         public bool CanUserEdit { get; set; }
     }

@@ -26,9 +26,12 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public ExpenseIndexViewModel ExpenseIndex { get; set; } = new();
 
         public bool CanUserEdit { get; set; }
+        public string EIdExpensesCollection => UiIds.ExpenseCollection;
         public string EIdTripParticipants => UiIds.TripParticipants;
         public string EIdSearchParticipants => UiIds.SearchParticipants;
         public string EIdEditTrip => UiIds.EditTrip;
+
+        public PageControlsViewModel Controls { get; set; } = new PageControlsViewModel();
 
     }
 

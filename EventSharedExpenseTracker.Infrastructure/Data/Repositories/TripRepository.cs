@@ -39,8 +39,8 @@ public class TripRepository : ITripRepository
             t.Participants.Any(p => p.DisplayName.ToLower().Contains(options.SearchString)));
         }
 
-        //if (options.Category.HasValue)
-        //   query = query.Where(t => t.Category == options.Category.Value);
+        /*if (options.Category.HasValue)
+           query = query.Where(t => t.Category == options.Category.Value);
 
         query = options.SortBy switch
         {
@@ -48,7 +48,7 @@ public class TripRepository : ITripRepository
             "name_desc" => query.OrderByDescending(t => t.Name),
             "date" => query.OrderBy(t => t.DateFrom),
             _ => query.OrderByDescending(t => t.DateFrom),
-        };
+        };*/
 
         return await query
             .AsNoTracking()

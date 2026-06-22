@@ -22,15 +22,33 @@ public static class DIInfrastructure
         //// DB
         if (!environment.IsEnvironment("Testing"))
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString, sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 5,
-                        maxRetryDelay: TimeSpan.FromSeconds(10),
-                        errorNumbersToAdd: null);
-                }));
+            var databaseProvider = configuration["DatabaseProvider"];
+
+            if (databaseProvider == "Sqlite")
+            {
+                var connectionString = configuration.GetConnectionString("SqliteConnection")
+                    ?? throw new InvalidOperationException("Connection string 'SqliteConnection' not found.");
+
+                services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlite(connectionString, sqliteOptions =>
+                    {
+                        sqliteOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
+                    }));
+            }
+            else
+            {
+                var connectionString = configuration.GetConnectionString("DefaultConnection")
+                    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+                services.AddDbContext<ApplicationDbContext>(options =>
+                    options.UseSqlServer(connectionString, sqlOptions =>
+                    {
+                        sqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(10),
+                            errorNumbersToAdd: null);
+                    }));
+            }
         }
 
         // IDENTITY

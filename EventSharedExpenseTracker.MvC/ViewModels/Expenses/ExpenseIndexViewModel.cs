@@ -22,6 +22,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
 
         public string EIdCreateExpense => UiIds.CreateExpense;
         public string EIdExpenseCollection => UiIds.ExpenseCollection;
+        public PageControlsViewModel Controls { get; set; } = new ();
     }
 
     public class ExpenseListItemViewModel

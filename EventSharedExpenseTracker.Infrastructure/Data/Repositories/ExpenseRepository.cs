@@ -20,6 +20,8 @@ public class ExpenseRepository : IExpenseRepository
     {
         // DEFAULT MANDATORY FILTER
         var query = _context.Expenses
+            .Include(e => e.Payments)
+                .ThenInclude(p=> p.Participant)
             .Where(e => e.TripId == tripId);
 
         if (!string.IsNullOrWhiteSpace(options.SearchString))
@@ -31,7 +33,8 @@ public class ExpenseRepository : IExpenseRepository
             query = query.Where(e =>
             e.Name.Contains(options.SearchString) ||
             matchingCategories.Contains(e.Category) ||
-            e.Description != null && e.Description.Contains(options.SearchString));
+            e.Description != null && e.Description.Contains(options.SearchString) ||
+            e.Payments.Any(p => p.Participant.DisplayName.Contains(options.SearchString)));
         }
 
         if (options.Category.HasValue)

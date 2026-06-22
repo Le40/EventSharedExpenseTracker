@@ -36,7 +36,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public string? City { get; set; }
 
         public TripFormMode Mode { get; set; }
-        public string ElementId => Mode == TripFormMode.Create ? UiIds.CreateTrip : UiIds.EditTrip;
+        public string ElementId = "appOffCanvasBody";// => Mode == TripFormMode.Create ? UiIds.CreateTrip : UiIds.EditTrip;
         public bool FormIsEdit => Mode == TripFormMode.Edit;
     }
 }

@@ -2,7 +2,7 @@
 @model ExpenseFormViewModel
 
 
-<div class="btn-group">
+<div class="btn-group form-action-btn-group ps-2">
     @if (Model.CanUserEdit)
     {
         @*innerHTML - there are two ways:
@@ -18,7 +18,8 @@
     }
 
     <button type="button" class="btn btn-outline-secondary"
-            onclick="restoreOriginal(this)">
+            data-bs-dismiss="offcanvas"
+            @*onclick="restoreOriginal(this)"*@>
         Cancel
     </button>
 

@@ -123,6 +123,34 @@
         <main role="main">
             @RenderBody()
         </main>
+        @*SIDE PANEL FOR SEARCH*@
+        <div id="appBottomSheet" class="app-bottom-sheet">
+            <div class="app-bottom-sheet-header">
+                <button type="button"
+                        class="btn btn-sm btn-outline-light"
+                        data-close-bottom-sheet>
+                    Close
+                </button>
+            </div>
+
+            <div id="appBottomSheetBody" class="app-bottom-sheet-body">
+            </div>
+        </div>
+        @*OFF CANVAS FOR ADD/EDIT*@
+        <div class="offcanvas offcanvas-bottom text-bg-dark"
+             tabindex="-1"
+             id="appOffcanvas">
+
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="appOffcanvasTitle">Add</h5>
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="offcanvas"></button>
+            </div>
+
+            <div class="offcanvas-body" id="appOffCanvasBody">
+            </div>
+        </div>
     </div>
 
     <footer class="border-top footer text-muted">
@@ -133,6 +161,7 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/ux.js" asp-append-version="true"></script>
     <script src="~/js/userMessages/toast.js" asp-append-version="true"></script>
     <script src="~/js/userMessages/modal.js" asp-append-version="true"></script>
     <script src="~/js/offline/storage.js" asp-append-version="true"></script>

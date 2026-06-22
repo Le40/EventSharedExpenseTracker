@@ -46,15 +46,14 @@ public class TripsController : BaseController
 
         vm.Controls = new PageControlsViewModel()
         {
-            ModeLabel = "Trips",
+            Label = "Trips",
             SearchPlaceholder = "Search trips ...",
             SearchUrl = Url.Action("Index", "Trips")!,
             SearchTargetId = vm.EIdTripsCollection,
-            AddUrl = "/Trips/Create",
-            AddTargetId = "createExpenseForm",
+            AddUrl = Url.Action("Create", "Trips")!,
+            AddTargetId = "appOffCanvasBody",
             CssThemeClass = ""
         };
-
 
         return View(vm);
     }
@@ -69,9 +68,21 @@ public class TripsController : BaseController
 
         var tripDetailsQuery = result.Value!;
 
-        var model = TripDetailsMapper.FromQuery(tripDetailsQuery);
-      
-        return View(model);
+        var vm = TripDetailsMapper.FromQuery(tripDetailsQuery);
+
+        vm.Controls = new PageControlsViewModel()
+        {
+            Label = "Expenses",
+            SearchPlaceholder = "Search expenses ...",
+            SearchUrl = Url.Action("Index", "Expenses", new { tripId = id })!,
+            SearchTargetId = vm.EIdExpensesCollection,
+            AddUrl = Url.Action("Create", "Expenses", new { tripId = id })!,
+            AddTargetId = "appOffCanvasBody",
+            CssThemeClass = "",
+            ParseUrl = Url.Action("ScanReceipt", "Expenses", new { tripId = id })!,
+        };
+
+        return View(vm);
     }
 
     // CREATE: GET

@@ -4,12 +4,14 @@
 
 @model ExpenseListItemViewModel;
 
-<li class="list-group-item expense-card">
+<li class="list-group-item expense-card"
+    data-list-item>
     <div id="@Model.EIdEditExpense"
          data-expense-card="true"
          data-restorable="true"
          hx-get="@Url.Action("Edit", "Expenses", new { id = Model.Id })"
-         hx-trigger="dblclick[!event.target.closest('form')]">
+         hx-trigger="click[!event.target.closest('form')]"
+         hx-target="#appOffCanvasBody">
 
         <div class="row">
             <h5 data-expense-name>@Model.Name</h5>

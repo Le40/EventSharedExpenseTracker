@@ -43,7 +43,10 @@
     @*COL OF EXPENSES*@
     <div class="col expense-list">
         <section>
-                <partial name="~/Views/Expenses/_ExpenseIndex.cshtml" model="Model.ExpenseIndex" />
+            <div id="app-controls" class="expense-controls-sticky bg-body">
+                <partial name="_AppControls" model="Model.Controls" />
+            </div>
+            <partial name="~/Views/Expenses/_ExpenseIndex.cshtml" model="Model.ExpenseIndex" />
         </section>
     </div>
 </div>
