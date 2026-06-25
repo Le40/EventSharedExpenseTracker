@@ -1,29 +1,28 @@
 ﻿
 // RENDER all pending
 async function renderPendingExpensesForCurrentTrip() {
-    // ai suggested to make sure there are no double cards or something.
+
+    console.log("renderPendingExpensesForCurrentTrip");
+
     removeOfflineDraftDom();
-    // remove previous ones - cause htmx, aferswap will cause massive duplicaion
-    document.querySelectorAll("[data-pending-expense-card='true']")
-        .forEach(card => card.remove());
 
     const expenseList = document.querySelector("[data-expense-list='true']");
+    console.log("expenseList", expenseList);
 
-    if (!expenseList) {
-        return;
-    }
+    if (!expenseList) return;
 
     const tripId = Number(expenseList.dataset.tripId);
-
-    if (!tripId) {
-        return;
-    }
+    console.log("tripId", tripId);
 
     const drafts = await getAllOfflineExpenses();
+    console.log("all drafts", drafts);
+
     const tripDrafts = drafts.filter(d =>
         Number(d.tripId) === tripId &&
         (d.syncState === "pendingCreate" || d.syncState === "failedValidation")
     );
+
+    console.log("tripDrafts", tripDrafts);
 
     for (const draft of tripDrafts) {
         addPendingExpenseCard(draft);
@@ -32,19 +31,36 @@ async function renderPendingExpensesForCurrentTrip() {
 
 // RENDER one card
 function addPendingExpenseCard(draft) {
+
+    console.log("=== addPendingExpenseCard ===");
+    console.log("draft", draft);
+
     if (document.querySelector(`[data-offline-draft-id='${draft.localId}']`)) {
+        console.log("SKIP: card already exists");
         return;
     }
+
     const templateCard = document.querySelector("[data-expense-card='true']");
+    console.log("templateCard", templateCard);
 
     if (!templateCard) {
+        console.log("SKIP: templateCard not found");
         return;
     }
 
-    const pendingCard = templateCard.closest("li").cloneNode(true);
+    const li = templateCard.closest("li");
+    console.log("closest li", li);
+
+    if (!li) {
+        console.log("SKIP: templateCard has no parent li");
+        return;
+    }
+
+    const pendingCard = li.cloneNode(true);
+    console.log("pendingCard cloned", pendingCard);
 
     pendingCard.removeAttribute("id");
-    // remove all ids for cloned card, cause there is a target for edits of other expenses.
+
     pendingCard.querySelectorAll("[id]").forEach(element => {
         element.removeAttribute("id");
     });
@@ -66,22 +82,39 @@ function addPendingExpenseCard(draft) {
     const date = pendingCard.querySelector("[data-expense-date]");
     const amount = pendingCard.querySelector("[data-expense-amount]");
 
+    console.log("category", category);
+    console.log("name", name);
+    console.log("date", date);
+    console.log("amount", amount);
+
     if (name) { name.textContent = draft.name || "Unnamed expense"; }
     if (category) { category.textContent = draft.category || "Pending"; }
     if (date) { date.textContent = draft.formattedDate || "Pending"; }
     if (amount) { amount.textContent = draft.formattedAmount || "Pending"; }
 
     const owedCount = pendingCard.querySelector("[data-expense-owed-count]");
+
     if (owedCount) {
         owedCount.textContent = "not included in balances yet";
     }
 
-    // Add localId to Pending Card - for edit
     pendingCard.dataset.offlineDraftId = draft.localId;
     pendingCard.dataset.pendingExpenseCard = "true";
 
-    const createRow = document.querySelector("[data-expense-create-row='true']");
-    createRow?.insertAdjacentElement("afterend", pendingCard);
+    const expenseList = document.querySelector("[data-expense-list='true']");
+
+    if (!expenseList) {
+        console.log("SKIP: expenseList not found");
+        return;
+    }
+
+    expenseList.prepend(pendingCard);
+
+    console.log("INSERTED");
+    console.log(
+        "pending cards in DOM",
+        document.querySelectorAll("[data-pending-expense-card='true']").length
+    );
 }
 
 // RENDER validation errors
@@ -134,7 +167,7 @@ async function updatePendingSyncUi() {
     pendingBadge.classList.toggle("d-none", pendingCount === 0);
     failedBadge.classList.toggle("d-none", failedCount === 0);
 
-    const showSyncButton = navigator.onLine && pendingCount > 0;
+    const showSyncButton = ServerStatus.isAvailable && pendingCount > 0;
     syncButton.classList.toggle("d-none", !showSyncButton);
 
     pendingBadge.textContent = `${pendingCount} Pending`;
@@ -151,7 +184,7 @@ async function updateConnectionStatus() {
 
     await updatePendingSyncUi();
 
-    const online = navigator.onLine;
+    const online = ServerStatus.isAvailable;
 
     // ai receript parsing not available offline.
     const uploadReceiptButton = document.getElementById("receiptUploadButton");

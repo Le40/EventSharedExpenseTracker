@@ -121,7 +121,7 @@ body.pwa .navbar {
     align-items: center;
     font-size: 2rem;
     text-decoration: none;
-    z-index: 1000;
+    z-index: 1030;
     background: var(--bs-info);
     color: white;
     box-shadow: 0 4px 12px rgba(0,0,0,.3);
@@ -139,7 +139,7 @@ body.pwa .navbar {
     align-items: center;
     font-size: 1rem;
     text-decoration: none;
-    z-index: 1000;
+    z-index: 1030;
     background: var(--bs-info);
     color: white;
     box-shadow: 0 4px 12px rgba(0,0,0,.3);

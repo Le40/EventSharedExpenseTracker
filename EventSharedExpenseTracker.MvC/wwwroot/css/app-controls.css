@@ -25,9 +25,9 @@
     .app-floating-controls {
         position: fixed;
         left: 2rem;
-        right: 7rem;
+        right: 2rem;
         bottom: calc(2rem + env(safe-area-inset-bottom));
-        z-index: 1050;
+        z-index: 1030;
         margin-bottom: 0;
         display: flex;
         justify-content: space-between;
@@ -74,7 +74,7 @@
 #appOffcanvas {
     height: auto;
     max-height: 90vh;
-    z-index: 1060;
+    z-index: 1045;
     padding-bottom: 2rem; 
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
@@ -84,15 +84,15 @@
     #appOffcanvas {
         top: 0;
         bottom: 0;
-        right: 0;
-        left: auto;
+        right: auto;
+        left: 0;
 
         width: 420px;
         height: 100vh;
         max-height: none;
         border-radius: 0;
 
-        transform: translateX(100%); 
+        transform: translateX(-100%); 
     }
 
         #appOffcanvas.show {
@@ -100,7 +100,7 @@
         }
 
         #appOffcanvas:not(.show) {
-            transform: translateX(100%);
+            transform: translateX(-100%);
         }
 }
 
@@ -193,3 +193,4 @@
 .fab-dial.open > button:last-child {
     transform: rotate(45deg);
 }
+

@@ -8,6 +8,13 @@ public static class ApplicationBuilderExtensions
     {
         app.Use(async (context, next) =>
         {
+            // do not log these endpoints
+            if (context.Request.Path == "/health/ping")
+            {
+                await next();
+                return;
+            }
+
             var logger = context.RequestServices
                 .GetRequiredService<ILoggerFactory>()
                 .CreateLogger("RequestLogging");

@@ -51,28 +51,28 @@
             <div class="btn-group d-flex flex-wrap align-content-center h-100">
                 @*SORT BY NAME*@
                 @*<button type="button" class="btn btn-sm btn-outline-secondary"
-                        data-requires-online="true"
+                        data-requires-server="true"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.NameSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Name
                 </button>*@
                 @*SORT BY DATE*@
                 <button type="button" class="btn btn-sm btn-outline-secondary"
-                        data-requires-online="true"
+                        data-requires-server="true"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.DateSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Date
                 </button>
                 @*SORT BY AMOUNT - sqlite not working*@
                 <button type="button" class="btn btn-sm btn-outline-secondary d-none d-lg-inline-block"
-                        data-requires-online="true"
+                        data-requires-server="true"
                         hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.AmountSortParam, searchString = Model.SearchString, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                         hx-target="#@Model.EIdExpenseCollection">
                     Amount
                 </button>
                 @*FILTER BY CATEGORY*@
                 <select id="categoryDropdown" class="btn btn-sm btn-outline-secondary w-auto"
-                        data-requires-online="true"
+                        data-requires-server="true"
                         asp-for="CategoryFilter"
                         asp-items="@Html.GetEnumSelectList<ExpenseCategory>()"
                         name="categoryFilter"
@@ -82,7 +82,7 @@
                 </select>
                 @*FILTER BY CREATED BY USER*@
                 <button type="button"
-                        data-requires-online="true"
+                        data-requires-server="true"
                         class="btn btn-sm btn-outline-secondary @(Model.Creator ? "active" : "")"
                         hx-get='@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, searchString = Model.SearchString, creator = !Model.Creator, categoryFilter = Model.CategoryFilter })'
                         hx-target="#@Model.EIdExpenseCollection"
@@ -91,7 +91,7 @@
                 </button>
                 @*SEARCH*@
                 <input type="text" id="searchInput" name="searchString" autocomplete="off" placeholder="search expense" value="@Model.SearchString" class="btn btn-sm btn-outline-secondary bg-secondary-subtle w-auto"
-                       data-requires-online="true"
+                       data-requires-server="true"
                        hx-get="@Url.Action("Index", "Expenses", new { tripId = Model.TripId, sortOrder = Model.CurrentSort, creator = Model.Creator, categoryFilter = Model.CategoryFilter })"
                        hx-target="#@Model.EIdExpenseCollection"
                        hx-trigger="keyup changed delay:500ms" />

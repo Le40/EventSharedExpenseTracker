@@ -77,6 +77,8 @@ public class Trip
         if (Participants.Count == 1)
             return DomainErrors.LastParticipant;
 
+        if (participant.UserId == CreatorId)
+            CreatorId = null;
         Participants.Remove(participant);
 
         return DomainResult.Ok();

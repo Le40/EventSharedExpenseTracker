@@ -1,4 +1,13 @@
 ﻿const CACHE_NAME = "expense-tracker-v1";
+let isServerAvailable = true;
+
+// TO GET SERVER STATUS FROM OFFLINE/STATUS.JS
+self.addEventListener("message", event => {
+    if (event.data?.type === "SERVER_STATUS_CHANGED") {
+        isServerAvailable = event.data.isAvailable;
+        console.log("SW server available:", isServerAvailable);
+    }
+});
 
 self.addEventListener("install", event => {
     console.log("Service worker installed");
@@ -27,6 +36,11 @@ self.addEventListener("fetch", event => {
 
     // Only handle same-origin requests
     if (url.origin !== self.location.origin) {
+        return;
+    }
+
+    // Never cache or intercept health checks
+    if (url.pathname === "/health/ping") {
         return;
     }
 
@@ -75,17 +89,23 @@ self.addEventListener("fetch", event => {
 
     // MVC pages: network-only for now
     // This keeps your app behavior normal
-    event.respondWith(
-        networkFirst(request).catch(() => {
-            return new Response("You are offline.", {
-                status: 503,
-                headers: { "Content-Type": "text/plain" }
-            });
-        })
-    );
+    event.respondWith(networkFirst(request));
 });
 
 async function networkFirst(request) {
+
+    if (!isServerAvailable) {
+        const cachedResponse = await caches.match(request);
+
+        if (cachedResponse) {
+            return cachedResponse;
+        }
+        return new Response("Server unavailable and page not cached.", {
+            status: 503,
+            headers: { "Content-Type": "text/plain" }
+        });
+    }
+
     try {
         const networkResponse = await fetch(request);
 

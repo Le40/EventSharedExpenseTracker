@@ -1,7 +1,4 @@
-﻿function isOffline() {
-    return !navigator.onLine;
-}
-
+﻿
 // UI/UX
 const restoreCache = new Map();
 
@@ -39,33 +36,14 @@ function restoreOriginal(button) {
 }
 
 
-
-/*// prevents htmx from firing offline
 document.body.addEventListener("htmx:beforeRequest", event => {
-
-    if (!isOffline)
-        return;
-
-    const action = event.target.closest("[data-offline-capable='true']");
-
-    if (action)
-        return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    Toast.show("This action requires an internet connection.", "info");
-
-}, true);*/
-
-document.body.addEventListener("htmx:beforeRequest", event => {
-    const button = event.target.closest("[data-requires-online='true']");
+    const button = event.target.closest("[data-requires-server='true']");
 
     if (!button) {
         return;
     }
 
-    if (navigator.onLine) {
+    if (ServerStatus.isAvailable) {
         return;
     }
 
@@ -147,7 +125,7 @@ async function handlePendingExpensesClick() {
         return;
     }
 
-    if (!navigator.onLine) {
+    if (!ServerStatus.isAvailable) {
         const cachedTripUrl = `/Trips/Details/${targetTripId}`;
 
         const cachedResponse = await caches.match(cachedTripUrl);

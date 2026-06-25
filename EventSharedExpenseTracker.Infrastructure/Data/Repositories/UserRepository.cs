@@ -17,15 +17,18 @@ public class UserRepository : IUserRepository
 
     public async Task<List<CustomUser>> GetAllAsync(int userId, FriendshipQueryOptions options)
     {
-        // DEFAULT MANDATORY FILTER - temporary get all users without current user, later that will work get userwithfriends.
-        var query = _context.CustomUsers.Where(u => u.Id != userId).AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(options.SearchString))
+        if (string.IsNullOrWhiteSpace(options.SearchString))
         {
-            query = query.Where(u => u.CustomUserName.Contains(options.SearchString));
+            return [];
         }
 
-        return await query.AsNoTracking().ToListAsync();
+        var query = _context.CustomUsers
+            .Where(u => u.Id != userId)
+            .Where(u => u.CustomUserName.Contains(options.SearchString));
+
+        return await query
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     /* THIS IS SIMPLE VERSION BUT ITS REFERENCED somewhere else so i guess i am gonna use the normal one as that has search in it

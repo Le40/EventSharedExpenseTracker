@@ -1,18 +1,51 @@
 # Event Shared Expense Tracker
 
-A web application for managing shared trip expenses. The application supports multi-currency expense tracking and AI-assisted features such as automatic expense categorization and receipt parsing.
+A web application for managing shared trip expenses. The application supports multi-currency expense tracking, AI-assisted features such as automatic expense categorization and receipt parsing.
+And offline expense creation, and support for progressive web apps.
 
 The project was built primarily as a personal/learning project to explore ASP.NET Core, Entity Framework Core, application architecture, testing, authentication, deployment, and cloud services and others.
 
 https://eventsharedexpensetracker.azurewebsites.net/
-(if trying out, its deployed on the free server, and it takes quite a while until the site warms up, until then it seems like it doesnt work, but its just parked.)
+(if trying out, its deployed on the free server, and it takes quite a while until the site warms up, until then it seems like it doesnt work, but its just parked. When its already cached this should not be an issue anymore.)
+
+## Demo
+
+A demo account is available for exploring the application:
+
+```
+Email:    AnitaJob@Test.com
+Password: Test123!
+```
+
+<h2>Screenshots</h2>
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/trip-index.png" width="180"><br>
+      <b>Trips</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/trip-details.png" width="180"><br>
+      <b>Trip Details</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/expense-form.png" width="180"><br>
+      <b>Add Expense</b>
+    </td>
+    <td align="center">
+      <img src="screenshots/offline-mode.png" width="180"><br>
+      <b>Offline Mode</b>
+    </td>
+  </tr>
+</table>
 
 ## Features
 
 * Create and manage trips with multiple participants
 * Track shared expenses
 * Flexible expense splitting between participants
-* Expense categories and filtering
+* Trip and Expense categories and search
 * HTMX-powered partial updates for a responsive user experience
 * Image upload and compression
 * ASP.NET Core Identity authentication
@@ -24,7 +57,9 @@ https://eventsharedexpensetracker.azurewebsites.net/
 * AI-assisted expense categorization based on expense name
 * AI-assisted receipt parsing to prefill expense forms from uploaded receipt photos
 * PWA support for installing as app on mobile and desktop
-* Offline Expense entry and sync with server
+* Support for offline Expense entry, editing of pending drafts, and later sync with the server
+* Detect server unavailability even when the user is online and switch to cached/offline behavior
+* Mobile-focused UI with floating actions and offcanvas forms
 
 ## Technology Stack
 
@@ -103,9 +138,12 @@ dotnet run
 
 ### Planned Features
 
-- Mobile application
-- REST API
-- Vertical Slice Architecture
+- Offline storing of receipts
+- Integrating Participants and Friends management into Mobile controls
+- Friends funcionality
+- Vertical Slice Architecture or some form of hybrid
+- Js to Ts
+- Move to .NET 10
 
 ## Notes
 

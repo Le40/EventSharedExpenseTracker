@@ -7,6 +7,7 @@
 <li class="list-group-item expense-card"
     data-list-item>
     <div id="@Model.EIdEditExpense"
+         data-requires-server="true"
          data-expense-card="true"
          data-restorable="true"
          hx-get="@Url.Action("Edit", "Expenses", new { id = Model.Id })"

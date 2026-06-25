@@ -8,10 +8,14 @@
     string[] rotations = ["-1.75deg", "-1.25deg", "-1deg", "-0.75deg","-0.5deg","-0.25deg","0.deg", "0.25deg", "0.5deg", "0.75deg", "1deg", "1.25deg", "1.75deg"];
 }
 
+<div id="app-controls">
+    <partial name="_AppControls" model="Model.Controls" />
+</div>
+
 <div class="container-fluid" id="@Model.EIdTripsCollection">
     <div class="row">
         @*CARD FOR CREATING NEW TRIP*@
-        <div class="col-auto p-2-5">
+        <div class="col-auto p-2-5 d-none d-lg-block">
 
             <div class="photo-card-slot rounded-0 p-2">
 
@@ -23,7 +27,7 @@
                 <div id="@Model.EIdCreateTrip"
                      data-restorable="true">
                     <div hx-get="@Url.Action("Create", "Trips")"
-                        data-requires-online="true"
+                        data-requires-server="true"
                          hx-target="#@Model.EIdCreateTrip"
                          hx-swap="innerHTML"
                          hx-trigger="click once">
@@ -84,10 +88,6 @@
             </div>
         }
     </div>
-</div>
-
-<div id="app-controls">
-    <partial name="_AppControls" model="Model.Controls" />
 </div>
 
 @section Scripts {

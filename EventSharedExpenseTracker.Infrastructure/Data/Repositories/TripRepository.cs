@@ -39,6 +39,8 @@ public class TripRepository : ITripRepository
             t.Participants.Any(p => p.DisplayName.ToLower().Contains(options.SearchString)));
         }
 
+        query = query.OrderByDescending(t => t.DateFrom);
+
         /*if (options.Category.HasValue)
            query = query.Where(t => t.Category == options.Category.Value);
 

@@ -1,8 +1,31 @@
 ﻿// sync lock
 let syncInProgress = false;
 
+
+
+// SYNC LOCK
+function tryAcquireSyncLock() {
+    const lockKey = "expense-sync-lock";
+    const now = Date.now();
+    const existing = Number(localStorage.getItem(lockKey));
+
+    // lock valid for 30 seconds
+    if (existing && now - existing < 30000) {
+        return false;
+    }
+
+    localStorage.setItem(lockKey, String(now));
+    return true;
+}
+
+function releaseSyncLock() {
+    localStorage.removeItem("expense-sync-lock");
+}
+
+
+
 async function syncPendingDraftsIfOnline() {
-    if (!navigator.onLine) {
+    if (!ServerStatus.isAvailable) {
         return;
     }
 
@@ -12,7 +35,12 @@ async function syncPendingDraftsIfOnline() {
 async function syncPendingExpenseDrafts() {
 
     if (syncInProgress) {
-        console.log("Sync already running.");
+        console.log("Sync already running in this tab.");
+        return;
+    }
+
+    if (!tryAcquireSyncLock()) {
+        console.log("Sync already running in another tab.");
         return;
     }
 
@@ -44,6 +72,7 @@ async function syncPendingExpenseDrafts() {
 
             if (response.ok) {
                 await deleteOfflineExpense(draft.localId);
+                notifyOfflineExpensesChanged();
             } else {
                 const errorData = await response.json();
                 draft.syncState = "failedValidation";
@@ -59,6 +88,7 @@ async function syncPendingExpenseDrafts() {
     }
     finally {
         syncInProgress = false;
+        releaseSyncLock();
     }
 }
 

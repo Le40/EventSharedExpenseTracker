@@ -21,7 +21,7 @@ public class FriendsController : BaseController
         var result = await _friendService.Index();
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
-
+        
         var friends = result.Value;
 
         return PartialView("_Index", friends);
@@ -36,7 +36,7 @@ public class FriendsController : BaseController
             return HandleServiceErrors(result.Errors);
 
         var users = result.Value;
-
+        ViewBag.TripId = tripId;
         return PartialView("_AddParticipant", users);
     }
 

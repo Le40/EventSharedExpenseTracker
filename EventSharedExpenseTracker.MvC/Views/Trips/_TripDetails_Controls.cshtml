@@ -6,7 +6,7 @@
 <form asp-action="Edit"> @*so anitforgety validates otherwise 400*@
     <div class="input-group input-group-sm">
         <input type="text"
-               data-requires-online="true"
+               data-requires-server="true"
                 class="form-control border-info rounded-top-0 border-top-0 bg-secondary" placeholder="search users or dummy name" required
                 name="searchString" 
                 id="searchString"
@@ -15,7 +15,7 @@
                 hx-trigger="keyup changed delay:300ms" />
 
         <button type="button"
-                data-requires-online="true"
+                data-requires-server="true"
                 class="btn btn-sm btn-outline-info border-info rounded-top-0 border-top-0 photo-card-font"
                 hx-post="@Url.Action("AddDummy", "Trips", new { id = Model.Id })"
                 hx-target="#@Model.EIdTripParticipants"
@@ -27,14 +27,14 @@
 
         @*EDIT + DELETE*@
         <button type="button" 
-                data-requires-online="true"
+                data-requires-server="true"
                 class="btn btn-sm btn-outline-secondary border-top-0 rounded-top-0 photo-card-font"
                 hx-get="@Url.Action("Edit", "Trips", new { id = Model.Id })"
                 hx-target="#@Model.EIdEditTrip">
             Edit
         </button>
         <button type="button"
-                data-requires-online="true"
+                data-requires-server="true"
                 class="btn btn-sm btn-outline-danger border-top-0 rounded-top-0 photo-card-font"
                 hx-post="@Url.Action("Delete", "Trips", new { id = Model.Id })"
                 hx-target="body"

@@ -20,13 +20,33 @@ document.body.addEventListener("click", async event => {
 // listener tries to to its htmx call, if it is fail, it goes here.
 // offine every draft is created from createForm.
 // so only those should have active save button offline.
+document.body.addEventListener("htmx:beforeRequest", async event => {
+    const button = event.detail.elt;
+    const form = button.closest("form");
+
+    const formId = form?.querySelector("[name='FormId']")?.value;
+    const isCreateForm = formId === "expense-createForm";
+    const isSubmitButton = button.matches("button[type='submit']");
+
+    if (!isCreateForm || !isSubmitButton) {
+        return;
+    }
+
+    if (ServerStatus.isAvailable) {
+        return;
+    }
+
+    event.preventDefault();
+
+    await handleOfflineDraftSave(button, form);
+});
+
 document.body.addEventListener("htmx:sendError", async event => {
     const button = event.detail.elt;
     const form = button.closest("form");
 
     const formId = form?.querySelector("[name='FormId']")?.value;
     const isCreateForm = formId === "expense-createForm";
-
     const isSubmitButton = button.matches("button[type='submit']");
 
     if (!isCreateForm || !isSubmitButton) {
@@ -40,7 +60,7 @@ document.body.addEventListener("htmx:sendError", async event => {
 
 
 // EDIT DBLCLICK LISTENER
-document.body.addEventListener("dblclick", async event => {
+document.body.addEventListener("click", async event => {
     const card = event.target.closest("[data-pending-expense-card='true']");
 
     if (!card) {
@@ -88,11 +108,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // to render pending drafts online after htmx swap or update
 document.body.addEventListener("htmx:afterSwap", async event => {
+    console.log("afterSwap", event.detail.target);
+
     const target = event.detail.target;
 
     const expenseListWasReloaded =
         target?.matches("[data-expense-list='true']") ||
         target?.querySelector?.("[data-expense-list='true']");
+
+    console.log("expenseListWasReloaded", expenseListWasReloaded);
 
     if (!expenseListWasReloaded)
         return;
@@ -103,20 +127,6 @@ document.body.addEventListener("htmx:afterSwap", async event => {
 
 
 // SYNC LISTENERS
-// back online
-window.addEventListener("online", async () => {
-    await syncPendingExpenseDrafts();
-});
-// page refresh
-document.addEventListener("DOMContentLoaded", async () => {
-    if (navigator.onLine) {
-        await syncPendingExpenseDrafts();
-    }
-});
-// pending sync count
-document.addEventListener("DOMContentLoaded", async () => {
-    await updatePendingSyncUi();
-});
 // manual sync now button
 document.addEventListener("click", async event => {
     const button = event.target.closest("#syncNowButton");
@@ -133,6 +143,13 @@ document.addEventListener("click", async event => {
     finally {
         button.disabled = false;
     }
+});
+
+window.addEventListener("offlineExpensesChanged", async () => {
+    console.log("offlineExpensesChanged listener fired");
+
+    await renderPendingExpensesForCurrentTrip();
+    await updatePendingSyncUi();
 });
 
 

@@ -114,12 +114,5 @@ document.body.addEventListener("htmx:afterSwap", function (e) {
         .getOrCreateInstance(document.getElementById("appOffcanvas"))
         .show();
 });
-// dial button
-document.getElementById("fabMain")
-    .addEventListener("click", function () {
-        document
-            .querySelector(".fab-container")
-            .classList.toggle("open");
-    });
 
 console.log("ux.js loaded");

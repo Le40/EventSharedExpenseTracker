@@ -32,7 +32,10 @@ async function saveOfflineDraft(button, form) {
     }
 
     draft.localId = await saveOfflineExpense(draft);
+    notifyOfflineExpensesChanged();
+
     await renderPendingExpensesForCurrentTrip();
+    hideAppOffcanvas();
 
     return draft;
 }
@@ -111,19 +114,28 @@ async function openOfflineDraftForEdit(localId, pendingCard) {
         Toast.show("Offline draft form was not found.", "error");
         return;
     }
+    // target of the stored formHTML is now offCanvas element.
+    const target = document.getElementById("appOffCanvasBody");
+    if (!target) {
+        Toast.show("Offcanvas target was not found.", "error");
+        return;
+    }
 
     //const pendingCard = document.querySelector(`[data-offline-draft-id='${localId}']`);
 
     //if (!pendingCard) {
     //    return;
     //}
-    // storing the pending card html before swaping it for expenseForm - so cancel works
+
+    /*// storing the pending card html before swaping it for expenseForm - so cancel works
     pendingCard.dataset.originalHtml = pendingCard.innerHTML;
     pendingCard.dataset.restorable = "true";
 
-    pendingCard.innerHTML = draft.formHtml;
+    pendingCard.innerHTML = draft.formHtml;*/
 
-    const form = pendingCard.querySelector("[data-offline-expense='true']");
+    target.innerHTML = draft.formHtml;
+
+    const form = target.querySelector("[data-offline-expense='true']");
 
     if (!form) {
         //alert("Stored form is missing offline marker.");
@@ -142,6 +154,19 @@ async function openOfflineDraftForEdit(localId, pendingCard) {
 
     fillFormFromDraft(form, draft);
     renderOfflineValidationErrors(form, draft.validationErrors);
+    showAppOffcanvas();
+}
+
+function showAppOffcanvas() {
+    bootstrap.Offcanvas
+        .getOrCreateInstance(document.getElementById("appOffcanvas"))
+        .show();
+}
+
+function hideAppOffcanvas() {
+    bootstrap.Offcanvas
+        .getInstance(document.getElementById("appOffcanvas"))
+        ?.hide();
 }
 
 function fillFormFromDraft(form, draft) {
@@ -185,12 +210,42 @@ async function handleOfflineDraftDelete(button) {
     //}
 
     showConfirmModal(
-    "Delete this pending expense?",
-    async () => {
-        await deleteOfflineExpense(draftId);
-        await renderPendingExpensesForCurrentTrip();
-        await updatePendingSyncUi();
+        "Delete this pending expense?",
+        async () => {
+            await deleteOfflineExpense(draftId);
+            notifyOfflineExpensesChanged();
+            hideAppOffcanvas();
+            await renderPendingExpensesForCurrentTrip();
+            await updatePendingSyncUi();
     });
 }
+
+
+/*// FORBIDDING OPENING EDIT FORM OFFLINE FOR NORMAL SYNCED EXPENSES.
+document.body.addEventListener("htmx:beforeRequest", event => {
+    const trigger = event.detail.elt;
+
+    const isPendingDraft = trigger.closest("[data-pending-expense-card='true']");
+    if (isPendingDraft) {
+        return;
+    }
+
+    const isExpenseEdit =
+        trigger.closest("[data-expense-card='true']") ||
+        trigger.matches("[data-expense-card='true']");
+
+    if (!isExpenseEdit) {
+        return;
+    }
+
+    if (ServerStatus.isAvailable) {
+        return;
+    }
+
+    event.preventDefault();
+    Toast.show("Existing expenses can be edited when the server is available.", "info");
+});*/
+
+
 
 console.log("offline 1/5 - editing.js loaded");

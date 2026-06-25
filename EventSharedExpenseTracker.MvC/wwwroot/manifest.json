@@ -3,8 +3,8 @@
   "short_name": "Trips",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "212529",
-  "theme_color": "212529",
+  "background_color": "#212529",
+  "theme_color": "#212529",
   "icons": [
     {
       "src": "/icons/icon-192.png",
