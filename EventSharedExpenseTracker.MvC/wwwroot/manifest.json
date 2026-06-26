@@ -1,6 +1,6 @@
 {
   "name": "Trip Expense Tracker",
-  "short_name": "Trips",
+  "short_name": "Trippy",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#212529",

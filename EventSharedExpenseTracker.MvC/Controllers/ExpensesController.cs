@@ -23,9 +23,13 @@ public class ExpensesController : BaseController
     }
 
     [HttpPost]
-    public async Task<IActionResult> SuggestCategory(string name, string formId)
+    public async Task<IActionResult> SuggestCategory(string name, string formId, ExpenseCategory? category)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length < 4)
+            return NoContent();
+
+        // User already chose a category
+        if (category.HasValue)
             return NoContent();
 
         var resultAi = await _expenseService.SuggestCategoryAsync(name);

@@ -34,6 +34,8 @@ public class OpenAiExpenseAiService : IExpenseAiService
         var prompt = $"""
         Suggest one expense category.
 
+        Input can be primarily in English, Slovak, Czech.
+
         Expense name:
         {expenseName}
 

@@ -1,10 +1,18 @@
-﻿const CACHE_NAME = "expense-tracker-v1";
-let isServerAvailable = true;
+﻿// SW can only discover server is unavailable
+// by trying request and it timing out
+// when such state happens, it stores it locally and messages it to pages
+// it then relies on pages to poll the server, and message back if server is back online.
 
-// TO GET SERVER STATUS FROM OFFLINE/STATUS.JS
+const CACHE_NAME = "expense-tracker-v1";
+const NETWORK_TIMEOUT_MS = 1500;
+const MSG_SERVER_AVAILABLE = "SERVER_AVAILABLE";
+const MSG_SERVER_UNAVAILABLE = "SERVER_UNAVAILABLE";
+let isServerAvailable = true; // also fallback if sw never recieves backonline message from pages.
+
+// LISTEN to pages for server coming back online.
 self.addEventListener("message", event => {
-    if (event.data?.type === "SERVER_STATUS_CHANGED") {
-        isServerAvailable = event.data.isAvailable;
+    if (event.data?.type === MSG_SERVER_AVAILABLE) {
+        isServerAvailable = true;
         console.log("SW server available:", isServerAvailable);
     }
 });
@@ -93,37 +101,38 @@ self.addEventListener("fetch", event => {
 });
 
 async function networkFirst(request) {
+    console.log("networkFirst", request.url, "server:", isServerAvailable);
+    console.log("SW isServerAvailable:", isServerAvailable);
+    // check if there is cache for curent page
+    const cachedResponse = await caches.match(request);
 
-    if (!isServerAvailable) {
-        const cachedResponse = await caches.match(request);
-
-        if (cachedResponse) {
-            return cachedResponse;
-        }
-        return new Response("Server unavailable and page not cached.", {
-            status: 503,
-            headers: { "Content-Type": "text/plain" }
-        });
+    // server unavailable -> load from cache
+    if (!isServerAvailable && cachedResponse) {
+        return cachedResponse;
     }
 
+    // server available ->
+    // -> if there is cache, then if timeout set server as unavailable
+    // -> if there is no cache, just wait for server to come back online - nothing better to do.
     try {
-        const networkResponse = await fetch(request);
-
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(request, networkResponse.clone());
-
-        return networkResponse;
-    } catch {
-        const cachedResponse = await caches.match(request);
-
+        let networkResponse;
         if (cachedResponse) {
-            return cachedResponse;
+            networkResponse = await fetchWithTimeout(request);
+        } else {
+            networkResponse = await fetch(request);
+        }
+       
+        if (networkResponse.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, networkResponse.clone());
         }
 
-        return new Response("You are offline and this page was not cached yet.", {
-            status: 503,
-            headers: { "Content-Type": "text/plain" }
-        });
+        return networkResponse;
+     // if the request takes more then TIMEOUT, set server as unavailable. Load from cache.
+    } catch (error) {
+        console.error(error);
+        setServerStatusUnavailable();
+        return await getCachedResponse(request);
     }
 }
 
@@ -136,15 +145,59 @@ async function cacheFirst(request) {
 
     try {
         const networkResponse = await fetch(request);
-
-        const cache = await caches.open(CACHE_NAME);
-        cache.put(request, networkResponse.clone());
+        if (networkResponse.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            cache.put(request, networkResponse.clone());
+        }
 
         return networkResponse;
     } catch {
-        return new Response("Offline and file not cached.", {
-            status: 503,
-            headers: { "Content-Type": "text/plain" }
-        });
+        return await getCachedResponse(request);
     }
+}
+
+async function getCachedResponse(request) {
+    const cachedResponse = await caches.match(request);
+
+    if (cachedResponse) {
+        return cachedResponse;
+    }
+
+    return new Response("You are offline and this page was not cached yet.", {
+        status: 503,
+        headers: { "Content-Type": "text/plain" }
+    });
+}
+
+async function fetchWithTimeout(request, timeoutMs = NETWORK_TIMEOUT_MS) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+        return await fetch(request, {
+            signal: controller.signal
+        });
+    } finally {
+        clearTimeout(timeoutId);
+    }
+}
+
+
+function setServerStatusUnavailable() {
+    if (isServerAvailable === false) return;
+
+    isServerAvailable = false;
+
+    notifyPagesServerUnavailable();
+}
+
+function notifyPagesServerUnavailable() {
+
+    self.clients.matchAll({ type: "window" }).then(clients => {
+        for (const client of clients) {
+            client.postMessage({
+                type: MSG_SERVER_UNAVAILABLE,
+            });
+        }
+    });
 }

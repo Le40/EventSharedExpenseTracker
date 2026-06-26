@@ -104,11 +104,11 @@ function updateHeaderHeight() {
 // PENDING BADGE CLICK REDIRECTS TO TRIP WITH MOST PENDING EXPENSES.
 document
     .getElementById("failedValidationBadge")
-    .addEventListener("click", handlePendingExpensesClick);
+    ?.addEventListener("click", handlePendingExpensesClick);
 
 document
     .getElementById("pendingSyncBadge")
-    .addEventListener("click", handlePendingExpensesClick);
+    ?.addEventListener("click", handlePendingExpensesClick);
 
 async function handlePendingExpensesClick() {
     const tripSummary = await getTripWithMostOfflineExpenses();
@@ -151,6 +151,18 @@ function getCurrentTripId() {
 
     return Number(page.dataset.tripId);
 }
+// EXPENSE FORM - check if user selected category while ai was guessing it
+document.body.addEventListener("htmx:beforeSwap", function (e) {
+    const target = e.target;
+
+    if (!target.id.startsWith("category-select-"))
+        return;
+
+    // User already selected a category
+    if (target.value) {
+        e.detail.shouldSwap = false;
+    }
+});
 
 function scrollToPendingExpenses() {
     document

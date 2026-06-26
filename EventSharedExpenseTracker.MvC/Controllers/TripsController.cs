@@ -79,7 +79,7 @@ public class TripsController : BaseController
             AddUrl = Url.Action("Create", "Expenses", new { tripId = id })!,
             AddTargetId = "appOffCanvasBody",
             CssThemeClass = "",
-            ParseUrl = Url.Action("ScanReceipt", "Expenses", new { tripId = id })!,
+            ParseUrl = Url.Action("ParseReceipt", "Expenses", new { tripId = id })!,
         };
 
         return View(vm);

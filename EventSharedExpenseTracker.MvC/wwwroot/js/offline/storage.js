@@ -20,6 +20,13 @@ function openOfflineDb() {
                     keyPath: "id"
                 });
             }
+
+            if (!db.objectStoreNames.contains("receiptDrafts")) {
+                db.createObjectStore("receiptDrafts", {
+                    keyPath: "localId",
+                    autoIncrement: true
+                });
+            }
         };
 
         request.onsuccess = event => {

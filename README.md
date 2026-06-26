@@ -1,7 +1,7 @@
 # Event Shared Expense Tracker
 
 A web application for managing shared trip expenses. The application supports multi-currency expense tracking, AI-assisted features such as automatic expense categorization and receipt parsing.
-And offline expense creation, and support for progressive web apps.
+Offline expense creation, and support for progressive web apps.
 
 The project was built primarily as a personal/learning project to explore ASP.NET Core, Entity Framework Core, application architecture, testing, authentication, deployment, and cloud services and others.
 
@@ -16,6 +16,7 @@ A demo account is available for exploring the application:
 Email:    AnitaJob@Test.com
 Password: Test123!
 ```
+Designed primary for mobile use, as thats where it will be used the most. Best use Chrome to install through install button. Other browsers will probably just add to home screen.
 
 <h2>Screenshots</h2>
 
