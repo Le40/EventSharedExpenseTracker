@@ -36,6 +36,10 @@ namespace EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService
             // get rate for requested day of not found get fallback, closest older rate
             var rates = await GetRatesForDateAsync(date);
 
+            // ------------------- TEMPORARY FIX ---------------------//
+            if (rates.Count == 0) return 1m; // TEMPORARY FIX
+            // ------------------- TEMPORARY FIX ---------------------//
+
             return CalculateCrossRate(rates, fromCurrencyCode, toCurrencyCode);
         }
 

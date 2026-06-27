@@ -1,58 +1,33 @@
-﻿
-// RENDER all pending
+﻿// ---------------------------------------------------------------------------
+// RENDERING
+// ---------------------------------------------------------------------------
+
+// RENDER ALL
 async function renderPendingExpensesForCurrentTrip() {
-
-    console.log("renderPendingExpensesForCurrentTrip");
-
     removeOfflineDraftDom();
 
     const expenseList = document.querySelector("[data-expense-list='true']");
-    console.log("expenseList", expenseList);
-
     if (!expenseList) return;
 
     const tripId = Number(expenseList.dataset.tripId);
-    console.log("tripId", tripId);
-
     const tripDrafts = await getOfflineExpensesForTrip(tripId);
-
-    console.log("tripDrafts", tripDrafts);
 
     for (const draft of tripDrafts) {
         addPendingExpenseCard(draft);
     }
 }
 
-// RENDER one card
+// RENDER CARD
 function addPendingExpenseCard(draft) {
-
-    console.log("=== addPendingExpenseCard ===");
-    console.log("draft", draft);
-
+    // does pending draft exist already
     if (document.querySelector(`[data-offline-draft-id='${draft.localId}']`)) {
-        console.log("SKIP: card already exists");
         return;
     }
 
-    const templateCard = document.querySelector("[data-expense-card='true']");
-    console.log("templateCard", templateCard);
+    const pendingCard = cloneExpenseCardTemplate();
+    if (!pendingCard) return;
 
-    if (!templateCard) {
-        console.log("SKIP: templateCard not found");
-        return;
-    }
-
-    const li = templateCard.closest("li");
-    console.log("closest li", li);
-
-    if (!li) {
-        console.log("SKIP: templateCard has no parent li");
-        return;
-    }
-
-    const pendingCard = li.cloneNode(true);
-    console.log("pendingCard cloned", pendingCard);
-
+    // PREPARE PENDING CARD
     pendingCard.removeAttribute("id");
 
     pendingCard.querySelectorAll("[id]").forEach(element => {
@@ -61,6 +36,7 @@ function addPendingExpenseCard(draft) {
 
     pendingCard.classList.remove("border-warning", "border-danger", "opacity-75");
 
+    // APPLY STATE
     const paidBy = pendingCard.querySelector("[data-expense-paid-by]");
 
     if (draft.syncState === "failedValidation") {
@@ -71,63 +47,48 @@ function addPendingExpenseCard(draft) {
         if (paidBy) { paidBy.textContent = "Pending sync"; }
     }
 
-    const category = pendingCard.querySelector("[data-expense-category]");
-    const name = pendingCard.querySelector("[data-expense-name]");
-    const date = pendingCard.querySelector("[data-expense-date]");
-    const amount = pendingCard.querySelector("[data-expense-amount]");
+    // FILL CARD DISPLAY
+    setText(pendingCard, "[data-expense-category]", draft.display?.category ?? "Pending")
+    setText(pendingCard, "[data-expense-name]", draft.display?.name ?? "Unnamed expense")
+    setText(pendingCard, "[data-expense-date]", draft.display?.formattedDate ?? "Pending")
+    setText(pendingCard, "[data-expense-amount]", draft.display?.formattedAmount ?? "Pending")
+    setText(pendingCard, "[data-expense-owed-count]", draft.display?.owedCount ?? "not included in balances yet")
 
-    console.log("category", category);
-    console.log("name", name);
-    console.log("date", date);
-    console.log("amount", amount);
-
-    if (name) { name.textContent = draft.display.name || "Unnamed expense"; }
-    if (category) { category.textContent = draft.display.category || "Pending"; }
-    if (date) { date.textContent = draft.display.formattedDate || "Pending"; }
-    if (amount) { amount.textContent = draft.display.formattedAmount || "Pending"; }
-
-    const owedCount = pendingCard.querySelector("[data-expense-owed-count]");
-
-    if (owedCount) {
-        owedCount.textContent = "not included in balances yet";
-    }
-
+    // MARK PENDING CARD
     pendingCard.dataset.offlineDraftId = draft.localId;
     pendingCard.dataset.pendingExpenseCard = "true";
 
+    // INSERT PENDING CARD
     const expenseList = document.querySelector("[data-expense-list='true']");
 
-    if (!expenseList) {
-        console.log("SKIP: expenseList not found");
-        return;
-    }
-
+    if (!expenseList) return;
     expenseList.prepend(pendingCard);
+}
 
-    console.log("INSERTED");
-    console.log(
-        "pending cards in DOM",
-        document.querySelectorAll("[data-pending-expense-card='true']").length
-    );
+function cloneExpenseCardTemplate() {
+    const templateCard = document.querySelector("[data-expense-card='true']");
+    const li = templateCard?.closest("li");
+
+    return li?.cloneNode(true) ?? null;
+}
+
+function setText(parent, selector, value) {
+    const element = parent.querySelector(selector);
+    if (element) element.textContent = value;
 }
 
 // RENDER validation errors
-function renderOfflineValidationErrors(form, validationErrors) {
-    if (!validationErrors) {
-        return;
-    }
+function renderValidationErrors(form, validationErrors) {
+    if (!validationErrors) return;
 
     const messages = [];
-
     for (const [field, errors] of Object.entries(validationErrors)) {
         for (const error of errors) {
             messages.push(error);
         }
     }
 
-    if (messages.length === 0) {
-        return;
-    }
+    if (messages.length === 0)  return;
 
     const alert = document.createElement("div");
     alert.className = "alert alert-danger";
@@ -137,7 +98,7 @@ function renderOfflineValidationErrors(form, validationErrors) {
     form.prepend(alert);
 }
 
-// navbar counter
+// NAVBAR PENDING COUNTER BADGE
 async function updatePendingSyncUi() {
 
     const drafts = await getAllOfflineExpenses();
@@ -149,8 +110,6 @@ async function updatePendingSyncUi() {
     const failedCount = drafts.filter(d =>
         d.syncState === "failedValidation"
     ).length;
-
-    const receipts = await getAllOfflineReceipts();
 
     const pendingBadge = document.getElementById("pendingSyncBadge");
     const failedBadge = document.getElementById("failedValidationBadge");
@@ -170,30 +129,23 @@ async function updatePendingSyncUi() {
     failedBadge.textContent = `${failedCount} Need review`;
 }
 
-// connection status in navbar
+// NAVBAR CONNECTION BADGE
 async function updateConnectionStatus() {
     const status = document.getElementById("connectionStatus");
 
-    if (!status) {
-        return;
-    }
+    if (!status) return;
 
     await updatePendingSyncUi();
 
     const online = ServerStatus.isAvailable;
 
-    // ai receript parsing not available offline.
-    const uploadReceiptButton = document.getElementById("receiptUploadButton");
-    if (uploadReceiptButton) {
-        uploadReceiptButton.classList.toggle("d-none", !online);
-    }
-
     status.classList.toggle("d-none", online);
 }
 
+// REMOVE DRAFTS FROM DOM
 function removeOfflineDraftDom() {
     document
         .querySelectorAll("[data-pending-expense-card='true'], [data-offline-draft-id]")
         .forEach(element => element.remove());
 }
-console.log("offline 4/10 - rendering.js loaded");
+console.log("offline 6/10 - rendering.js loaded");

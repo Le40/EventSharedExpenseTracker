@@ -113,8 +113,7 @@ function stopServerHealthPolling() {
 // OFFLINE GLOBAL PAGE LOAD LISTENER
 document.addEventListener("DOMContentLoaded", async () => {
 
-    await updatePendingSyncUi();
-    await renderPendingExpensesForCurrentTrip();
+    await refreshOfflineUi();
 
     const storedServerStatus = localStorage.getItem("server-is-available");
     // if stored value is that server is unavailable, set the on startup true for serverStatus.isAvailable to false.
@@ -148,4 +147,4 @@ window.addEventListener("offline", () => {
     updateConnectionStatus();
 });
 
-console.log("offline 7/10 - status.js loaded");
+console.log("offline 8/10 - server-status.js loaded");

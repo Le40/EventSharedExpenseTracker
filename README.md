@@ -59,6 +59,7 @@ Designed primary for mobile use, as thats where it will be used the most. Best u
 * AI-assisted receipt parsing to prefill expense forms from uploaded receipt photos
 * PWA support for installing as app on mobile and desktop
 * Support for offline Expense entry, editing of pending drafts, and later sync with the server
+* Support for offline Receipt storage, then syncing in the backgorund when online.
 * Detect server unavailability even when the user is online and switch to cached/offline behavior
 * Mobile-focused UI with floating actions and offcanvas forms
 

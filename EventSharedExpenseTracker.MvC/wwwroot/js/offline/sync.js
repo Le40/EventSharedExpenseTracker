@@ -1,8 +1,6 @@
 ﻿// sync lock
 let syncInProgress = false;
 
-
-
 // SYNC LOCK
 function tryAcquireSyncLock() {
     const lockKey = "expense-sync-lock";
@@ -48,14 +46,14 @@ async function syncDrafts() {
         await syncPendingExpenseDrafts(syncableDrafts);
 
         await refreshTripDetails();// no update of offline ui cause its done on page refresh.
-        await renderPendingExpensesForCurrentTrip();
+        //await renderPendingExpensesForCurrentTrip();
+        await refreshOfflineUi();
     }
     finally {
         syncInProgress = false;
         releaseSyncLock();
     }
 }
-
 
 async function syncPendingDraftsIfOnline() {
     if (!ServerStatus.isAvailable) {
@@ -63,66 +61,6 @@ async function syncPendingDraftsIfOnline() {
     }
     await syncDrafts();
 }
-
-/*async function syncPendingExpenseDrafts() {
-
-    if (syncInProgress) {
-        console.log("Sync already running in this tab.");
-        return;
-    }
-
-    if (!tryAcquireSyncLock()) {
-        console.log("Sync already running in another tab.");
-        return;
-    }
-
-    syncInProgress = true;
-
-    try {
-        const drafts = await getAllOfflineExpenses();
-
-        const pendingDrafts = drafts.filter(d => d.syncState === "pendingCreate");
-
-        if (pendingDrafts.length === 0) {
-            return;
-        }
-
-        for (const draft of pendingDrafts) {
-            const formData = new FormData();
-
-            for (const [key, value] of draft.fields) {
-                formData.append(key, value);
-            }
-
-            formData.append("IsOfflineSync", "true");
-            replaceAntiforgeryToken(formData);
-
-            const response = await fetch(draft.url, {
-                method: "POST",
-                body: formData
-            });
-
-            if (response.ok) {
-                await deleteOfflineExpense(draft.localId);
-                notifyOfflineExpensesChanged();
-            } else {
-                const errorData = await response.json();
-                draft.syncState = "failedValidation";
-                draft.validationErrors = errorData.errors;
-                draft.errorMessage = `Sync failed with status ${response.status}`;
-                await createOfflineExpense(draft);
-                continue;
-            }
-        }
-
-        await refreshTripDetails();
-        await updatePendingSyncUi();
-    }
-    finally {
-        syncInProgress = false;
-        releaseSyncLock();
-    }
-}*/
 
 async function syncPendingExpenseDrafts(drafts) {
 
@@ -195,32 +133,11 @@ async function syncReceiptDraft(draft) {
     console.log("Receipt parse response:", response.status);
 
     if (!response.ok) {
-        //draft.syncState = "failedValidation";
-        //draft.validationErrors = ["Receipt could not be parsed."];
-        //await updateOfflineExpense(draft);
-        return;
-    }
-
-    /*const html = await response.text();
-
-    //console.log("Returned parsed form HTML:", html);
-
-    const doc = new DOMParser().parseFromString(html, "text/html");
-    const form = doc.querySelector("form");
-
-    if (!form) {
         draft.syncState = "failedValidation";
-        draft.validationErrors = ["Parsed receipt form could not be read."];
+        draft.validationErrors = ["Receipt could not be parsed."];
         await updateOfflineExpense(draft);
         return;
     }
-
-    //const formData = new FormData(form);
-    draft.fields = Array.from(formData.entries());
-
-    draft.formHtml = form.outerHTML;
-    draft.display = createDisplayFromFields(draft.fields, form)
-    //draft.syncState = "pendingCreate";*/
 
     const parsed = await response.json();
 
@@ -236,7 +153,6 @@ function applyParsedReceiptToFields(draft, parsed) {
     setField(draft.fields, "Date", parsed.date);
     setField(draft.fields, "CurrencyCode", parsed.currencyCode);
     setField(draft.fields, "Category", parsed.category);
-    //setField(draft.fields, "PaidAmount", parsed.totalAmount);
     setFirstPaidAmountField(draft.fields, parsed.totalAmount);
 }
 
@@ -288,4 +204,4 @@ function replaceAntiforgeryToken(formData) {
     formData.set("__RequestVerificationToken", tokenInput.value);
 }
 
-console.log("offline 6/10 - sync.js loaded");
+console.log("offline 7/10 - sync.js loaded");

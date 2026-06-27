@@ -35,11 +35,10 @@ document.addEventListener("change", async function (event) {
         draft.syncState = "pendingReceiptParse";
 
         await createOfflineExpense(draft);
-
-        //await saveOfflineReceiptDraft(file, tripId);
+        notifyOfflineExpensesChanged();
         Toast.show("Receipt saved offline. It will be parsed when server is available.", "success");
-        await renderPendingExpensesForCurrentTrip();
-        await updatePendingSyncUi();
+        //await renderPendingExpensesForCurrentTrip();
+        //await updatePendingSyncUi();
         return;
     }
 

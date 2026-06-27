@@ -122,6 +122,15 @@
     <div class="container">
         <main role="main">
             @RenderBody()
+
+            <!-- Global loading overlay-->
+            <div id="loading-overlay"
+                class="htmx-indicator">
+                <div class="text-center">
+                    <div class="spinner-border"></div>
+                    <div class="mt-3">Reading receipt ...</div>
+                </div>
+            </div>
         </main>
         @*SIDE PANEL FOR SEARCH*@
         <div id="appBottomSheet" class="app-bottom-sheet">
@@ -167,9 +176,10 @@
     <script src="~/js/receipts.js" asp-append-version="true"></script>
     <script src="~/js/offline/storage.js" asp-append-version="true"></script>
     <script src="~/js/offline/storage-expenses.js" asp-append-version="true"></script>
-    <script src="~/js/offline/storage-receipts.js" asp-append-version="true"></script>
+    <script src="~/js/offline/draft-builder.js" asp-append-version="true"></script>
+    <script src="~/js/offline/draft-editor.js" asp-append-version="true"></script>
+    <script src="~/js/offline/draft-handlers.js" asp-append-version="true"></script>
     <script src="~/js/offline/rendering.js" asp-append-version="true"></script>
-    <script src="~/js/offline/editing.js" asp-append-version="true"></script>
     <script src="~/js/offline/sync.js" asp-append-version="true"></script>
     <script src="~/js/offline/server-status.js" asp-append-version="true"></script>
     <script src="~/js/offline/listeners.js" asp-append-version="true"></script>

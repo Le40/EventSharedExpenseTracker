@@ -29,4 +29,4 @@ async function refreshOfflineUi() {
     await updatePendingSyncUi();
 }
 
-console.log("offline 9/10 - broadcast.js loaded");
+console.log("offline 10/10 - broadcast.js loaded");

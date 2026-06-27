@@ -224,3 +224,19 @@
     flex: 0 0 auto;
 }
 
+#loading-overlay {
+    position: fixed;
+    inset: 0;
+    display: none;
+
+    justify-content:center;
+    align-items: center;
+
+    background: rgba(0,0,0,0.25);
+    z-index: 2000;
+}
+
+    #loading-overlay.htmx-request,
+    .htmx-request #loading-overlay {
+        display: flex;
+    }

@@ -36,7 +36,8 @@
                            hx-post="@Model.ParseUrl"
                            hx-trigger="change"
                            hx-encoding="multipart/form-data"
-                           hx-target="#@Model.AddTargetId" />
+                           hx-target="#@Model.AddTargetId"
+                           hx-indicator="#loading-overlay"/>
                 </form>
 
             </div>

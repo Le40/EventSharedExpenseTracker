@@ -90,7 +90,7 @@ document.body.addEventListener("click", async event => {
 
     if (!localId) return;
 
-    await openOfflineDraftForEdit(localId, card);
+    await openExpenseDraftForEdit(localId, card);
 }, true); // true at the end makes it run before any htmx, so it should prevent any other click on draft form from firing.
 
 // SAVE EDIT LISTENER
@@ -158,19 +158,6 @@ document.body.addEventListener("htmx:sendError", async event => {
     await handleExpenseDraftCreate(button, form);
 });*/
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 // OFFLINE DRAFTS CHANGED IN OTHER OPEN TAB
 // update this one too, so no stale states.
 window.addEventListener("offlineExpensesChanged", async () => {
@@ -180,8 +167,4 @@ window.addEventListener("offlineExpensesChanged", async () => {
     await updatePendingSyncUi();
 });
 
-
-
-
-
-console.log("offline 8/10 - listeners.js loaded");
+console.log("offline 9/10 - listeners.js loaded");

@@ -1,35 +1,70 @@
-﻿
-async function saveOfflineReceiptDraft(file, tripId) {
+﻿// ---------------------------------------------------------------------------
+// PREPARE DRAFT
+// ---------------------------------------------------------------------------
 
-    const draft = createReceiptExpenseDraft(file, tripId);
+// BULID AND VALIDATE
+async function prepareExpenseDraft(button, form) {
+    const draft = buildExpenseDraftFromForm(form, button);
+    const errors = validateExpenseDraft(draft);
 
-    /*const draft = createOfflineExpenseDraft({
-        tripId: getCurrentTripId(),
-        source: "receipt",
-        fields: {},
-        receipt: {
-            blob: file,
-            name: file.name,
-            type: file.type,
-        },
-        formHtml: null,
-        syncState: "pendingReceiptParse"
-    })*/
+    if (errors.length > 0) {
+        Toast.show(errors.join("\n"), "error");
+        return null;
+    }
 
-    return await addToStore(EXPENSES_STORE, draft);
+    return draft;
 }
 
-async function getAllOfflineReceipts() {
+// VALIDATE
+function validateExpenseDraft(draft) {
+    const errors = [];
+    const values = getExpenseValuesFromFields(draft.fields);
 
-    return await getAllFromStore(RECEIPTS_STORE);
+    if (!values.name?.trim()) errors.push("Expense name is required.");
+    if (!values.category) errors.push("Category is required.");
+    if (!values.currency) errors.push("Currency is required.");
+    if (values.amount <= 0) errors.push("At least one paid amount is required.");
+
+    return errors;
 }
 
+// BUILD
+function buildExpenseDraftFromForm(form, button) {
 
+    // Mark as offline expense so openExpenseDraftForEdit distinguish it.
+    form.dataset.offlineExpense = "true";
+    // wrapper arounf the form, cause it contains space for recipt photo.
+    const wrapper = form.closest("[data-expense-form-wrapper='true']");
+
+    const draft = createManualExpenseDraft({ wrapper, form, button });
+
+    const existingDraftId = form.dataset.offlineDraftId;
+
+    if (existingDraftId) {
+        draft.localId = Number(existingDraftId);
+        draft.syncState = "pendingCreate";
+    }
+
+    return draft;
+}
+
+// CREATE BASE FOR MANUAL AND RECEIPT
+function createExpenseDraftBase({ tripId, source, fields = {}, receipt = {}, syncState }) {
+    return {
+        tripId,
+        source,
+        fields,
+        receipt,
+        syncState,
+        createdAt: new Date().toISOString()
+    };
+}
+// CREATE MANUAL DRAFT
 function createManualExpenseDraft({ wrapper, form, button }) {
     const formData = new FormData(form);
     const fields = Array.from(formData.entries());
     return {
-        ...createDraftBase({
+        ...createExpenseDraftBase({
             tripId: Number(form.dataset.tripId),
             source: "manual",
             fields,
@@ -41,10 +76,10 @@ function createManualExpenseDraft({ wrapper, form, button }) {
         display: createDisplayFromFields(fields, form)
     };
 }
-
+// CREATE RECEIPT DRAFT
 function createReceiptExpenseDraft(file, tripId) {
     return {
-        ...createDraftBase({
+        ...createExpenseDraftBase({
             tripId: tripId,
             source: "receipt",
             fields: [],
@@ -65,17 +100,8 @@ function createReceiptExpenseDraft(file, tripId) {
         }
     };
 }
-function createDraftBase({ tripId, source, fields = {}, receipt = {}, syncState }) {
-    return {
-        tripId,
-        source,
-        fields,
-        receipt,
-        syncState,
-        createdAt: new Date().toISOString()
-    };
-}
 
+// HELPERS
 function createDisplayFromFields(fields, form) {
     const values = getExpenseValuesFromFields(fields);
     const categorySelect = form?.querySelector("[name='Category']");
@@ -112,5 +138,4 @@ function getCurrentTripIdForReceipt() {
     return Number(expenseList?.dataset.tripId);
 }
 
-
-console.log("offline 3/10 - storage-receipts.js loaded");
+console.log("offline 3/10 - draft-builder.js loaded");
