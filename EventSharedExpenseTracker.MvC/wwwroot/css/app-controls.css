@@ -108,6 +108,12 @@
     overflow-y: auto;
 }
 
+#appOffcanvasBody {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
 @media (max-width: 767.98px) {
     .form-action-btn-group .btn {
         min-height: 44px;
@@ -192,5 +198,29 @@
 
 .fab-dial.open > button:last-child {
     transform: rotate(45deg);
+}
+
+.expense-form-layout {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(90vh - 4rem);
+    min-height: 0;
+}
+
+.receipt-preview {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    margin-bottom: 0.75rem;
+    text-align: center;
+}
+
+    .receipt-preview img {
+        max-width: 100%;
+        height: auto;
+    }
+
+.expense-form-content {
+    flex: 0 0 auto;
 }
 

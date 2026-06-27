@@ -6,64 +6,78 @@
     Layout = null;
 }
 
-<div class="col">
-    <form asp-action="@Model.Mode.ToString()" enctype="multipart/form-data"
-        data-trip-id ="@Model.TripId">
+<div class="expense-form-layout"
+    data-expense-form-wrapper="true">
 
-        <input type="hidden" asp-for="CanUserEdit" /> @*Needed so that form retains this if modelstate get back invalid, with errors.*@
-        <input type="hidden" asp-for="FormId" /> @* Needed for SuggestCategory knows which form to target*@
-        @*<input type="hidden" name="tripId" value="@Model.TripId" />*@
-        <div class="form-group mb-1">
-            <input asp-for="Name" class="form-control" placeholder="Expense Name"
-                id = "expenseName-@Model.FormId"
-                hx-post="/Expenses/SuggestCategory"
-                hx-vals='{"formId": "@Model.FormId"}'
-                hx-trigger="keyup changed delay:800ms"
-                hx-target="#category-select-@Model.FormId"
-                hx-swap="outerHTML"
-                />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
-        <div class="row">
-            <div class="col">
-                <input asp-for="Date" class="form-control" />
-                <span asp-validation-for="Date" class="text-danger"></span>
-            </div>
-            <div class="col">
-                <select class="form-select" id="category-select-@Model.FormId"
-                        asp-for="Category"
-                   asp-items="Html.GetEnumSelectList<ExpenseCategory>()">
-                   <option value="">Select Category</option>
-                </select>
-                <span asp-validation-for="Category" class="text-danger"></span>
-            </div>
-            <div class="col">
-                <select class="form-select" asp-for="CurrencyCode"
-                        asp-items="Model.CurrencyOptions">
-                    <option value="">Select Currency</option>
-                </select>
-                <span asp-validation-for="CurrencyCode" class="text-danger"></span>
-            </div>
-        </div>
+    <div id="receipt-preview-container" class="receipt-preview mb-3 d-none">
+        <img id="receipt-preview-image"
+             alt="Receipt preview"
+             class="img-fluid rounded shadow-sm" />
+    </div>
 
 
-        @*PARTIAL PARTICIPANTS ROWS*@
-        <div class="my-3">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <partial name="_ExpenseForm_ParticipantRows" for="Participants" /> @*for="Participants" is important to keep bindings of payments in partial view*@
-        </div>
+    <div class="col">
+        <form asp-action="@Model.Mode.ToString()" enctype="multipart/form-data"
+            data-trip-id ="@Model.TripId">
 
-        @if (!Model.CanUserEdit)
-        {
-            <div>
-                <span class="text-info">You cant edit or delete expense as you didnt create it</span>
+            <input type="hidden" asp-for="CanUserEdit" /> @*Needed so that form retains this if modelstate get back invalid, with errors.*@
+            <input type="hidden" asp-for="FormId" /> @* Needed for SuggestCategory knows which form to target*@
+            @*<input type="hidden" name="tripId" value="@Model.TripId" />*@
+            <div class="form-group mb-1">
+                <input asp-for="Name" class="form-control" placeholder="Expense Name"
+                    data-requires-server="true"
+                    data-offline-silent="true"
+                    id = "expenseName-@Model.FormId"
+                    hx-post="/Expenses/SuggestCategory"
+                    hx-vals='{"formId": "@Model.FormId"}'
+                    hx-trigger="keyup changed delay:800ms"
+                    hx-target="#category-select-@Model.FormId"
+                    hx-include="closest form"
+                    hx-swap="outerHTML"
+                    />
+                <span asp-validation-for="Name" class="text-danger"></span>
             </div>
-        }
+            <div class="row">
+                <div class="col">
+                    <input asp-for="Date" class="form-control" />
+                    <span asp-validation-for="Date" class="text-danger"></span>
+                </div>
+                <div class="col">
+                    <select class="form-select" id="category-select-@Model.FormId"
+                            asp-for="Category"
+                       asp-items="Html.GetEnumSelectList<ExpenseCategory>()">
+                       <option value="">Select Category</option>
+                    </select>
+                    <span asp-validation-for="Category" class="text-danger"></span>
+                </div>
+                <div class="col">
+                    <select class="form-select" asp-for="CurrencyCode"
+                            asp-items="Model.CurrencyOptions">
+                        <option value="">Select Currency</option>
+                    </select>
+                    <span asp-validation-for="CurrencyCode" class="text-danger"></span>
+                </div>
+            </div>
+
+
+            @*PARTIAL PARTICIPANTS ROWS*@
+            <div class="my-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <partial name="_ExpenseForm_ParticipantRows" for="Participants" /> @*for="Participants" is important to keep bindings of payments in partial view*@
+            </div>
+
+            @if (!Model.CanUserEdit)
+            {
+                <div>
+                    <span class="text-info">You cant edit or delete expense as you didnt create it</span>
+                </div>
+            }
          
 
-        <partial name="_ExpenseForm_Controls" model="Model" />
+            <partial name="_ExpenseForm_Controls" model="Model" />
         
-    </form>
+        </form>
+    </div>
 </div>
 
 

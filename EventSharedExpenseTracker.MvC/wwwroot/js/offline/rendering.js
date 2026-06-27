@@ -14,13 +14,7 @@ async function renderPendingExpensesForCurrentTrip() {
     const tripId = Number(expenseList.dataset.tripId);
     console.log("tripId", tripId);
 
-    const drafts = await getAllOfflineExpenses();
-    console.log("all drafts", drafts);
-
-    const tripDrafts = drafts.filter(d =>
-        Number(d.tripId) === tripId &&
-        (d.syncState === "pendingCreate" || d.syncState === "failedValidation")
-    );
+    const tripDrafts = await getOfflineExpensesForTrip(tripId);
 
     console.log("tripDrafts", tripDrafts);
 
@@ -87,10 +81,10 @@ function addPendingExpenseCard(draft) {
     console.log("date", date);
     console.log("amount", amount);
 
-    if (name) { name.textContent = draft.name || "Unnamed expense"; }
-    if (category) { category.textContent = draft.category || "Pending"; }
-    if (date) { date.textContent = draft.formattedDate || "Pending"; }
-    if (amount) { amount.textContent = draft.formattedAmount || "Pending"; }
+    if (name) { name.textContent = draft.display.name || "Unnamed expense"; }
+    if (category) { category.textContent = draft.display.category || "Pending"; }
+    if (date) { date.textContent = draft.display.formattedDate || "Pending"; }
+    if (amount) { amount.textContent = draft.display.formattedAmount || "Pending"; }
 
     const owedCount = pendingCard.querySelector("[data-expense-owed-count]");
 
@@ -149,12 +143,14 @@ async function updatePendingSyncUi() {
     const drafts = await getAllOfflineExpenses();
 
     const pendingCount = drafts.filter(d =>
-        d.syncState === "pendingCreate"
+        d.syncState === "pendingCreate" || d.syncState === "pendingReceiptParse"
     ).length;
 
     const failedCount = drafts.filter(d =>
         d.syncState === "failedValidation"
     ).length;
+
+    const receipts = await getAllOfflineReceipts();
 
     const pendingBadge = document.getElementById("pendingSyncBadge");
     const failedBadge = document.getElementById("failedValidationBadge");
@@ -200,4 +196,4 @@ function removeOfflineDraftDom() {
         .querySelectorAll("[data-pending-expense-card='true'], [data-offline-draft-id]")
         .forEach(element => element.remove());
 }
-console.log("offline 2/5 - rendering.js loaded");
+console.log("offline 4/10 - rendering.js loaded");

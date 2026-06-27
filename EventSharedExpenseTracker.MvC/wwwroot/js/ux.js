@@ -115,4 +115,61 @@ document.body.addEventListener("htmx:afterSwap", function (e) {
         .show();
 });
 
+function showAppOffcanvas() {
+    bootstrap.Offcanvas
+        .getOrCreateInstance(document.getElementById("appOffcanvas"))
+        .show();
+}
+
+function hideAppOffcanvas() {
+    bootstrap.Offcanvas
+        .getInstance(document.getElementById("appOffcanvas"))
+        ?.hide();
+}
+
+
+// UPDATES SITE HEADER HEIGHT FOR CSS CONTROLS
+updateHeaderHeight(); // call once to get base
+window.addEventListener('resize', updateHeaderHeight);
+function updateHeaderHeight() {
+    const header = document.getElementById('site-header');
+
+    document.documentElement.style.setProperty(
+        '--mobile-header-height',
+        `${header.offsetHeight}px`
+    );
+}
+
+function scrollToPendingExpenses() {
+    document
+        .getElementById("createExpense")
+        ?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+}
+
+//floating controls with mobile keyboard shit.
+function updateFloatingControlsForKeyboard() {
+    if (!window.visualViewport) return;
+
+    const keyboardOffset =
+        window.innerHeight
+        - window.visualViewport.height
+        - window.visualViewport.offsetTop;
+
+    document.documentElement.style.setProperty(
+        "--keyboard-offset",
+        `${Math.max(0, keyboardOffset)}px`
+    );
+}
+
+if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", updateFloatingControlsForKeyboard);
+    window.visualViewport.addEventListener("scroll", updateFloatingControlsForKeyboard);
+}
+
+window.addEventListener("resize", updateFloatingControlsForKeyboard);
+
+
 console.log("ux.js loaded");

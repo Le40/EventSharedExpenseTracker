@@ -52,7 +52,7 @@ function setServerAvailable(value) {
     if (value) {
         notifyServiceWorkerServerAvailable();
         stopServerHealthPolling();
-        syncPendingDraftsIfOnline();
+        syncDrafts();
     } else {
         startServerHealthPolling();
     }
@@ -77,7 +77,8 @@ async function checkServerHealth(timeoutMs = serverHealthTimeoutMs) {
 
         setServerAvailable(response.ok);
         return response.ok;
-    } catch {
+    } catch (error) {
+        console.error("Health check failed:", error.name, error.message);
         setServerAvailable(false);
         return false;
     } finally {
@@ -113,26 +114,30 @@ function stopServerHealthPolling() {
 document.addEventListener("DOMContentLoaded", async () => {
 
     await updatePendingSyncUi();
+    await renderPendingExpensesForCurrentTrip();
 
     const storedServerStatus = localStorage.getItem("server-is-available");
     // if stored value is that server is unavailable, set the on startup true for serverStatus.isAvailable to false.
     // so page has current state of server.
     if (storedServerStatus === "false") {
         setServerAvailable(false);
+        checkServerHealth(); // for safety
         return;
     }
 
-    await syncPendingExpenseDrafts();
+    await syncDrafts();
+    updateConnectionStatus();
 });
 
-// OFFLINE GLOBAL ONLINE LISTENER
+// ONLINE GLOBAL ONLINE LISTENER
 window.addEventListener("online", async () => {
     console.log("Browser online");
 
     const serverAvailable = await checkServerHealth();
+    updateConnectionStatus();
 
     if (serverAvailable) {
-        await syncPendingExpenseDrafts();
+        await syncDrafts();
     }
 });
 
@@ -140,6 +145,7 @@ window.addEventListener("online", async () => {
 window.addEventListener("offline", () => {
     console.log("Browser offline");
     setServerAvailable(false);
+    updateConnectionStatus();
 });
 
-console.log("offline 6/6 - status.js loaded");
+console.log("offline 7/10 - status.js loaded");

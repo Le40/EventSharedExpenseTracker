@@ -1,75 +1,91 @@
-﻿
-async function handleOfflineDraftEdit(button, form) {
-    const draft = await saveOfflineDraft(button, form);
+﻿// ---------------------------------------------------------------------------
+// HANDLERS
+// ---------------------------------------------------------------------------
+
+// CREATE
+async function handleExpenseDraftCreate(button) {
+    const form = button.closest("form");
+
+    const draft = await prepareExpenseDraft(button, form);
     if (!draft) return;
 
-    //alert("Offline draft updated.");
+    draft.localId = await createOfflineExpense(draft);
+    notifyOfflineExpensesChanged();
+    hideAppOffcanvas();
+
+    //form.remove();
+    Toast.show("Expense saved offline. It will sync when you are online.", "success");
+}
+
+// EDIT
+async function handleExpenseDraftEdit(button, form) {
+    const draft = await prepareExpenseDraft(button, form);
+    if (!draft) return;
+
+    await updateOfflineExpense(draft);
+    notifyOfflineExpensesChanged();
+    hideAppOffcanvas();
+
     Toast.show("Offline draft updated.", "success");
 
     await syncPendingDraftsIfOnline();
 }
 
-async function handleOfflineDraftSave(button) {
+// DELETE
+async function handleExpenseDraftDelete(button) {
     const form = button.closest("form");
+    const draftId = Number(form?.dataset.offlineDraftId);
 
-    const draft = await saveOfflineDraft(button, form);
-    if (!draft) return;
+    if (!draftId) return;
 
-    form.remove();
-    //alert("Expense saved offline. It will sync when you are online.");
-    Toast.show("Expense saved offline. It will sync when you are online.", "success");
-    await updatePendingSyncUi();
+    showConfirmModal(
+        "Delete this pending expense?",
+        async () => {
+            await deleteOfflineExpense(draftId);
+            notifyOfflineExpensesChanged();
+            hideAppOffcanvas();
+        });
 }
 
-async function saveOfflineDraft(button, form) {
+// ---------------------------------------------------------------------------
+// PREPARE DRAFT
+// ---------------------------------------------------------------------------
+
+// BULID AND VALIDATE
+async function prepareExpenseDraft(button, form) {
     const draft = buildExpenseDraftFromForm(form, button);
-    const errors = validateOfflineExpenseDraft(draft);
+    const errors = validateExpenseDraft(draft);
 
     if (errors.length > 0) {
-        //alert(errors.join("\n"));
         Toast.show(errors.join("\n"), "error");
         return null;
     }
 
-    draft.localId = await saveOfflineExpense(draft);
-    notifyOfflineExpensesChanged();
-
-    await renderPendingExpensesForCurrentTrip();
-    hideAppOffcanvas();
-
     return draft;
 }
 
+// VALIDATE
+function validateExpenseDraft(draft) {
+    const errors = [];
+    const values = getExpenseValuesFromFields(draft.fields);
+
+    if (!values.name?.trim()) errors.push("Expense name is required.");
+    if (!values.category) errors.push("Category is required.");
+    if (!values.currency) errors.push("Currency is required.");
+    if (values.amount <= 0) errors.push("At least one paid amount is required.");
+
+    return errors;
+}
+
+// BUILD
 function buildExpenseDraftFromForm(form, button) {
-    const formData = new FormData(form);
-    const fields = Array.from(formData.entries());
 
-    const amount = fields
-        .filter(([key]) => key.endsWith(".PaidAmount"))
-        .map(([, value]) => Number(value || 0))
-        .reduce((sum, value) => sum + value, 0);
-
-    const categorySelect = form.querySelector("[name='Category']");
-    const rawDate = formData.get("Date");
-    const currency = formData.get("CurrencyCode");
-
-    // Mark stored form as offline draft so openOfflineDraftForEdit can find it.
+    // Mark as offline expense so openOfflineDraftForEdit distinguish it.
     form.dataset.offlineExpense = "true";
+    // wrapper arounf the form, cause it contains space for recipt photo.
+    const wrapper = form.closest("[data-expense-form-wrapper='true']");
 
-    const draft = {
-        tripId: Number(form.dataset.tripId),
-        name: formData.get("Name"),
-        amount,
-        formattedAmount: `${amount.toFixed(2)} ${currency}`,
-        currency: formData.get("CurrencyCode"),
-        category: categorySelect?.selectedOptions?.[0]?.textContent?.trim() ?? "Pending",
-        formattedDate: rawDate ? new Date(rawDate).toLocaleDateString() : "Pending",
-        url: button.getAttribute("hx-post"),
-        fields,
-        syncState: "pendingCreate",
-        createdAt: new Date().toISOString(),
-        formHtml: form.outerHTML
-    };
+    const draft = createManualExpenseDraft({ wrapper, form, button});
 
     const existingDraftId = form.dataset.offlineDraftId;
 
@@ -81,36 +97,17 @@ function buildExpenseDraftFromForm(form, button) {
     return draft;
 }
 
-function validateOfflineExpenseDraft(draft) {
-    const errors = [];
 
-    if (!draft.name?.trim()) {
-        errors.push("Expense name is required.");
-    }
-
-    if (!draft.category || draft.category === "Select Category") {
-        errors.push("Category is required.");
-    }
-
-    if (!draft.currency) {
-        errors.push("Currency is required.");
-    }
-
-    if (draft.amount <= 0) {
-        errors.push("At least one paid amount is required.");
-    }
-
-    return errors;
-}
 
 // EDIT FORM
 // trigger dbl click from card creation
 async function openOfflineDraftForEdit(localId, pendingCard) {
-    const drafts = await getAllOfflineExpenses();
-    const draft = drafts.find(d => d.localId === localId);
+    /*const drafts = await getAllOfflineExpenses();
+    const draft = drafts.find(d => d.localId === localId);*/
+
+    const draft = await getOfflineExpense(localId);
 
     if (!draft || !draft.formHtml) {
-        //alert("Offline draft form was not found.");
         Toast.show("Offline draft form was not found.", "error");
         return;
     }
@@ -121,24 +118,15 @@ async function openOfflineDraftForEdit(localId, pendingCard) {
         return;
     }
 
-    //const pendingCard = document.querySelector(`[data-offline-draft-id='${localId}']`);
-
-    //if (!pendingCard) {
-    //    return;
-    //}
-
-    /*// storing the pending card html before swaping it for expenseForm - so cancel works
-    pendingCard.dataset.originalHtml = pendingCard.innerHTML;
-    pendingCard.dataset.restorable = "true";
-
-    pendingCard.innerHTML = draft.formHtml;*/
-
     target.innerHTML = draft.formHtml;
+
+    ////////// atach image ///////////////////////////
+    attachReceiptPreviewToDraftForm(draft);
+
 
     const form = target.querySelector("[data-offline-expense='true']");
 
     if (!form) {
-        //alert("Stored form is missing offline marker.");
         Toast.show("Stored form is missing offline marker.", "error");
         return;
     }
@@ -150,13 +138,26 @@ async function openOfflineDraftForEdit(localId, pendingCard) {
         deleteButton.classList.remove("d-none");
     }
 
-
-
     fillFormFromDraft(form, draft);
     renderOfflineValidationErrors(form, draft.validationErrors);
     showAppOffcanvas();
 }
 
+function attachReceiptPreviewToDraftForm(draft) {
+    if (!draft.receipt?.blob) return;
+
+    const container = document.getElementById("receipt-preview-container");
+    const image = document.getElementById("receipt-preview-image");
+
+    if (!container || !image) return;
+
+    const url = URL.createObjectURL(draft.receipt.blob);
+
+    image.src = url;
+    container.classList.remove("d-none");
+}
+
+/* // mOVED TO UX.JS
 function showAppOffcanvas() {
     bootstrap.Offcanvas
         .getOrCreateInstance(document.getElementById("appOffcanvas"))
@@ -167,7 +168,7 @@ function hideAppOffcanvas() {
     bootstrap.Offcanvas
         .getInstance(document.getElementById("appOffcanvas"))
         ?.hide();
-}
+}*/
 
 function fillFormFromDraft(form, draft) {
     const formData = new FormData();
@@ -197,55 +198,6 @@ function fillFormFromDraft(form, draft) {
     });
 }
 
-async function handleOfflineDraftDelete(button) {
-    const form = button.closest("form");
-    const draftId = Number(form?.dataset.offlineDraftId);
-
-    if (!draftId) {
-        return;
-    }
-
-    //if (!confirm("Delete this pending expense?")) {
-    //    return;
-    //}
-
-    showConfirmModal(
-        "Delete this pending expense?",
-        async () => {
-            await deleteOfflineExpense(draftId);
-            notifyOfflineExpensesChanged();
-            hideAppOffcanvas();
-            await renderPendingExpensesForCurrentTrip();
-            await updatePendingSyncUi();
-    });
-}
 
 
-/*// FORBIDDING OPENING EDIT FORM OFFLINE FOR NORMAL SYNCED EXPENSES.
-document.body.addEventListener("htmx:beforeRequest", event => {
-    const trigger = event.detail.elt;
-
-    const isPendingDraft = trigger.closest("[data-pending-expense-card='true']");
-    if (isPendingDraft) {
-        return;
-    }
-
-    const isExpenseEdit =
-        trigger.closest("[data-expense-card='true']") ||
-        trigger.matches("[data-expense-card='true']");
-
-    if (!isExpenseEdit) {
-        return;
-    }
-
-    if (ServerStatus.isAvailable) {
-        return;
-    }
-
-    event.preventDefault();
-    Toast.show("Existing expenses can be edited when the server is available.", "info");
-});*/
-
-
-
-console.log("offline 1/5 - editing.js loaded");
+console.log("offline 5/10 - editing.js loaded");

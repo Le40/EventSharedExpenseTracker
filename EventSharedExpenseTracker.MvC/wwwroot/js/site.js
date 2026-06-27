@@ -1,9 +1,14 @@
-﻿
+﻿// ---------------------------------------------------------------------------
+// CANCEL BUTTON NOT MAKING CALLS TO SERVER
+// ---------------------------------------------------------------------------
+
 // UI/UX
 const restoreCache = new Map();
 
-
-// store html with data-restorable
+// STORE HTML IN CACHE if data-restorable=true
+// mainly for CANCEL, so one can cancel without call to server
+// primarily used for expense cards, trip edits and so on.
+///// WHEN ALL IN OFFCANVAS = NOT NEEDED
 document.body.addEventListener("htmx:beforeRequest", event => {
     const target = event.detail.target;
 
@@ -21,7 +26,18 @@ document.body.addEventListener("htmx:beforeRequest", event => {
         );
     }
 });
-// reload html with data-restorable
+// Handles weather CANCEL button should close offcanvas or restore original.
+function handleCancel(button) {
+    const offcanvasEl = button.closest(".offcanvas");
+
+    // replaces code on cancel button, only while old style cancel is still used.
+    if (offcanvasEl) {
+        hideAppOffcanvas();
+        return;
+    }
+    restoreOriginal(button);
+}
+// Restore original/beforeswap content on CANCEL button.
 function restoreOriginal(button) {
     const target = button.closest("[data-restorable='true']");
 
@@ -35,29 +51,9 @@ function restoreOriginal(button) {
     restoreCache.delete(target.id);
 }
 
-
-document.body.addEventListener("htmx:beforeRequest", event => {
-    const button = event.target.closest("[data-requires-server='true']");
-
-    if (!button) {
-        return;
-    }
-
-    if (ServerStatus.isAvailable) {
-        return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    //alert("This action needs an internet connection.");
-    Toast.show("This action requires an internet connection.", "info");
-}, true);
-
-
-
-
-// TRIP FORM so date to is set to the same as datefrom as default choice.
+// ---------------------------------------------------------------------------
+// TRIP FORM - dateFrom and dateTo not too far from each other
+// ---------------------------------------------------------------------------
 document.body.addEventListener("change", event => {
     const dateFrom = event.target.closest("[data-trip-date-from='true']");
 
@@ -88,20 +84,9 @@ document.body.addEventListener("change", event => {
 });
 
 
-// UPDATES SITE HEADER HEIGHT FOR CSS CONTROLS
-updateHeaderHeight(); // call once to get base
-window.addEventListener('resize', updateHeaderHeight);
-function updateHeaderHeight() {
-    const header = document.getElementById('site-header');
-
-    document.documentElement.style.setProperty(
-        '--mobile-header-height',
-        `${header.offsetHeight}px`
-    );
-}
-
-
+// ---------------------------------------------------------------------------
 // PENDING BADGE CLICK REDIRECTS TO TRIP WITH MOST PENDING EXPENSES.
+// ---------------------------------------------------------------------------
 document
     .getElementById("failedValidationBadge")
     ?.addEventListener("click", handlePendingExpensesClick);
@@ -151,7 +136,10 @@ function getCurrentTripId() {
 
     return Number(page.dataset.tripId);
 }
+
+// ---------------------------------------------------------------------------
 // EXPENSE FORM - check if user selected category while ai was guessing it
+// ---------------------------------------------------------------------------
 document.body.addEventListener("htmx:beforeSwap", function (e) {
     const target = e.target;
 
@@ -163,38 +151,6 @@ document.body.addEventListener("htmx:beforeSwap", function (e) {
         e.detail.shouldSwap = false;
     }
 });
-
-function scrollToPendingExpenses() {
-    document
-        .getElementById("createExpense")
-        ?.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-}
-
-//floating controls with mobile keyboard shit.
-function updateFloatingControlsForKeyboard() {
-    if (!window.visualViewport) return;
-
-    const keyboardOffset =
-        window.innerHeight
-        - window.visualViewport.height
-        - window.visualViewport.offsetTop;
-
-    document.documentElement.style.setProperty(
-        "--keyboard-offset",
-        `${Math.max(0, keyboardOffset)}px`
-    );
-}
-
-if (window.visualViewport) {
-    window.visualViewport.addEventListener("resize", updateFloatingControlsForKeyboard);
-    window.visualViewport.addEventListener("scroll", updateFloatingControlsForKeyboard);
-}
-
-window.addEventListener("resize", updateFloatingControlsForKeyboard);
-
 
 console.log("site.js loaded");
 

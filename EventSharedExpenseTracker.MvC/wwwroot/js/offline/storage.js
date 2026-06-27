@@ -1,5 +1,9 @@
 ﻿const DB_NAME = "ExpenseTrackerOfflineDb";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
+
+const EXPENSES_STORE = "expenses";
+const RECEIPTS_STORE = "receiptDrafts";
+const TRIPS_STORE = "trips";
 
 function openOfflineDb() {
     return new Promise((resolve, reject) => {
@@ -8,25 +12,25 @@ function openOfflineDb() {
         request.onupgradeneeded = event => {
             const db = event.target.result;
 
-            if (!db.objectStoreNames.contains("expenses")) {
-                db.createObjectStore("expenses", {
+            if (!db.objectStoreNames.contains(EXPENSES_STORE)) {
+                db.createObjectStore(EXPENSES_STORE, {
                     keyPath: "localId",
                     autoIncrement: true
                 });
             }
 
-            if (!db.objectStoreNames.contains("trips")) {
-                db.createObjectStore("trips", {
+            /*if (!db.objectStoreNames.contains(TRIPS_STORE)) {
+                db.createObjectStore(TRIPS_STORE, {
                     keyPath: "id"
                 });
             }
 
-            if (!db.objectStoreNames.contains("receiptDrafts")) {
-                db.createObjectStore("receiptDrafts", {
+            if (!db.objectStoreNames.contains(RECEIPTS_STORE)) {
+                db.createObjectStore(RECEIPTS_STORE, {
                     keyPath: "localId",
                     autoIncrement: true
                 });
-            }
+            }*/
         };
 
         request.onsuccess = event => {
@@ -39,93 +43,73 @@ function openOfflineDb() {
     });
 }
 
-async function saveOfflineExpense(expense) {
+async function addToStore(storeName, item) {
     const db = await openOfflineDb();
-
     return new Promise((resolve, reject) => {
-        const transaction = db.transaction("expenses", "readwrite");
-        const store = transaction.objectStore("expenses");
 
-        const request = store.put(expense);
+        const transaction = db.transaction(storeName, "readwrite");
+        const store = transaction.objectStore(storeName);
+
+        const request = store.add(item);
 
         request.onsuccess = () => resolve(request.result);
-        request.onerror = event => reject(event.target.error);
+        request.onerror = () => reject(request.error);
     });
 }
 
-async function getAllOfflineExpenses() {
+async function getAllFromStore(storeName) {
     const db = await openOfflineDb();
-
     return new Promise((resolve, reject) => {
-        const transaction = db.transaction("expenses", "readonly");
-        const store = transaction.objectStore("expenses");
+
+        const transaction = db.transaction(storeName, "readonly");
+        const store = transaction.objectStore(storeName);
 
         const request = store.getAll();
 
         request.onsuccess = () => resolve(request.result);
-        request.onerror = event => reject(event.target.error);
+        request.onerror = () => reject(request.error);
     });
 }
 
-async function getTripWithMostOfflineExpenses() {
-
+async function getFromStore(storeName, key) {
     const db = await openOfflineDb();
-
-    const tx = db.transaction("expenses", "readonly");
-    const store = tx.objectStore("expenses");
-
-    const expenses = await getAllOfflineExpenses();
-
-    const tripCounts = {};
-
-    for (const expense of expenses) {
-
-        if (!["pendingCreate", "failedValidation"].includes(expense.syncState))
-            continue;
-
-        tripCounts[expense.tripId] ??= {
-            tripId: expense.tripId,
-            tripName: expense.tripName,
-            count: 0
-        };
-
-        tripCounts[expense.tripId].count++;
-    }
-
-    return Object.values(tripCounts)
-        .sort((a, b) => b.count - a.count)[0];
-}
-
-async function getOfflineExpenses(tripId) {
-    const db = await openOfflineDb();
-
     return new Promise((resolve, reject) => {
-        const transaction = db.transaction("expenses", "readonly");
-        const store = transaction.objectStore("expenses");
 
-        const request = store.getAll();
+        const transaction = db.transaction(storeName, "readonly");
+        const store = transaction.objectStore(storeName);
 
-        request.onsuccess = () => {
-            const expenses = request.result
-                .filter(x => x.tripId = tripId);
-            resolve(request.expenses);
-        };
-        request.onerror = event => reject(event.target.error);
-    });
-}
-
-async function deleteOfflineExpense(id) {
-    const db = await openOfflineDb();
-
-    return new Promise((resolve, reject) => {
-        const transaction = db.transaction("expenses", "readwrite");
-        const store = transaction.objectStore("expenses");
-
-        const request = store.delete(id);
+        const request = store.get(key);
 
         request.onsuccess = () => resolve(request.result);
-        request.onerror = event => reject(event.target.error);
+        request.onerror = () => reject(request.error);
     });
 }
 
-console.log("offline 3/5 - storage.js loaded");
+async function deleteFromStore(storeName, key) {
+    const db = await openOfflineDb();
+    return new Promise((resolve, reject) => {
+
+        const transaction = db.transaction(storeName, "readwrite");
+        const store = transaction.objectStore(storeName);
+
+        const request = store.delete(key);
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+
+async function putInStore(storeName, item) {
+    const db = await openOfflineDb();
+
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(storeName, "readwrite");
+        const store = transaction.objectStore(storeName);
+
+        const request = store.put(item);
+
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+    });
+}
+console.log("offline 1/10 - storage.js loaded");

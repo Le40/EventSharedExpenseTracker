@@ -25,7 +25,7 @@ public class ExpensesController : BaseController
     [HttpPost]
     public async Task<IActionResult> SuggestCategory(string name, string formId, ExpenseCategory? category)
     {
-        if (string.IsNullOrWhiteSpace(name) || name.Length < 4)
+        if (string.IsNullOrWhiteSpace(name) || name.Length <=3)
             return NoContent();
 
         // User already chose a category
@@ -67,6 +67,25 @@ public class ExpensesController : BaseController
         var vm = result.Value!;
 
         return PartialView("_ExpenseForm", vm);
+    }
+
+
+    // for offline parsing, that needs json to map to offline draft
+    // reason is, offline save receipts can be parsed without user intervention in the background without saving them as expenses.
+    [HttpPost]
+    public async Task<IActionResult> ParseReceiptJson(int tripId, IFormFile receiptImage)
+    {
+        if (receiptImage is null || receiptImage.Length == 0)
+            return BadRequest("Receipt image is required.");
+
+        var result = await _expenseService.ExtractReceiptDataAsync(receiptImage.OpenReadStream());
+
+        if (!result.IsSuccess)
+            return BadRequest(new { errors = result.Errors.Select(e => e.Message) });
+
+        var parsed = result.Value;
+
+        return Ok(result.Value);
     }
 
     // EXPENSES : INDEX

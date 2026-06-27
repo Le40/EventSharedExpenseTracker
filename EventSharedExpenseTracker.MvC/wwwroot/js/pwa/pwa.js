@@ -38,14 +38,7 @@ document.addEventListener("click", async event => {
         return;
     }
 
-    await syncPendingExpenseDrafts()
+    await syncDrafts()
 });
-
-// offline/online
-document.addEventListener("DOMContentLoaded", updateConnectionStatus);
-
-// detect online / offline
-window.addEventListener("online", updateConnectionStatus);
-window.addEventListener("offline", updateConnectionStatus);
 
 console.log("pwa 1/2 - pwa.js loaded");
