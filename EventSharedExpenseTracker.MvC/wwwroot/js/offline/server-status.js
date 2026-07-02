@@ -109,7 +109,6 @@ function stopServerHealthPolling() {
     serverHealthIntervalId = null;
 }
 
-
 // OFFLINE GLOBAL PAGE LOAD LISTENER
 document.addEventListener("DOMContentLoaded", async () => {
 
@@ -128,23 +127,57 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateConnectionStatus();
 });
 
-// ONLINE GLOBAL ONLINE LISTENER
-window.addEventListener("online", async () => {
-    console.log("Browser online");
-
-    const serverAvailable = await checkServerHealth();
-    updateConnectionStatus();
-
-    if (serverAvailable) {
-        await syncDrafts();
-    }
-});
-
 // OFFLINE GLOBAL OFFLINE LISTENER
 window.addEventListener("offline", () => {
     console.log("Browser offline");
     setServerAvailable(false);
     updateConnectionStatus();
+});
+
+// ---------------------------------------------------------------------------
+// WAKE UP SERVICE
+// ---------------------------------------------------------------------------
+let wakeCheckInProgress = false;
+
+async function checkServerWhenAppWakes(reason) {
+    if (wakeCheckInProgress) return;
+
+    wakeCheckInProgress = true;
+    try {
+        console.log("Checking server after:", reason);
+
+        if (!navigator.onLine) {
+            setServerAvailable(false);
+            return;
+        }
+
+        const serverAvailable = await checkServerHealth();
+        updateConnectionStatus();
+
+        if (serverAvailable) {
+            await syncDrafts();
+        }
+    } finally {
+        wakeCheckInProgress = false;
+    }
+}
+// WAKEUP SERVICE LISTENERS
+window.addEventListener("online", () => {
+    checkServerWhenAppWakes("browser-online");
+});
+
+window.addEventListener("focus", () => {
+    checkServerWhenAppWakes("window-focus");
+});
+
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        checkServerWhenAppWakes("page-visible");
+    }
+});
+
+window.addEventListener("pageshow", () => {
+    checkServerWhenAppWakes("page-show");
 });
 
 console.log("offline 8/10 - server-status.js loaded");

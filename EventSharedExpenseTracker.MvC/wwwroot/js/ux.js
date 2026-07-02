@@ -116,15 +116,22 @@ document.body.addEventListener("htmx:afterSwap", function (e) {
 });
 
 function showAppOffcanvas() {
-    bootstrap.Offcanvas
-        .getOrCreateInstance(document.getElementById("appOffcanvas"))
-        .show();
+    getAppOffcanvas().show();
 }
 
 function hideAppOffcanvas() {
-    bootstrap.Offcanvas
-        .getInstance(document.getElementById("appOffcanvas"))
-        ?.hide();
+    getAppOffcanvas().hide();
+}
+
+function getAppOffcanvas() {
+    const isMobile = window.matchMedia("(max-width: 991.98px)").matches;
+
+    return bootstrap.Offcanvas.getOrCreateInstance(
+        document.getElementById("appOffcanvas"),
+        {
+            backdrop: isMobile ? "static" : true,
+            keyboard: !isMobile
+        });
 }
 
 
@@ -170,6 +177,5 @@ if (window.visualViewport) {
 }
 
 window.addEventListener("resize", updateFloatingControlsForKeyboard);
-
 
 console.log("ux.js loaded");

@@ -35,7 +35,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         public DateOnly Date { get; set; }
         public required Money TotalPaidBase { get; set; }
         public required Money TotalPaidOriginal { get; set; }
-        //public string CurrencyCode { get; set; } = "EUR";
+        public string CurrencyCode { get; set; } = "EUR"; // for display for now, to display owed payments with currency
 
         public IEnumerable<PaymentQuery> PaidPayments { get; set; } = [];
         public IEnumerable<PaymentQuery> OwedPayments { get; set; } = [];

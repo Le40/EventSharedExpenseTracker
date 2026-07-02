@@ -1,0 +1,63 @@
+﻿@using EventSharedExpenseTracker.Domain.Enums
+@using EventSharedExpenseTracker.MvC.Common
+@using EventSharedExpenseTracker.MvC.ViewModels.Expenses
+
+@model ExpenseListItemViewModel;
+
+<li class="list-group-item expense-card"
+    data-list-item>
+    <div id="@Model.EIdEditExpense"
+         data-requires-server="true"
+         data-expense-card="true"
+         data-restorable="true"
+         hx-get="@Url.Action("Edit", "Expenses", new { id = Model.Id })"
+         hx-trigger="click[!event.target.closest('form')]"
+         hx-target="#appOffCanvasBody">
+
+        <div class="row">
+            <h5 data-expense-name>@Model.Name</h5>
+        </div>
+
+        <div class="row">
+            <div class="col text-start">
+                <h5>
+                    <small class="text-white-50" data-expense-category>@Model.Category.GetDisplayName()</small>
+                </h5>
+            </div>
+
+            <div class="col text-end">
+                <i class="text-muted" data-expense-date>@Model.Date.ToShortDateString()</i>
+            </div>
+        </div>
+
+        <div class="mb-2">
+            <b data-expense-amount>
+                @if (Model.TotalPaidBase == Model.TotalPaidOriginal)
+                {
+                    @CurrencyFormatter.FormatMoney(Model.TotalPaidBase)
+                }
+                else
+                {
+                    @($"{CurrencyFormatter.FormatMoney(Model.TotalPaidBase)} / {CurrencyFormatter.FormatMoney(Model.TotalPaidOriginal)}")
+                }
+            </b>
+
+            <i class="text-white-50">
+                - Paid By:
+                <span data-expense-paid-by>
+                    @foreach (var payment in Model.PaidPayments)
+                    {
+                        <span class="border border-light-subtle rounded bg-dark text-white-50">
+                            @payment.ParticipantName
+                        </span>
+                    }
+                </span>
+
+                <span data-expense-owed-count>
+                    for @(Model.OwedPayments.Count() == 1 ? "1 person" : $"{Model.OwedPayments.Count()} people")
+                </span>
+            </i>
+            <br>
+        </div>
+    </div>
+</li>

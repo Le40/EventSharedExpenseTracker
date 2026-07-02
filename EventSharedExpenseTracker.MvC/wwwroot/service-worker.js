@@ -3,7 +3,7 @@
 // when such state happens, it stores it locally and messages it to pages
 // it then relies on pages to poll the server, and message back if server is back online.
 
-const CACHE_NAME = "expense-tracker-v1";
+const CACHE_NAME = "expense-tracker-v2";
 const NETWORK_TIMEOUT_MS = 1500;
 const MSG_SERVER_AVAILABLE = "SERVER_AVAILABLE";
 const MSG_SERVER_UNAVAILABLE = "SERVER_UNAVAILABLE";

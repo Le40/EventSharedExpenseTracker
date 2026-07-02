@@ -146,8 +146,14 @@
             </div>
         </div>
         @*OFF CANVAS FOR ADD/EDIT*@
-        <div class="offcanvas offcanvas-bottom text-bg-dark"
+        <!-- OFF CANVAS FOR ADD/EDIT
+            fullscreen on mobile only
+            cannot be clicked away on mobile - handled by JS
+        -->
+        <div class="offcanvas offcanvas-bottom text-bg-dark
+               offcanvas-fullscreen-sm-down"
              tabindex="-1"
+             data-bs-backdrop="static"
              id="appOffcanvas">
 
             <div class="offcanvas-header">

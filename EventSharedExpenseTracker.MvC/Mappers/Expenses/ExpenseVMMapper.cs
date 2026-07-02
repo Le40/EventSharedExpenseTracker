@@ -27,7 +27,8 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 PaidPayments = paidPayments,
                 OwedPayments = owedPayments,
                 TotalPaidBase = new Money(paidPayments.Sum(p => p.AmountBase), tripCurrencyCode),
-                TotalPaidOriginal = new Money(paidPayments.Sum(p => p.AmountOriginal), query.CurrencyCode)
+                TotalPaidOriginal = new Money(paidPayments.Sum(p => p.AmountOriginal), query.CurrencyCode),
+                CurrencyCode = tripCurrencyCode
             };
         }
         public static ExpenseCommand ToCommand(ExpenseFormViewModel model) //, int userId

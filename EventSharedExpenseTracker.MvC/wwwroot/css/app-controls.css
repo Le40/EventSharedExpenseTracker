@@ -121,6 +121,24 @@
         padding: .75rem 1rem;
     }
 }
+/* makes sure offcanvas is fullscreen on mobile.*/
+@media (max-width: 575.98px) {
+    #appOffcanvas.offcanvas-fullscreen-sm-down {
+        height: 100dvh;
+        max-height: 100dvh;
+        border-radius: 0;
+        padding-bottom: 0;
+    }
+
+        #appOffcanvas.offcanvas-fullscreen-sm-down .offcanvas-body {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        #appOffcanvas.offcanvas-fullscreen-sm-down .expense-form-layout {
+            max-height: none;
+        }
+}
 
 
 
