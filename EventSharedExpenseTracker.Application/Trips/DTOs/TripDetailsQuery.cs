@@ -1,5 +1,6 @@
 ﻿using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.ValueObjects;
 
 namespace EventSharedExpenseTracker.Application.Trips.DTOs
 {
@@ -21,8 +22,16 @@ namespace EventSharedExpenseTracker.Application.Trips.DTOs
         public string Country { get; set; } = "";
         public string City { get; set; } = "";
 
+        public TripStatistics Statistics { get; set; } = default!;
+
         public ICollection<TripParticipantDetailsQuery> Participants { get; set; } = [];
 
         public ICollection<ExpenseQuery> Expenses { get; set; } = [];
     }
+
+    public record TripStatistics(
+        Money TotalCost,
+        Money UserCost);
 }
+
+

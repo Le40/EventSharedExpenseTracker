@@ -6,6 +6,7 @@ using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.Settlements;
+using EventSharedExpenseTracker.Domain.ValueObjects;
 using Mapster;
 using Microsoft.Extensions.Logging;
 
@@ -74,6 +75,7 @@ public class TripService : ITripService
 
         // map trip to query/response
         var query = TripMapper.ToDetailsQuery(trip, canUserEdit, expenseQueries);
+        query.Statistics = CalculateStatistics(trip, userId);
 
         return query;
     }
@@ -304,7 +306,7 @@ public class TripService : ITripService
         return trip;
     }
 
-    public async Task<ServiceResult> DeleteParticipant(int id, int participantId)
+    public async Task<(ServiceResult Result, bool RemovedCurrentUser)> DeleteParticipant(int id, int participantId)
     {
         // get and autorise trip
         var userId = _requestContext.UserId;
@@ -315,15 +317,19 @@ public class TripService : ITripService
             _logger.LogWarning(
                 "User {UserId} attempted to delete participant from trip {TripId} without permission.",
                 userId, id);
-            return tripResult;
+            return (tripResult, false);
         }
 
         var trip = tripResult.Value!;
 
+        var removedCurrentUser = trip.Participants.Any(p =>
+            p.Id == participantId &&
+            p.UserId == userId);
+
         // remove participant 
         var participantResult = trip.RemoveParticipant(participantId);
         if (!participantResult.IsSuccess)
-            return DomainErrorMapper.ToAppErrors(participantResult.Errors);
+            return (DomainErrorMapper.ToAppErrors(participantResult.Errors), false);
 
         await _unitOfWork.CompleteAsync();
 
@@ -332,7 +338,7 @@ public class TripService : ITripService
             id,
             userId);
 
-        return ServiceResult.Ok();
+        return (ServiceResult.Ok(), removedCurrentUser);
     }
 
     public async Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId)
@@ -378,6 +384,23 @@ public class TripService : ITripService
         }
 
         return trip;
+    }
+
+    private static TripStatistics CalculateStatistics(Trip trip, int currentUserId)
+    {
+        var owedPayments = trip.Expenses
+            .SelectMany(e => e.Payments)
+            .Where(p => p.IsOwed);
+
+        var totalCost = owedPayments.Sum(p => p.AmountBase) *-1;
+
+        var currentUserCost = owedPayments
+            .Where(p => p.Participant.UserId == currentUserId)
+            .Sum(p => p.AmountBase)*-1;
+
+        return new TripStatistics(
+            new Money(totalCost, trip.BaseCurrencyCode),
+            new Money(currentUserCost, trip.BaseCurrencyCode));
     }
 
 }

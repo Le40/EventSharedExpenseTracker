@@ -2,6 +2,7 @@
 using EventSharedExpenseTracker.MvC.Mappers.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using EventSharedExpenseTracker.MvC.ViewModels.Trips;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace EventSharedExpenseTracker.MvC.Mappers.Trips
 {
@@ -19,6 +20,7 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Trips
                 ImagePath = query.ImagePath,
                 Category = query.Category,
                 //BaseCurrencyCode = query.BaseCurrencyCode,
+                Statistics = query.Statistics,
 
                 TripParticipants = new TripDetailsParticipantsViewModel {
                     TripId = query.Id,

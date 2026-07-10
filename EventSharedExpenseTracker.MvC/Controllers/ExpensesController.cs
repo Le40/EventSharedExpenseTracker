@@ -102,12 +102,12 @@ public class ExpensesController : BaseController
             Expenses = result.Value!.Expenses.Select(e => ExpenseVMMapper.FromQuery(e, tripCurrencyCode)).ToList(),
             TripId = tripId,
             SearchString = searchString,
-            CategoryFilter = categoryFilter,
-            Creator = creator,
-            CurrentSort = sortOrder,
-            NameSortParam = sortOrder == "name" ? "name_desc" : "name",
-            DateSortParam = sortOrder == "date" ? "date_desc" : "date",
-            AmountSortParam = sortOrder == "amount" ? "amount_desc" : "amount",
+            //CategoryFilter = categoryFilter,
+            //Creator = creator,
+            //CurrentSort = sortOrder,
+            //NameSortParam = sortOrder == "name" ? "name_desc" : "name",
+            //DateSortParam = sortOrder == "date" ? "date_desc" : "date",
+            //AmountSortParam = sortOrder == "amount" ? "amount_desc" : "amount",
             BaseCurrencyCode = result.Value.BaseCurrencyCode
         };
 

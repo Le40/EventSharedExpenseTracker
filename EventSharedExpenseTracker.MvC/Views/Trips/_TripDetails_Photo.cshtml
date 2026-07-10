@@ -7,18 +7,40 @@
     @{
         var categoryInfo = TripCategoryUiMetadata.Categories[Model.Category];
         var imagePath = Model.ImagePath != null
-            ? Url.Content(Model.ImagePath)
-            : Url.Content(categoryInfo.DefaultImagePath);   
+        ? Url.Content(Model.ImagePath)
+        : Url.Content(categoryInfo.DefaultImagePath);
     }
 
-    <img src="@imagePath" 
-        alt="image"
+    <img src="@imagePath"
+         alt="image"
          class="card-img-top rounded-0">
 
-    @*--PHOTO - INFO--*@
-    <div id="@Model.EIdEditTrip" class="text-white position-absolute bottom-0 end-0 p-3 zoom-on-hover" data-restorable="true">
+    <div class="trip-stats-rail">
+        <div class="trip-stat-item">
+            <small>Trip total</small>
+            <strong>
+                @CurrencyFormatter.FormatMoney(Model.Statistics.TotalCost, showDecimals: false)
+            </strong>
+        </div>
 
-        <div class="photo-card-title display-4 text-end">@Html.DisplayFor(modelItem => Model.Name)</div>
-        <div class="photo-card-subtitle text-end">@Html.DisplayFor(model => model.DateFrom) -  @Html.DisplayFor(model => model.DateTo)</div>
+        <div class="trip-stat-item">
+            <small>My cost</small>
+            <strong>
+                @CurrencyFormatter.FormatMoney(Model.Statistics.UserCost, showDecimals: false)
+            </strong>
+        </div>
+    </div>
+
+    <div id="@Model.EIdEditTrip"
+         class="trip-photo-info text-white position-absolute bottom-0 end-0 p-3 zoom-on-hover"
+         data-restorable="true">
+
+        <div class="photo-card-title display-4 text-end">
+            @Model.Name
+        </div>
+
+        <div class="photo-card-subtitle text-end">
+            @Model.DateFrom.ToString("dd.MM.yyyy") - @Model.DateTo.ToString("dd.MM.yyyy")
+        </div>
     </div>
 </div>

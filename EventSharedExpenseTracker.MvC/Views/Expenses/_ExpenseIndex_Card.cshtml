@@ -74,7 +74,8 @@
                         class="btn btn-sm btn-outline-secondary flex-shrink-0"
                         data-requires-server="true"
                         hx-get="@Url.Action("Edit", "Expenses", new { id = Model.Id })"
-                        hx-target="#appOffCanvasBody">
+                        hx-target="#appOffCanvasBody"
+                        data-offcanvas-title="Edit Expense">
                     Edit
                 </button>
 

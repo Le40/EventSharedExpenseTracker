@@ -203,3 +203,48 @@ body.pwa .navbar {
         overflow-y: auto;
     }
 }
+
+#tripPhoto {
+    --trip-rail-width: 100px;
+}
+
+.trip-stats-rail {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: var(--trip-rail-width);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1rem;
+    color: white;
+    background: rgba(0, 0, 0, .2);
+    backdrop-filter: blur(2px);
+}
+
+.trip-stat-item {
+    padding: .75rem 0;
+}
+
+    .trip-stat-item + .trip-stat-item {
+        border-top: 1px solid rgba(255, 255, 255, .35);
+    }
+
+    .trip-stat-item small,
+    .trip-stat-item strong {
+        display: block;
+    }
+
+    .trip-stat-item small {
+        color: rgba(255, 255, 255, .7);
+    }
+
+    .trip-stat-item strong {
+        font-size: 1.1rem;
+    }
+
+.trip-photo-info {
+    max-width: calc(100% - var(--trip-rail-width) - 2rem);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, .9);
+}

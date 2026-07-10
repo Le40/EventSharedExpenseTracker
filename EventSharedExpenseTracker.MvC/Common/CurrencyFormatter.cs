@@ -5,32 +5,32 @@ namespace EventSharedExpenseTracker.MvC.Common
 {
     public static class CurrencyFormatter
     {
-        public static string Format(decimal amount, string currencyCode)
+        public static string Format(decimal amount, string currencyCode, bool showDecimals = true)
         {
+            var numberFormat = showDecimals
+                ? "#,##0.00"
+                : "#,##0";
+
+            var formattedAmount = amount.ToString(numberFormat);
+
             if (!CurrencyMetadata.Currencies.TryGetValue(
-            currencyCode,
-            out var currency))
+                    currencyCode,
+                    out var currency))
             {
-                return $"{amount:0.00} {currencyCode}";
+                return $"{formattedAmount} {currencyCode}";
             }
 
             return currency.SymbolBeforeAmount
-                ? $"{currency.Symbol}{amount:0.00}"
-                : $"{amount:0.00} {currency.Symbol}";
+                ? $"{currency.Symbol}{formattedAmount}"
+                : $"{formattedAmount} {currency.Symbol}";
         }
 
-        public static string FormatMoney(Money money)
+        public static string FormatMoney(Money money, bool showDecimals = true)
         {
-            if (!CurrencyMetadata.Currencies.TryGetValue(
-            money.CurrencyCode,
-            out var currency))
-            {
-                return $"{money.Amount:0.00} {money.CurrencyCode}";
-            }
-
-            return currency.SymbolBeforeAmount
-                ? $"{currency.Symbol}{money.Amount:0.00}"
-                : $"{money.Amount:0.00} {currency.Symbol}";
+            return Format(
+                money.Amount,
+                money.CurrencyCode,
+                showDecimals);
         }
     }
 }

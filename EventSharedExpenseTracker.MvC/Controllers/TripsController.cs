@@ -37,16 +37,16 @@ public class TripsController : BaseController
         var vm = new TripIndexViewModel
         {
             SearchString = searchString,
-            CategoryFilter = categoryFilter,
-            Creator = creator,
-            CurrentSort = sortOrder,
-            DateSortParam = sortOrder == "date" ? "date_desc" : "date",
+            //CategoryFilter = categoryFilter,
+            //Creator = creator,
+            //CurrentSort = sortOrder,
+            //DateSortParam = sortOrder == "date" ? "date_desc" : "date",
             Trips = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList()
         };
 
         vm.Controls = new PageControlsViewModel()
         {
-            Label = "Trips",
+            Label = "Trip",
             SearchPlaceholder = "Search trips ...",
             SearchUrl = Url.Action("Index", "Trips")!,
             SearchTargetId = vm.EIdTripsCollection,
@@ -72,7 +72,7 @@ public class TripsController : BaseController
 
         vm.Controls = new PageControlsViewModel()
         {
-            Label = "Expenses",
+            Label = "Expense",
             SearchPlaceholder = "Search expenses ...",
             SearchUrl = Url.Action("Index", "Expenses", new { tripId = id })!,
             SearchTargetId = vm.EIdExpensesCollection,
@@ -196,10 +196,19 @@ public class TripsController : BaseController
     [HttpPost("Trips/{id}/DeleteParticipant/{participantId}")]
     public async Task<IActionResult> DeleteParticipant(int id, int participantId)
     {
-        var result = await _tripService.DeleteParticipant(id, participantId);
+        var (result, removedCurrentUser) = await _tripService.DeleteParticipant(id, participantId);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
-        return RedirectToAction("Details", "Trips", new { id });
+
+        if (removedCurrentUser) 
+            Response.Headers["HX-Redirect"] = Url.Action(nameof(Index));
+        else
+            Response.Headers["HX-Redirect"] = Url.Action("Details", "Trips", new { id });
+        return Ok();
+
+        /*return removedCurrentUser
+            ? RedirectToAction("Index")
+            : RedirectToAction("Details", "Trips", new { id });*/
     }
 
     [HttpGet("Trips/{id}/Settlement")]

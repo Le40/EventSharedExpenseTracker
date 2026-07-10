@@ -17,7 +17,7 @@ public interface ITripService
     Task<ServiceResult<TripParticipantsQuery>> GetParticipants(int id);
     Task<ServiceResult<Trip>> AddParticipant(int tripId, int id);
     Task<ServiceResult<Trip>> AddDummy(int tripId, string partName);
-    Task<ServiceResult> DeleteParticipant(int tripId, int id);
+    Task<(ServiceResult Result, bool RemovedCurrentUser)> DeleteParticipant(int tripId, int id);
     Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId);
 
 }

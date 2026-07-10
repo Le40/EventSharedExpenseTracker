@@ -30,7 +30,9 @@
                 data-requires-server="true"
                 class="btn btn-sm btn-outline-secondary border-top-0 rounded-top-0 photo-card-font"
                 hx-get="@Url.Action("Edit", "Trips", new { id = Model.Id })"
-                hx-target="#@Model.EIdEditTrip">
+                hx-target="#appOffCanvasBody"
+                data-offcanvas-title="Edit Trip">
+                @*hx-target="#@Model.EIdEditTrip">*@
             Edit
         </button>
         <button type="button"

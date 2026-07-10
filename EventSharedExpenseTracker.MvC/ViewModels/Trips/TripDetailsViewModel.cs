@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Domain.Enums;
+﻿using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
 using System.ComponentModel.DataAnnotations;
@@ -26,6 +27,8 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         public ExpenseIndexViewModel ExpenseIndex { get; set; } = new();
 
         public bool CanUserEdit { get; set; }
+
+        public TripStatistics Statistics { get; set; } = default!;
         public string EIdExpensesCollection => UiIds.ExpenseCollection;
         public string EIdTripParticipants => UiIds.TripParticipants;
         public string EIdSearchParticipants => UiIds.SearchParticipants;

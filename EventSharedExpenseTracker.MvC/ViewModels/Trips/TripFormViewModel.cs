@@ -31,7 +31,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Trips
         [Display(Name = "Currency")]
         public string BaseCurrencyCode { get; set; } = "EUR";
         public List<SelectListItem> CurrencyOptions { get; set; } = [];
-        public string Country { get; set; } = "";
+        public string? Country { get; set; } = "";
         public List<SelectListItem> CountryOptions { get; set; } = [];
         public string? City { get; set; }
 

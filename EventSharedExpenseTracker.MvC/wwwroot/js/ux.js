@@ -178,4 +178,14 @@ if (window.visualViewport) {
 
 window.addEventListener("resize", updateFloatingControlsForKeyboard);
 
+document.body.addEventListener("htmx:beforeRequest", e => {
+    const title =
+        e.detail.elt.dataset.offcanvasTitle;
+
+    if (!title) return;
+
+    document.getElementById("appOffcanvasTitle")
+        .textContent = title;
+});
+
 console.log("ux.js loaded");
