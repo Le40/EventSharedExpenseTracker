@@ -93,6 +93,12 @@ document.body.addEventListener("click", async event => {
     await openExpenseDraftForEdit(localId, card);
 }, true); // true at the end makes it run before any htmx, so it should prevent any other click on draft form from firing.
 
+document.addEventListener("click", function (e) {
+    console.log("clicked:", e.target);
+    console.log("closest hx:", e.target.closest("[hx-get]"));
+    console.log("closest offline card:", e.target.closest("[data-pending-expense-card='true']"));
+}, true);
+
 // SAVE EDIT LISTENER
 document.body.addEventListener("click", async event => {
     // get button that called

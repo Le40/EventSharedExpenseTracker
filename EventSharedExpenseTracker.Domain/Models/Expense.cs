@@ -25,6 +25,7 @@ public class Expense
     public string CurrencyCode { get; set; } = "EUR";
     //public string BaseCurrencyCode { get; set; } = "EUR";
     public decimal ExchangeRateToBase{ get; set; } = 1m; //maybe also not needed, good to updates of expense without changes to date and curency, no need to call db.
+    public Guid? OfflineClientId { get; set; }
 
     public ICollection<Payment> Payments { get; } = [];
 

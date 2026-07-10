@@ -34,6 +34,7 @@ namespace EventSharedExpenseTracker.MvC.ViewModels.Expenses
         public string? Description { get; set; }
 
         public string CurrencyCode { get; set; } = "EUR";
+        public Guid? OfflineClientId { get; set; }
         public List<SelectListItem> CurrencyOptions { get; set; } = [];
 
         public ICollection<ExpenseFormParticipantViewModel> Participants { get; set; } = [];

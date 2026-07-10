@@ -258,3 +258,12 @@
     .htmx-request #loading-overlay {
         display: flex;
     }
+
+/*to scroll app controls height more, so app controls dont overlay lasy item in expense list*/
+#expCollection, #tripsCollection {
+    padding-bottom: 80px;
+}
+
+    /*#expCollection > :last-child {
+        margin-bottom: 80px;
+    }*/

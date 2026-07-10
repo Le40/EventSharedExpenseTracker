@@ -11,6 +11,7 @@ namespace EventSharedExpenseTracker.Application.Expenses.Commands
         public string? Description { get; set; }
         public string CurrencyCode { get; set; } = "EUR";
         //public decimal ExchangeRateToBase { get; set; } = 1m;
+        public Guid? OfflineClientId { get; set; }
         public ICollection<PaymentDraft> Payments { get; set; } = [];
     }
 }

@@ -22,7 +22,7 @@ public class Trip
     public TripCategory Category { get; set; }
 
     public string? City { get; set; }
-    public string Country { get; set; } = "";
+    public string? Country { get; set; } = "";
     [StringLength(3)]
     public string BaseCurrencyCode { get; set; } = "EUR";
 

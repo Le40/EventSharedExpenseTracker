@@ -3,7 +3,7 @@
 // when such state happens, it stores it locally and messages it to pages
 // it then relies on pages to poll the server, and message back if server is back online.
 
-const CACHE_NAME = "expense-tracker-v2";
+const CACHE_NAME = "expense-tracker-v3";
 const NETWORK_TIMEOUT_MS = 1500;
 const MSG_SERVER_AVAILABLE = "SERVER_AVAILABLE";
 const MSG_SERVER_UNAVAILABLE = "SERVER_UNAVAILABLE";
@@ -124,7 +124,7 @@ async function networkFirst(request) {
        
         if (networkResponse.ok) {
             const cache = await caches.open(CACHE_NAME);
-            cache.put(request, networkResponse.clone());
+            await cache.put(request, networkResponse.clone());
         }
 
         return networkResponse;

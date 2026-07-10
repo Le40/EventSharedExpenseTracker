@@ -128,6 +128,10 @@ namespace EventSharedExpenseTracker.Infrastructure.Data.DbContexts
                 .HasForeignKey(e => e.CreatorId)
                 .OnDelete(DeleteBehavior.SetNull);
 
+            modelBuilder.Entity<Expense>()
+                .HasIndex(x => x.OfflineClientId)
+                .IsUnique();
+
             modelBuilder.Entity<ExchangeRate>()
                 .HasIndex(x => new { x.CurrencyCode, x.RateDate })
                 .IsUnique();

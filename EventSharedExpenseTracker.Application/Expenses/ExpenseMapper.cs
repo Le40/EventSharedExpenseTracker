@@ -52,6 +52,7 @@ namespace EventSharedExpenseTracker.Application.Expenses
                 Category = command.Category,
                 Description = command.Description,
                 CurrencyCode = command.CurrencyCode,
+                OfflineClientId = command.OfflineClientId
             };
 
             //AddPayments(expense, command.Payments);

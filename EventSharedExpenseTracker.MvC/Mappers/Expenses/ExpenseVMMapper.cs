@@ -39,7 +39,8 @@ namespace EventSharedExpenseTracker.MvC.Mappers.Expenses
                 Date = model.Date,
                 Category = model.Category.Value,
                 Description = model.Description,
-                CurrencyCode = model.CurrencyCode
+                CurrencyCode = model.CurrencyCode,
+                OfflineClientId = model.OfflineClientId
             };
 
             foreach (var participant in model.Participants)

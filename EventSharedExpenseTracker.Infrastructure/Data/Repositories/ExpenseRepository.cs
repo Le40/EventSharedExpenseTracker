@@ -4,6 +4,7 @@ using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 
@@ -24,6 +25,9 @@ public class ExpenseRepository : IExpenseRepository
                 .ThenInclude(p=> p.Participant)
             .Where(e => e.TripId == tripId);
 
+        // automatic date sorting - as such sorts were deleted
+        query = query.OrderByDescending(e => e.Date);
+
         if (!string.IsNullOrWhiteSpace(options.SearchString))
         {
             var matchingCategories = Enum.GetValues<ExpenseCategory>()
@@ -37,7 +41,7 @@ public class ExpenseRepository : IExpenseRepository
             e.Payments.Any(p => p.Participant.DisplayName.Contains(options.SearchString)));
         }
 
-        if (options.Category.HasValue)
+        /*if (options.Category.HasValue)
             query = query.Where(e => e.Category == options.Category.Value);
 
         if (options.CreatedByMe)
@@ -51,7 +55,7 @@ public class ExpenseRepository : IExpenseRepository
             "amount_desc" => query.OrderByDescending(e => e.Payments.Where(p => !p.IsOwed).Sum(p => p.AmountBase)),
             "date" => query.OrderBy(e => e.Date),
             _ => query.OrderByDescending(e => e.Date),
-        };
+        };*/
 
         return await query
             .AsNoTracking()
@@ -62,6 +66,13 @@ public class ExpenseRepository : IExpenseRepository
     public async Task<Expense?> GetByIdAsync(int id)
     {
         return await _context.Expenses.FindAsync(id);
+    }
+
+    public async Task<Expense?> GetByOfflineIdAsync(Guid? offlineId)
+    {
+        return await _context.Expenses
+            .FirstOrDefaultAsync(x =>
+            x.OfflineClientId == offlineId);
     }
 
     public void Add(Expense expense)

@@ -22,21 +22,6 @@ public static class DIInfrastructure
         //// DB
         if (!environment.IsEnvironment("Testing"))
         {
-            var databaseProvider = configuration["DatabaseProvider"];
-
-            if (databaseProvider == "Sqlite")
-            {
-                var connectionString = configuration.GetConnectionString("SqliteConnection")
-                    ?? throw new InvalidOperationException("Connection string 'SqliteConnection' not found.");
-
-                services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlite(connectionString, sqliteOptions =>
-                    {
-                        sqliteOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
-                    }));
-            }
-            else
-            {
                 var connectionString = configuration.GetConnectionString("DefaultConnection")
                     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -48,7 +33,6 @@ public static class DIInfrastructure
                             maxRetryDelay: TimeSpan.FromSeconds(10),
                             errorNumbersToAdd: null);
                     }));
-            }
         }
 
         // IDENTITY

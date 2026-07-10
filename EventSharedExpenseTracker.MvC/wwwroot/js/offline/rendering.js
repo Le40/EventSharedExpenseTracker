@@ -27,12 +27,40 @@ function addPendingExpenseCard(draft) {
     const pendingCard = cloneExpenseCardTemplate();
     if (!pendingCard) return;
 
+    // Remove collapse content
+    const collapse = pendingCard.querySelector(".collapse");
+    collapse?.remove();
+
+    // Remove collapse trigger behavior
+    const collapseTrigger = pendingCard.querySelector("[data-bs-toggle='collapse']");
+
+    if (collapseTrigger) {
+        collapseTrigger.removeAttribute("data-bs-toggle");
+        collapseTrigger.removeAttribute("data-bs-target");
+        collapseTrigger.removeAttribute("aria-expanded");
+        collapseTrigger.removeAttribute("aria-controls");
+    }
+
     // PREPARE PENDING CARD
     pendingCard.removeAttribute("id");
 
-    pendingCard.querySelectorAll("[id]").forEach(element => {
+    /*pendingCard.querySelectorAll("[id]").forEach(element => {
         element.removeAttribute("id");
-    });
+    });*/
+
+    // REMOVE ONLINE HTMX EDIT FROM CLONED BUTTON
+    const editButton = pendingCard.querySelector("[hx-get]");
+
+    if (editButton) {
+        editButton.removeAttribute("hx-get");
+        editButton.removeAttribute("hx-target");
+        editButton.removeAttribute("hx-trigger");
+        editButton.removeAttribute("data-requires-server");
+
+        editButton.dataset.offlineEdit = "true";
+        editButton.dataset.offlineDraftId = draft.localId;
+        editButton.textContent = "Edit";
+    }
 
     pendingCard.classList.remove("border-warning", "border-danger", "opacity-75");
 

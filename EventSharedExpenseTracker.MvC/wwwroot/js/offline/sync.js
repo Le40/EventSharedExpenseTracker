@@ -77,6 +77,8 @@ async function syncPendingExpenseDrafts(drafts) {
                 formData.append(key, value);
             }
 
+            // to prevent duplicates - this sends the offline id to server
+            formData.append("OfflineClientId", draft.offlineClientId);
             formData.append("IsOfflineSync", "true");
             replaceAntiforgeryToken(formData);
 

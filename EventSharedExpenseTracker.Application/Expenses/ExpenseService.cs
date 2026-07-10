@@ -7,9 +7,6 @@ using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.PaymentProcessing;
 using Microsoft.Extensions.Logging;
-using System.IO;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace EventSharedExpenseTracker.Application.Expenses;
 
@@ -79,6 +76,13 @@ public class ExpenseService : IExpenseService
             return tripResult.ToFailure<Expense>();
 
         var trip = tripResult.Value!;
+
+        var existingExpense = await _unitOfWork.Expenses.GetByOfflineIdAsync(command.OfflineClientId);
+
+        if (existingExpense != null)
+        {
+            return existingExpense;
+        }
 
         var exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, trip.BaseCurrencyCode, command.Date);
 

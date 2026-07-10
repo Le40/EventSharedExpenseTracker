@@ -51,6 +51,7 @@ function buildExpenseDraftFromForm(form, button) {
 // CREATE BASE FOR MANUAL AND RECEIPT
 function createExpenseDraftBase({ tripId, source, fields = {}, receipt = {}, syncState }) {
     return {
+        offlineClientId: crypto.randomUUID(), // to prevent duplicates
         tripId,
         source,
         fields,

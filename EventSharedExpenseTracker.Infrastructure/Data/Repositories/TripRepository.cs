@@ -67,7 +67,7 @@ public class TripRepository : ITripRepository
     {
         return await _context.Trips
             .AsSplitQuery()
-            .Include(t => t.Expenses.OrderByDescending(e => e.Id))
+            .Include(t => t.Expenses.OrderByDescending(e => e.Date))
             .FirstOrDefaultAsync(t => t.Id == id);
     }
 
