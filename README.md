@@ -1,14 +1,21 @@
+﻿![.NET](https://img.shields.io/badge/.NET-8-blue)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-MVC-purple)
+![PWA](https://img.shields.io/badge/PWA-enabled-green)
+![License](https://img.shields.io/github/license/Le40/EventSharedExpenseTracker)
+
 # Event Shared Expense Tracker
 
-A web application for managing shared trip expenses. The application supports multi-currency expense tracking, AI-assisted features such as automatic expense categorization and receipt parsing.
-Offline expense creation, and support for progressive web apps.
+A mobile-first web application for managing shared trip expenses with multi-currency support, AI-assisted receipt parsing and offline-first capabilities.
 
-The project was built primarily as a personal/learning project to explore ASP.NET Core, Entity Framework Core, application architecture, testing, authentication, deployment, and cloud services and others.
+## Why I Built This
 
-https://eventsharedexpensetracker.azurewebsites.net/
-(if trying out, its deployed on the free server, and it takes quite a while until the site warms up, until then it seems like it doesnt work, but its just parked. When its already cached this should not be an issue anymore.)
+This project was created as a personal learning project to explore modern .NET development, application architecture, cloud deployment, AI integration and offline-first web applications.
 
 ## Demo
+
+https://eventsharedexpensetracker.azurewebsites.net/
+
+⚠️ The application is hosted on a free Azure tier and may require 30–60 seconds to wake up after inactivity.
 
 A demo account is available for exploring the application:
 
@@ -23,45 +30,40 @@ Designed primary for mobile use, as thats where it will be used the most. Best u
 <table>
   <tr>
     <td align="center">
-      <img src="screenshots/trip-index.png" width="180"><br>
+      <img src="docs/screenshots/trip-index.png" width="180"><br>
       <b>Trips</b>
     </td>
     <td align="center">
-      <img src="screenshots/trip-details.png" width="180"><br>
+      <img src="docs/screenshots/trip-details.png" width="180"><br>
       <b>Trip Details</b>
     </td>
     <td align="center">
-      <img src="screenshots/expense-form.png" width="180"><br>
+      <img src="docs/screenshots/expense-form.png" width="180"><br>
       <b>Add Expense</b>
     </td>
     <td align="center">
-      <img src="screenshots/offline-mode.png" width="180"><br>
+      <img src="docs/screenshots/offline-mode.png" width="180"><br>
       <b>Offline Mode</b>
     </td>
   </tr>
 </table>
 
-## Features
+## Key Capabilities
 
-* Create and manage trips with multiple participants
-* Track shared expenses
-* Flexible expense splitting between participants
-* Trip and Expense categories and search
-* HTMX-powered partial updates for a responsive user experience
-* Image upload and compression
-* ASP.NET Core Identity authentication
-* Authorization rules for trips and expenses
-* Structured error/result handling
-* Automated tests
-* Azure deployment with Azure SQL Database and Key Vault integration
-* Support for multiple currencies with automatic conversion to trip base currency
-* AI-assisted expense categorization based on expense name
-* AI-assisted receipt parsing to prefill expense forms from uploaded receipt photos
-* PWA support for installing as app on mobile and desktop
-* Support for offline Expense entry, editing of pending drafts, and later sync with the server
-* Support for offline Receipt storage, then syncing in the backgorund when online.
-* Detect server unavailability even when the user is online and switch to cached/offline behavior
-* Mobile-focused UI with floating actions and offcanvas forms
+- Offline expense creation and synchronization  
+- AI receipt parsing and categorization  
+- Multi-currency support  
+- PWA installation support  
+- Mobile-first experience
+
+## Technical Highlights
+
+- Offline-first architecture using IndexedDB and background synchronization
+- AI-powered receipt parsing and expense categorization using OpenAI
+- Multi-currency expense handling with automatic exchange rates
+- Layered architecture with separation of Domain, Application, Infrastructure and Presentation concerns
+- Mobile-focused PWA experience with install support and offline capabilities
+- HTMX-powered partial updates reducing JavaScript complexity
 
 ## Technology Stack
 
@@ -77,33 +79,6 @@ Designed primary for mobile use, as thats where it will be used the most. Best u
 * Azure App Service
 * Azure Key Vault
 
-## Project Structure
-
-The application is organized into several layers:
-
-* Domain
-
-  * Entities
-  * Value Objects
-  * Business rules
-
-* Application
-
-  * Commands
-  * Queries
-  * Services
-
-* Infrastructure
-
-  * Entity Framework Core
-  * Repositories
-  * External integrations
-
-* Presentation
-
-  * MVC Controllers
-  * Razor Views
-  * HTMX interactions
 
 ## Testing
 
@@ -112,6 +87,33 @@ The solution includes:
 * Unit tests
 * Integration tests
 * GitHub Actions CI workflow
+
+## Architecture
+
+The following diagrams provide a high-level overview of the application's structure and key workflows.
+
+High-level overview of the application's layered architecture and external integrations.
+
+![Architecture](docs/Architecture-overview.png)
+
+<details>
+<summary>Domain Model</summary>
+
+Core domain entities and their relationships.
+
+![Domain Model](docs/UML-Domain-Model.png)
+
+</details>
+
+<details>
+<summary>Expense Processing Workflow</summary>
+
+Application workflow describing expense creation, offline processing and synchronization.
+
+![Expense Processing](docs/expense-processing-bpmn.png)
+
+</details>
+
 
 ## Running Locally
 
@@ -138,10 +140,10 @@ Run the application:
 dotnet run
 ```
 
-### Planned Features
+## Roadmap
 
-- Offline storing of receipts
 - Integrating Participants and Friends management into Mobile controls
+- Change in Currency Rates API provider
 - Friends funcionality
 - Vertical Slice Architecture or some form of hybrid
 - Js to Ts
