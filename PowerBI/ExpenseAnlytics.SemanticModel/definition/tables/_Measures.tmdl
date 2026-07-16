@@ -1,0 +1,58 @@
+table _Measures
+	lineageTag: 148aafd5-7b0f-4bba-a221-3ee40057915a
+
+	measure 'User Balance EUR' = [User Paid in EUR] - [User Consumption in EUR]
+		formatString: #,0.00\ "€";-#,0.00\ "€";#,0.00\ "€"
+		lineageTag: d2221f2a-411c-446d-8c7a-b13e2fecb026
+
+		annotation PBI_FormatHint = {"currencyCulture":"sk-SK"}
+
+	measure 'Total Expenses EUR' = SUM(FactExpenses[ExpenseAmountBase])
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: fba32751-82d9-4590-9329-a75f5f7a848a
+
+	measure 'Expense Count' = COUNTROWS(FactExpenses)
+		formatString: 0
+		lineageTag: 676355b6-0cda-4a4e-975c-fc0fa9a66ee2
+
+	measure 'Average Expense EUR' = AVERAGE(FactExpenses[ExpenseAmountBase])
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 3ed1f9b2-8cc0-46e0-ba75-c4511ae13217
+
+	measure 'User Paid in EUR' = CALCULATE(SUM(FactPayments[AmountBase]), FactPayments[IsOwed]=FALSE())
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: 240b7b47-4379-4e20-abab-beb7ddc0a5f7
+
+	measure 'User Consumption in EUR' = -CALCULATE(SUM(FactPayments[AmountBase]), FactPayments[IsOwed]=TRUE())
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: c4e44814-6e05-44a8-8f1a-73c90e8f0d7d
+
+	measure 'Balance EUR' = SUM(FactPayments[AmountBase])
+		formatString: "€"\ #,0.00;-"€"\ #,0.00;"€"\ #,0.00
+		lineageTag: b01803ed-780b-4556-b9ef-de51b489d742
+
+	measure 'Filter Valid Trip-User Combination' = ```
+			IF(COUNTROWS(BridgeTripParticipants)>0,1,0) 
+			```
+		formatString: 0
+		lineageTag: 5dafac65-badb-4bbc-b20d-738651afdaa4
+
+	measure 'Filter Valid Trip-Date Combination' = ```
+			IF(COUNTROWS(FactExpenses)>0,1,0) 
+			```
+		formatString: 0
+		lineageTag: 9c3da06a-ecfb-43ef-96f2-6ee8b64ead79
+
+	partition _Measures = m
+		mode: import
+		source =
+				let
+				  Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i44FAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Placeholder = _t]),
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"Placeholder"})
+				in
+				  #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

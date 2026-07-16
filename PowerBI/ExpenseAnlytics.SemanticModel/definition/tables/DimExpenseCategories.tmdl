@@ -1,0 +1,39 @@
+table DimExpenseCategories
+	lineageTag: 5afad697-6acf-4033-91f4-b2eba87228cd
+
+	column ExpenseCategoryId
+		dataType: int64
+		formatString: 0
+		lineageTag: 70b5dc45-1f97-40d4-9962-8f6f566f78d1
+		summarizeBy: none
+		sourceColumn: ExpenseCategoryId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseCategoryName
+		dataType: string
+		lineageTag: 5cd53a54-8801-402d-a3fa-2aec2bf27eab
+		summarizeBy: none
+		sourceColumn: ExpenseCategoryName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimExpenseCategories = m
+		mode: import
+		source =
+				let
+				  Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("Nc69DsIwDATgd8nMQPlnREiFjap0qxhMMMRqmlSpi+DtcZoy3iedfXWt5mqmSuwZhgCO1W1Wq0zoFLzGQNiPshA5+ucT8epANwmXgsVwt6QrqfadD6m+Ej9opjfxv78Wqkg3yClvJF/YYBjTNl6HUKJjsKPsRPIBU9jHMnyopMd0LoujCwgNuVflrZ007s4tvcz0JVuMS7RvW/8AJu8Sx+FX47tO6kni5DOCZVMYCC3ob/K4O8f49fYD", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [ExpenseCategoryId = _t, ExpenseCategoryName = _t]),
+				  #"Changed column type" = Table.TransformColumnTypes(Source, {{"ExpenseCategoryId", Int64.Type}, {"ExpenseCategoryName", type text}}, "en-US"),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed column type","CoffeeSnacks","Coffee / Snacks",Replacer.ReplaceText,{"ExpenseCategoryName"}),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Replaced Value","PublicTransport","Public Transport",Replacer.ReplaceText,{"ExpenseCategoryName"}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value1","CarRental","Car Rental",Replacer.ReplaceText,{"ExpenseCategoryName"}),
+				    #"Replaced Value3" = Table.ReplaceValue(#"Replaced Value2","TaxiRides","Taxi Rides",Replacer.ReplaceText,{"ExpenseCategoryName"}),
+				    #"Replaced Value4" = Table.ReplaceValue(#"Replaced Value3","ParkingTolls","Parking Tolls",Replacer.ReplaceText,{"ExpenseCategoryName"}),
+				    #"Replaced Value5" = Table.ReplaceValue(#"Replaced Value4","HealthPharmacy","Health & Pharmacy",Replacer.ReplaceText,{"ExpenseCategoryName"})
+				in
+				    #"Replaced Value5"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

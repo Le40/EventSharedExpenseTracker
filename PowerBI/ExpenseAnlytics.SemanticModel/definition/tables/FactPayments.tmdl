@@ -1,0 +1,141 @@
+table FactPayments
+	lineageTag: cb9a9abe-bee2-4a7d-bd3b-85d3a568b7e5
+
+	column PaymentId
+		dataType: int64
+		formatString: 0
+		lineageTag: ace5b424-d4d6-4892-b9f1-8055aa6927df
+		summarizeBy: count
+		sourceColumn: PaymentId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AmountOriginal
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: d8e7daff-adc9-4b7f-b077-3a648f9811c5
+		summarizeBy: sum
+		sourceColumn: AmountOriginal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"sk-SK"}
+
+	column IsOwed
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 1f3e1f01-ed21-4f94-9a04-5ff3f030d8ae
+		summarizeBy: none
+		sourceColumn: IsOwed
+
+		annotation SummarizationSetBy = Automatic
+
+	column IsEquallyShared
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 05803890-269c-4e76-9f39-6150002c004d
+		summarizeBy: none
+		sourceColumn: IsEquallyShared
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseId
+		dataType: int64
+		formatString: 0
+		lineageTag: 12dc1e17-8624-469f-af82-23371021f590
+		summarizeBy: count
+		sourceColumn: ExpenseId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripParticipantId
+		dataType: int64
+		formatString: 0
+		lineageTag: 96366ac0-be46-4c9b-abf2-cbb2ccdc7b26
+		summarizeBy: count
+		sourceColumn: TripParticipantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column AmountBase
+		dataType: decimal
+		formatString: #,0.###############\ "€";-#,0.###############\ "€";#,0.###############\ "€"
+		lineageTag: dc8a8afd-fe8c-4090-972f-c1ed1993f63b
+		summarizeBy: sum
+		sourceColumn: AmountBase
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"sk-SK"}
+
+	column UserId
+		dataType: int64
+		formatString: 0
+		lineageTag: 3a08f1ae-1c1a-4419-93f5-3ab1dfb92836
+		summarizeBy: none
+		sourceColumn: UserId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripId
+		dataType: int64
+		formatString: 0
+		lineageTag: 890c4855-b3ac-4e81-850e-bae611f5b3f9
+		summarizeBy: none
+		sourceColumn: TripId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 40d2d64f-05d4-41f9-94d8-e8bc717c4679
+		summarizeBy: none
+		sourceColumn: ExpenseDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ExpenseCurrencyCode
+		dataType: string
+		lineageTag: 3ae62c71-f188-42b0-a04c-64a0056ce61d
+		summarizeBy: none
+		sourceColumn: ExpenseCurrencyCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseCategoryId
+		dataType: int64
+		formatString: 0
+		lineageTag: bc4ef625-e64c-49e5-b57f-5710466ec837
+		summarizeBy: none
+		sourceColumn: ExpenseCategoryId
+
+		annotation SummarizationSetBy = Automatic
+
+	partition FactPayments = m
+		mode: import
+		source =
+				let
+				    Source = stg_Payments,
+				    #"Renamed Columns" = Table.RenameColumns(Source,{{"Id", "PaymentId"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns",{"Expenses", "TripParticipants"}),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Removed Columns",{{"ParticipantId", "TripParticipantId"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns1",{{"AmountOriginal", Currency.Type}, {"AmountBase", Currency.Type}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Changed Type", {"TripParticipantId"}, stg_TripParticipants, {"Id"}, "stg_TripParticipants", JoinKind.LeftOuter),
+				    #"Expanded stg_TripParticipants" = Table.ExpandTableColumn(#"Merged Queries", "stg_TripParticipants", {"UserId", "TripId"}, {"UserId", "TripId"}),
+				    #"Merged Queries1" = Table.NestedJoin(#"Expanded stg_TripParticipants", {"ExpenseId"}, stg_Expenses, {"Id"}, "stg_Expenses", JoinKind.LeftOuter),
+				    #"Expanded stg_Expenses" = Table.ExpandTableColumn(#"Merged Queries1", "stg_Expenses", {"Date", "Category", "CurrencyCode"}, {"Date", "Category", "CurrencyCode"}),
+				    #"Renamed Columns2" = Table.RenameColumns(#"Expanded stg_Expenses",{{"Date", "ExpenseDate"}}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Renamed Columns2",{{"ExpenseDate", type date}}),
+				    #"Renamed Columns3" = Table.RenameColumns(#"Changed Type1",{{"CurrencyCode", "ExpenseCurrencyCode"}}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Renamed Columns3",{{"ExpenseDate", type date}}),
+				    #"Renamed Columns4" = Table.RenameColumns(#"Changed Type2",{{"Category", "ExpenseCategoryId"}})
+				in
+				    #"Renamed Columns4"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

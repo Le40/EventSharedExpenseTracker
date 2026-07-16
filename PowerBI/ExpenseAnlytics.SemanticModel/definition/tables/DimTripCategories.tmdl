@@ -1,0 +1,33 @@
+table DimTripCategories
+	lineageTag: 10cf0e48-a526-4b1b-851d-3f257c87c8b0
+
+	column TripCategoryId
+		dataType: int64
+		formatString: 0
+		lineageTag: 94191646-0552-40c1-86c0-1ec567583f35
+		summarizeBy: none
+		sourceColumn: TripCategoryId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripCategoryName
+		dataType: string
+		lineageTag: 135b0b55-67be-42e5-a472-ece030cb6a27
+		summarizeBy: none
+		sourceColumn: TripCategoryName
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimTripCategories = m
+		mode: import
+		source =
+				let
+				  Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("Rc3LCsMgEAXQXxHXgb5fy7a0ZNWWtjtxITokg0GDmkD+vhOhuJjFnMvcEYIvecWvmCb2DdhzWQm+IrmA0i2rfYdGTVnXpA+VhgBswWq06JrsG/K3V6bcb0k+Fgvs5sIhooMYi+5J7xATjqqjytsILuXgQMFZJ/SOvZS2YLIe5xJae5r/7xPZM7UQuJQ/", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [TripCategoryId = _t, TripCategoryName = _t]),
+				  #"Changed column type" = Table.TransformColumnTypes(Source, {{"TripCategoryId", Int64.Type}, {"TripCategoryName", type text}}, "en-US")
+				in
+				  #"Changed column type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

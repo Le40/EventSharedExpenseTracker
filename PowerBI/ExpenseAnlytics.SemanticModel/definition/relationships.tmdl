@@ -1,0 +1,60 @@
+relationship 59c45410-efd8-4feb-a526-e1fffa705846
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimTrips.TripStartDate
+	toColumn: LocalDateTable_7b5ff701-05e0-411d-98ae-981e15d2f8ee.Date
+
+relationship 84441c53-3727-4255-a293-bc59db340e60
+	joinOnDateBehavior: datePartOnly
+	fromColumn: DimTrips.TripEndDate
+	toColumn: LocalDateTable_885987e1-78bb-42c1-95b1-ed2c2e04885e.Date
+
+relationship b9f5a27e-f75b-db58-7af9-926d6e6a375a
+	fromColumn: FactExpenses.TripId
+	toColumn: DimTrips.TripId
+
+	annotation PBI_IsFromSource = FS
+
+relationship a897e8e9-1d85-dc80-685d-220e6ce7ac81
+	fromColumn: FactPayments.TripId
+	toColumn: DimTrips.TripId
+
+	annotation PBI_IsFromSource = FS
+
+relationship d32c8c7b-f15c-9805-2099-12c94261f188
+	fromColumn: BridgeTripParticipants.TripId
+	toColumn: DimTrips.TripId
+
+	annotation PBI_IsFromSource = FS
+
+relationship d07b098e-2e89-8697-651c-b6f817658dc5
+	fromColumn: FactPayments.UserId
+	toColumn: DimUsers.UserId
+
+	annotation PBI_IsFromSource = FS
+
+relationship 05409081-d874-35fb-eae7-ee15640708ac
+	fromColumn: BridgeTripParticipants.UserId
+	toColumn: DimUsers.UserId
+
+	annotation PBI_IsFromSource = FS
+
+relationship 31426255-081e-a2c2-56ae-da30346b2edf
+	fromColumn: FactExpenses.ExpenseDate
+	toColumn: DimDate.Date
+
+relationship df177736-6f93-565d-078b-cc73ef14b987
+	fromColumn: FactPayments.ExpenseDate
+	toColumn: DimDate.Date
+
+relationship ca4105ab-627d-9d68-a9e4-df5aa7b35828
+	fromColumn: FactExpenses.ExpenseCategory
+	toColumn: DimExpenseCategories.ExpenseCategoryId
+
+relationship 6fa23ba8-d551-12fc-b409-cb1682a98230
+	fromColumn: DimTrips.TripCategory
+	toColumn: DimTripCategories.TripCategoryId
+
+relationship 26502872-5358-64c5-1cdf-960f0f09a43b
+	fromColumn: FactPayments.ExpenseCategoryId
+	toColumn: DimExpenseCategories.ExpenseCategoryId
+

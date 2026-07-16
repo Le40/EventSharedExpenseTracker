@@ -1,0 +1,75 @@
+expression stg_CustomUsers =
+		let
+		  Source = Sql.Database("eset-sql.database.windows.net", "EventSharedExpenseTrackerDemoDb"),
+		  #"Navigation 1" = Source{[Schema = "dbo", Item = "CustomUsers"]}[Data]
+		in
+		  #"Navigation 1"
+	lineageTag: 6d9eee09-8c59-4222-8460-e480419344c2
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression stg_Expenses =
+		let
+		  Source = Sql.Database("eset-sql.database.windows.net", "EventSharedExpenseTrackerDemoDb"),
+		  #"Navigation 1" = Source{[Schema = "dbo", Item = "Expenses"]}[Data],
+		    #"Filtered Rows" = Table.SelectRows(#"Navigation 1", each true)
+		in
+		  #"Filtered Rows"
+	lineageTag: 968ccf9e-de8f-4ab3-a589-9f55d5d53631
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression stg_Payments =
+		let
+		  Source = Sql.Database("eset-sql.database.windows.net", "EventSharedExpenseTrackerDemoDb"),
+		  #"Navigation 1" = Source{[Schema = "dbo", Item = "Payments"]}[Data],
+		    #"Sorted Rows" = Table.Sort(#"Navigation 1",{{"ExpenseId", Order.Ascending}})
+		in
+		  #"Sorted Rows"
+	lineageTag: 6e0e7cee-577f-4129-b7f6-74cae2f91b03
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression stg_TripParticipants =
+		let
+		  Source = Sql.Database("eset-sql.database.windows.net", "EventSharedExpenseTrackerDemoDb"),
+		  #"Navigation 1" = Source{[Schema = "dbo", Item = "TripParticipants"]}[Data]
+		in
+		  #"Navigation 1"
+	lineageTag: 253af8b2-19ee-4dad-8f70-c5a38d36d0ae
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression stg_Trips =
+		let
+		  Source = Sql.Database("eset-sql.database.windows.net", "EventSharedExpenseTrackerDemoDb"),
+		  #"Navigation 1" = Source{[Schema = "dbo", Item = "Trips"]}[Data]
+		in
+		  #"Navigation 1"
+	lineageTag: f4168936-6e2e-464a-b0a5-3d3114920308
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
+expression hlp_ExpenseTotals =
+		let
+		    Source = FactPayments,
+		    #"Filtered Rows" = Table.SelectRows(Source, each ([IsOwed] = false)),
+		    #"Grouped Rows" = Table.Group(#"Filtered Rows", {"ExpenseId"}, {{"ExpenseAmountBase", each List.Sum([AmountBase]), type nullable number}, {"ExpenseAmountOriginal", each List.Sum([AmountOriginal]), type nullable number}})
+		in
+		    #"Grouped Rows"
+	lineageTag: f6236c8c-5e57-4126-9374-c4e5f740b818
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

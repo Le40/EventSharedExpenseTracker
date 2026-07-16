@@ -1,0 +1,109 @@
+table DimTrips
+	lineageTag: 6873585f-3335-42cb-861a-ebdec155b0d6
+
+	column TripId
+		dataType: int64
+		formatString: 0
+		lineageTag: 1643ae3c-ed44-423a-8016-cae45baca145
+		summarizeBy: none
+		sourceColumn: TripId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripName
+		dataType: string
+		lineageTag: c798fcf7-a8ba-40d4-b7fa-83a1a74cd4a5
+		summarizeBy: none
+		sourceColumn: TripName
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripStartDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c0069105-54f4-477b-bf3c-aa7b473074f3
+		summarizeBy: none
+		sourceColumn: TripStartDate
+
+		variation Variation
+			isDefault
+			relationship: 59c45410-efd8-4feb-a526-e1fffa705846
+			defaultHierarchy: LocalDateTable_7b5ff701-05e0-411d-98ae-981e15d2f8ee.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TripEndDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: c2470117-0228-408e-8fb0-50e4e2d4d758
+		summarizeBy: none
+		sourceColumn: TripEndDate
+
+		variation Variation
+			isDefault
+			relationship: 84441c53-3727-4255-a293-bc59db340e60
+			defaultHierarchy: LocalDateTable_885987e1-78bb-42c1-95b1-ed2c2e04885e.'Date Hierarchy'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TripCreatorUserId
+		dataType: int64
+		formatString: 0
+		lineageTag: 355721de-1a19-4157-8988-0b957a4036ca
+		summarizeBy: count
+		sourceColumn: TripCreatorUserId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripBaseCurrencyCode
+		dataType: string
+		lineageTag: 963643cd-4d3c-42f1-8f7a-d9c2d5110ff4
+		summarizeBy: none
+		sourceColumn: TripBaseCurrencyCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripCategory
+		dataType: int64
+		formatString: 0
+		lineageTag: bda2a272-e896-4ca7-8f0a-746ac42921d3
+		summarizeBy: none
+		sourceColumn: TripCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripCity
+		dataType: string
+		lineageTag: d83f89d0-2765-416b-b7f6-b5b037fa042c
+		summarizeBy: none
+		sourceColumn: TripCity
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripCountry
+		dataType: string
+		lineageTag: f458455b-4feb-4f83-b8b7-76fc925a6550
+		summarizeBy: none
+		sourceColumn: TripCountry
+
+		annotation SummarizationSetBy = Automatic
+
+	partition DimTrips = m
+		mode: import
+		source =
+				let
+				    Source = stg_Trips,
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"ImagePath", "CustomUsers", "Expenses", "TripParticipants"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"Id", "TripId"}, {"Name", "TripName"}, {"CreatorId", "TripCreatorUserId"}, {"Category", "TripCategory"}, {"City", "TripCity"}, {"Country", "TripCountry"}, {"BaseCurrencyCode", "TripBaseCurrencyCode"}, {"DateFrom", "TripStartDate"}, {"DateTo", "TripEndDate"}}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Renamed Columns",{{"TripStartDate", type date}, {"TripEndDate", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,31 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: sk-SK
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode","DaxQueryView_Desktop"]
+
+annotation PBI_QueryOrder = ["stg_CustomUsers","stg_Expenses","stg_Payments","stg_TripParticipants","stg_Trips","DimTrips","BridgeTripParticipants","DimUsers","FactExpenses","FactPayments","hlp_ExpenseTotals","DimDate","_Measures","DimExpenseCategories","DimTripCategories"]
+
+annotation PBI_RemovedChildren = [{"remoteItemId":{"foreignKeyRelationship":{"fromTableLocalLineageTag":"6873585f-3335-42cb-861a-ebdec155b0d6","fromColumnLocalLineageTag":"355721de-1a19-4157-8988-0b957a4036ca","toTableLocalLineageTag":"2a9408b3-3af6-44e9-bbd9-b4d052945523","toColumnLocalLineageTag":"83103a66-2762-4d5a-9dfe-3e8f36e4521c"}},"objectType":"Relationship"},{"remoteItemId":{"foreignKeyRelationship":{"fromTableLocalLineageTag":"6d54d583-853e-4982-aa66-6bc0eaf945e2","fromColumnLocalLineageTag":"e8baf157-0ee4-48bd-a72d-05662e6b658a","toTableLocalLineageTag":"2a9408b3-3af6-44e9-bbd9-b4d052945523","toColumnLocalLineageTag":"83103a66-2762-4d5a-9dfe-3e8f36e4521c"}},"objectType":"Relationship"},{"remoteItemId":{"foreignKeyRelationship":{"fromTableLocalLineageTag":"cb9a9abe-bee2-4a7d-bd3b-85d3a568b7e5","fromColumnLocalLineageTag":"96366ac0-be46-4c9b-abf2-cbb2ccdc7b26","toTableLocalLineageTag":"6449441d-0ac3-441a-9280-63028bab35f6","toColumnLocalLineageTag":"d4512fdb-d56c-4417-9569-9c9dcb6dc2a4"}},"objectType":"Relationship"}]
+
+ref table DimTrips
+ref table DateTableTemplate_bc6f85ce-047d-4cf7-abd5-24b7774774f0
+ref table LocalDateTable_7b5ff701-05e0-411d-98ae-981e15d2f8ee
+ref table LocalDateTable_885987e1-78bb-42c1-95b1-ed2c2e04885e
+ref table BridgeTripParticipants
+ref table DimUsers
+ref table FactExpenses
+ref table FactPayments
+ref table DimDate
+ref table _Measures
+ref table DimExpenseCategories
+ref table DimTripCategories
+
+ref cultureInfo en-US
+

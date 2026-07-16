@@ -1,0 +1,52 @@
+table BridgeTripParticipants
+	lineageTag: 6449441d-0ac3-441a-9280-63028bab35f6
+
+	column TripParticipantId
+		dataType: int64
+		formatString: 0
+		lineageTag: d4512fdb-d56c-4417-9569-9c9dcb6dc2a4
+		summarizeBy: count
+		sourceColumn: TripParticipantId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripParticipantDisplayName
+		dataType: string
+		lineageTag: 00c2f305-2c97-46a9-b548-05aa496f4452
+		summarizeBy: none
+		sourceColumn: TripParticipantDisplayName
+
+		annotation SummarizationSetBy = Automatic
+
+	column UserId
+		dataType: int64
+		formatString: 0
+		lineageTag: 60758ae8-51a9-47a3-ae8a-91398abe1109
+		summarizeBy: none
+		sourceColumn: UserId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripId
+		dataType: int64
+		formatString: 0
+		lineageTag: bd223e66-75d4-479e-8feb-8d498cbab91d
+		summarizeBy: none
+		sourceColumn: TripId
+
+		annotation SummarizationSetBy = Automatic
+
+	partition BridgeTripParticipants = m
+		mode: import
+		source =
+				let
+				    Source = stg_TripParticipants,
+				    #"Renamed Columns" = Table.RenameColumns(Source,{{"Id", "TripParticipantId"}, {"DisplayName", "TripParticipantDisplayName"}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Renamed Columns",{"CustomUsers", "Payments", "Trips"})
+				in
+				    #"Removed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+

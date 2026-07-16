@@ -1,0 +1,213 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "4441c72a729d48740f32",
+  "position": {
+    "x": 258.08130081300811,
+    "y": 32.260162601626014,
+    "z": 7000,
+    "height": 687.869918699187,
+    "width": 548.42276422764223,
+    "tabOrder": 7000
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimTrips"
+                    }
+                  },
+                  "Property": "TripName"
+                }
+              },
+              "queryRef": "DimTrips.TripName",
+              "nativeQueryRef": "TripName"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Total Expenses EUR"
+                }
+              },
+              "queryRef": "_Measures.Total Expenses EUR",
+              "nativeQueryRef": "Total Expenses EUR"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Expense Count"
+                }
+              },
+              "queryRef": "_Measures.Expense Count",
+              "nativeQueryRef": "Expense Count"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Average Expense EUR"
+                }
+              },
+              "queryRef": "_Measures.Average Expense EUR",
+              "nativeQueryRef": "Average Expense EUR"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Column": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "DimTrips"
+                  }
+                },
+                "Property": "TripName"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "objects": {
+      "columnWidth": [
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "96.78048780487805D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Average Expense EUR"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "95.26829268292683D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Total Expenses EUR"
+          }
+        },
+        {
+          "properties": {
+            "value": {
+              "expr": {
+                "Literal": {
+                  "Value": "66.78048780487805D"
+                }
+              }
+            }
+          },
+          "selector": {
+            "metadata": "_Measures.Expense Count"
+          }
+        }
+      ],
+      "columnHeaders": [
+        {
+          "properties": {}
+        }
+      ]
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "2b057921df49bb6149d7",
+        "ordinal": 0,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Measures"
+              }
+            },
+            "Property": "Expense Count"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "ec16d724e912a69f7b49",
+        "ordinal": 1,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Measures"
+              }
+            },
+            "Property": "Average Expense EUR"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "7852a3cd63b1a3063ecb",
+        "ordinal": 2,
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Measures"
+              }
+            },
+            "Property": "Total Expenses EUR"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "dea6f2fce4b45a8e5f08",
+        "ordinal": 3,
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DimTrips"
+              }
+            },
+            "Property": "TripName"
+          }
+        },
+        "type": "Categorical"
+      }
+    ],
+    "filterSortOrder": "Custom"
+  }
+}

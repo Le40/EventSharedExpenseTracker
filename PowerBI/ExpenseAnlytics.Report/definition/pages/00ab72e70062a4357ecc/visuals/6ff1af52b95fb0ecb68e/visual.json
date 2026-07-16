@@ -1,0 +1,157 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "6ff1af52b95fb0ecb68e",
+  "position": {
+    "x": 269.52845528455282,
+    "y": 24.975609756097562,
+    "z": 3003,
+    "height": 695.15447154471542,
+    "width": 433.95121951219511,
+    "tabOrder": 3003
+  },
+  "visual": {
+    "visualType": "tableEx",
+    "query": {
+      "queryState": {
+        "Values": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimUsers"
+                    }
+                  },
+                  "Property": "UserName"
+                }
+              },
+              "queryRef": "DimUsers.UserName",
+              "nativeQueryRef": "UserName"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "User Paid in EUR"
+                }
+              },
+              "queryRef": "_Measures.Total Paid in EUR",
+              "nativeQueryRef": "User Paid in EUR"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "User Consumption in EUR"
+                }
+              },
+              "queryRef": "_Measures.Total Owed in EUR",
+              "nativeQueryRef": "User Consumption in EUR"
+            },
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Balance EUR"
+                }
+              },
+              "queryRef": "_Measures.Balance EUR",
+              "nativeQueryRef": "Balance EUR"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Balance EUR"
+              }
+            },
+            "direction": "Ascending"
+          }
+        ]
+      }
+    },
+    "drillFilterOtherVisuals": true
+  },
+  "filterConfig": {
+    "filters": [
+      {
+        "name": "8ba8757048c4882629d5",
+        "field": {
+          "Column": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "DimUsers"
+              }
+            },
+            "Property": "UserName"
+          }
+        },
+        "type": "Categorical"
+      },
+      {
+        "name": "4e4c63ca39cfbec013fd",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Measures"
+              }
+            },
+            "Property": "User Paid in EUR"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "7b97ff83322a0bbf525e",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Measures"
+              }
+            },
+            "Property": "User Consumption in EUR"
+          }
+        },
+        "type": "Advanced"
+      },
+      {
+        "name": "2a1124dd98759b11ec42",
+        "field": {
+          "Measure": {
+            "Expression": {
+              "SourceRef": {
+                "Entity": "_Measures"
+              }
+            },
+            "Property": "Balance EUR"
+          }
+        },
+        "type": "Advanced"
+      }
+    ]
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/visualContainer/2.10.0/schema.json",
+  "name": "f7e391ab328edc721557",
+  "position": {
+    "x": 806.5040650406504,
+    "y": 32.260162601626014,
+    "z": 8000,
+    "height": 327.80487804878049,
+    "width": 458.92682926829269,
+    "tabOrder": 8000
+  },
+  "visual": {
+    "visualType": "barChart",
+    "query": {
+      "queryState": {
+        "Category": {
+          "projections": [
+            {
+              "field": {
+                "Column": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "DimExpenseCategories"
+                    }
+                  },
+                  "Property": "ExpenseCategoryName"
+                }
+              },
+              "queryRef": "DimExpenseCategories.ExpenseCategoryName",
+              "nativeQueryRef": "ExpenseCategoryName",
+              "active": true
+            }
+          ]
+        },
+        "Y": {
+          "projections": [
+            {
+              "field": {
+                "Measure": {
+                  "Expression": {
+                    "SourceRef": {
+                      "Entity": "_Measures"
+                    }
+                  },
+                  "Property": "Total Expenses EUR"
+                }
+              },
+              "queryRef": "_Measures.Total Expenses EUR",
+              "nativeQueryRef": "Total Expenses EUR"
+            }
+          ]
+        }
+      },
+      "sortDefinition": {
+        "sort": [
+          {
+            "field": {
+              "Measure": {
+                "Expression": {
+                  "SourceRef": {
+                    "Entity": "_Measures"
+                  }
+                },
+                "Property": "Total Expenses EUR"
+              }
+            },
+            "direction": "Descending"
+          }
+        ],
+        "isDefaultSort": true
+      }
+    },
+    "drillFilterOtherVisuals": true
+  }
+}

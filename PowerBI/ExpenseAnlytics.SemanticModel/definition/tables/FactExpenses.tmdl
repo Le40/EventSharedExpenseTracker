@@ -1,0 +1,113 @@
+table FactExpenses
+	lineageTag: 6d54d583-853e-4982-aa66-6bc0eaf945e2
+
+	column ExpenseId
+		dataType: int64
+		formatString: 0
+		lineageTag: 898adfab-91a6-415a-8507-c50639f90ab4
+		summarizeBy: count
+		sourceColumn: ExpenseId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseName
+		dataType: string
+		lineageTag: 084a68cc-cced-4c97-98f1-eecbc3604595
+		summarizeBy: none
+		sourceColumn: ExpenseName
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseDate
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 24e543e6-8029-416f-a538-ecca97c3979a
+		summarizeBy: none
+		sourceColumn: ExpenseDate
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ExpenseCategory
+		dataType: int64
+		formatString: 0
+		lineageTag: 1c4a10fb-84b0-4828-b6cd-403dc504b06c
+		summarizeBy: none
+		sourceColumn: ExpenseCategory
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseCreatorId
+		dataType: int64
+		formatString: 0
+		lineageTag: e8baf157-0ee4-48bd-a72d-05662e6b658a
+		summarizeBy: count
+		sourceColumn: ExpenseCreatorId
+
+		annotation SummarizationSetBy = Automatic
+
+	column TripId
+		dataType: int64
+		formatString: 0
+		lineageTag: 65462ab0-e424-4faa-88a9-804b9ff55b0e
+		summarizeBy: none
+		sourceColumn: TripId
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExpenseCurrencyCode
+		dataType: string
+		lineageTag: 071f9f7d-8689-4263-b7aa-667f65221251
+		summarizeBy: none
+		sourceColumn: ExpenseCurrencyCode
+
+		annotation SummarizationSetBy = Automatic
+
+	column ExchangeRateToBase
+		dataType: double
+		lineageTag: ff05d209-3e1e-412b-8fbf-ed3e1b42203a
+		summarizeBy: sum
+		sourceColumn: ExchangeRateToBase
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ExpenseAmountBase
+		dataType: double
+		lineageTag: 18367dc2-d8c6-4b5e-8420-e446a1543f2a
+		summarizeBy: sum
+		sourceColumn: ExpenseAmountBase
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ExpenseAmountOriginal
+		dataType: double
+		lineageTag: 148de639-223a-4148-be42-12d8de7bd420
+		summarizeBy: sum
+		sourceColumn: ExpenseAmountOriginal
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition FactExpenses = m
+		mode: import
+		source =
+				let
+				    Source = stg_Expenses,
+				    #"Removed Columns" = Table.RemoveColumns(Source,{"Description", "OfflineClientId", "CustomUsers", "Payments", "Trips"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Removed Columns",{{"Id", "ExpenseId"}, {"Name", "ExpenseName"}, {"Date", "ExpenseDate"}, {"Category", "ExpenseCategory"}, {"CreatorId", "ExpenseCreatorId"}, {"CurrencyCode", "ExpenseCurrencyCode"}}),
+				    #"Merged Queries" = Table.NestedJoin(#"Renamed Columns", {"ExpenseId"}, hlp_ExpenseTotals, {"ExpenseId"}, "ExpenseTotals", JoinKind.LeftOuter),
+				    #"Expanded ExpenseTotals" = Table.ExpandTableColumn(#"Merged Queries", "ExpenseTotals", {"ExpenseAmountBase", "ExpenseAmountOriginal"}, {"ExpenseAmountBase", "ExpenseAmountOriginal"}),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Expanded ExpenseTotals",{{"ExpenseDate", type date}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
