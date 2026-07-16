@@ -29,7 +29,7 @@ public class ExpenseService : IExpenseService
         _aiService = aiService;
     }
 
-    public async Task<ServiceResult<TripExpensesQuery>> GetIndex(int tripId, string? sortOrder, string? searchString, bool creator, ExpenseCategory? categoryFilter)
+    public async Task<ServiceResult<TripExpensesQuery>> GetIndex(int tripId, string? searchString)
     {
         // get and autorise trip
         int userId = _requestContext.UserId;
@@ -45,9 +45,6 @@ public class ExpenseService : IExpenseService
         {
             UserId = userId,
             SearchString = searchString,
-            SortBy = sortOrder,
-            CreatedByMe = creator,
-            Category = categoryFilter
         };
 
         // get Expenses
@@ -77,14 +74,17 @@ public class ExpenseService : IExpenseService
 
         var trip = tripResult.Value!;
 
-        var existingExpense = await _unitOfWork.Expenses.GetByOfflineIdAsync(command.OfflineClientId);
+        var offlineRetryResult = await CheckOfflineRetryAsync(command.OfflineClientId, tripId);
 
-        if (existingExpense != null)
-        {
-            return existingExpense;
-        }
+        if (offlineRetryResult is not null)
+            return offlineRetryResult;
 
         var exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, trip.BaseCurrencyCode, command.Date);
+
+        var validationResult = ValidatePaymentsForTrip(command.Payments, trip);
+
+        if (!validationResult.IsSuccess)
+            return ServiceResult<Expense>.Fail(validationResult.Errors);
 
         // process Expense's PaymentInputs to Payment entities. Validate their correctness.
         var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
@@ -155,6 +155,11 @@ public class ExpenseService : IExpenseService
 
         var exchangeRate = await GetExchangeRateForUpdateAsync(existingExpense, command, trip.BaseCurrencyCode);
 
+        var validationResult = ValidatePaymentsForTrip(command.Payments, trip);
+
+        if (!validationResult.IsSuccess)
+            return ServiceResult<Expense>.Fail(validationResult.Errors);
+
         // process Expense's PaymentInputs to Payment entities. Validate their correctness.
         var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
         if (!paymentInputProcessingResult.IsSuccess)
@@ -221,14 +226,39 @@ public class ExpenseService : IExpenseService
         return trip;
     }
 
-    private async Task<ServiceResult<Expense>> GetExpenseAuthorisedForEdit(int id)
+    private async Task<ServiceResult<Expense>> GetExpenseAuthorisedForView(
+    int expenseId)
     {
-        var userId = _requestContext.UserId;
-        var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        if (expense == null)
+        var expense = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
+
+        if (expense is null)
             return AppErrors.NotFound<Expense>();
 
-        if (!AuthorisationRules.AuthorisedToEdit(expense, userId))
+        var trip = await _unitOfWork.Trips.GetByIdAsync(expense.TripId);
+
+        if (trip is null)
+            return AppErrors.NotFound<Expense>();
+
+        if (!AuthorisationRules.AuthorisedToView(
+                trip,
+                _requestContext.UserId))
+        {
+            return AppErrors.Forbidden<Expense>();
+        }
+
+        return expense;
+    }
+
+    private async Task<ServiceResult<Expense>> GetExpenseAuthorisedForEdit(int id)
+    {
+        var expenseResult = await GetExpenseAuthorisedForView(id);
+
+        if (!expenseResult.IsSuccess)
+            return expenseResult;
+
+        var expense = expenseResult.Value!;
+
+        if (!AuthorisationRules.AuthorisedToEdit(expense, _requestContext.UserId))
             return AppErrors.Forbidden<Expense>();
 
         return expense;
@@ -276,5 +306,49 @@ public class ExpenseService : IExpenseService
 
         return Enum.Parse<ExpenseCategory>(suggestion.SuggestedCategory);
 
+    }
+
+    private async Task<ServiceResult<Expense>?> CheckOfflineRetryAsync(Guid? offlineClientId, int tripId)
+    {
+        if (!offlineClientId.HasValue)
+            return null;
+
+        var existingExpense = await _unitOfWork.Expenses
+            .GetByOfflineIdAsync(offlineClientId.Value);
+
+        if (existingExpense is null)
+            return null;
+
+        if (existingExpense.TripId != tripId)
+            return AppErrors.Conflict<Expense>();
+
+        return existingExpense;
+    }
+
+    private static ServiceResult ValidatePaymentsForTrip(
+        IEnumerable<PaymentDraft> payments,
+        Trip trip)
+    {
+        var validParticipantIds = trip.Participants
+            .Select(p => p.Id)
+            .ToHashSet();
+
+        if (payments.Any(p => !validParticipantIds.Contains(p.ParticipantId)))
+        {
+            return AppErrors.Validation<Expense>(
+                "One or more participants do not belong to this trip.");
+        }
+
+        var hasDuplicates = payments
+            .GroupBy(p => new { p.ParticipantId, p.IsOwed })
+            .Any(group => group.Count() > 1);
+
+        if (hasDuplicates)
+        {
+            return AppErrors.Validation<Expense>(
+                "A participant cannot have duplicate payment entries.");
+        }
+
+        return ServiceResult.Ok();
     }
 }

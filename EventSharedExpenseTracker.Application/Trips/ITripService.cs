@@ -8,7 +8,7 @@ namespace EventSharedExpenseTracker.Application.Trips;
 
 public interface ITripService
 {
-    Task<ServiceResult<List<TripQuery>>> GetIndex(string? sortOrder, string? searchString, TripCategory? categoryFilter);
+    Task<ServiceResult<List<TripQuery>>> GetIndex(string? searchString);
     Task<ServiceResult<TripDetailsQuery>> Details(int id);
     Task<ServiceResult<Trip>> Add(TripCommand command, Stream? imageFileStream);
     Task<ServiceResult<TripQuery>> GetTripForm(int id);

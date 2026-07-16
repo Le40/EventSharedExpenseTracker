@@ -19,8 +19,8 @@ namespace EventSharedExpenseTracker.MvC.Controllers
             {
                 UserCount = 30,
                 TripCount = 80,
-                MinExpensesPerTrip = 20,
-                MaxExpensesPerTrip = 120,
+                MinOtherExpensesPerDay = 2,
+                MaxOtherExpensesPerDay = 10,
                 YearsBack = 3
             });
 

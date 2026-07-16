@@ -41,17 +41,6 @@ public class TripRepository : ITripRepository
 
         query = query.OrderByDescending(t => t.DateFrom);
 
-        /*if (options.Category.HasValue)
-           query = query.Where(t => t.Category == options.Category.Value);
-
-        query = options.SortBy switch
-        {
-            "name" => query.OrderBy(t => t.Name),
-            "name_desc" => query.OrderByDescending(t => t.Name),
-            "date" => query.OrderBy(t => t.DateFrom),
-            _ => query.OrderByDescending(t => t.DateFrom),
-        };*/
-
         return await query
             .AsNoTracking()
             .AsSplitQuery()

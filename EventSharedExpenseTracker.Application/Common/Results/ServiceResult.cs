@@ -51,8 +51,14 @@ public class ServiceResult<T> : ServiceResult
     public static implicit operator ServiceResult<T>(List<AppError> errors) 
         => Fail(errors);
     // extra method so i can conveniently change the <T> witout rewrapping errors
-    public ServiceResult<T> ToFailure<T>()
-        => ServiceResult<T>.Fail(Errors);
+    public ServiceResult<TResult> ToFailure<TResult>()
+    {
+        if (IsSuccess)
+            throw new InvalidOperationException(
+                "A successful result cannot be converted to a failure.");
+
+        return ServiceResult<TResult>.Fail(Errors);
+    }
 
 }
 

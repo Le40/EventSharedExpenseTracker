@@ -27,7 +27,7 @@ public class TripService : ITripService
         _imageService = imageService;
     }
 
-    public async Task<ServiceResult<List<TripQuery>>> GetIndex(string? sortOrder, string? searchString, TripCategory? categoryFilter)
+    public async Task<ServiceResult<List<TripQuery>>> GetIndex(string? searchString)
     {
         int userId = _requestContext.UserId;
 
@@ -35,8 +35,6 @@ public class TripService : ITripService
         var options = new TripQueryOptions
         {
             SearchString = searchString,
-            SortBy = sortOrder,
-            Category = categoryFilter
         };
 
         // get Trips
@@ -343,7 +341,18 @@ public class TripService : ITripService
 
     public async Task<ServiceResult<List<Settlement>>> GetSettlements(int tripId)
     {
-        var tripResult = await GetTripAuthorisedForView(tripId);
+        var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
+
+        if (trip == null)
+            return AppErrors.NotFound<Trip>();
+
+        if (!AuthorisationRules.AuthorisedToView(trip, _requestContext.UserId))
+        {
+            return AppErrors.Forbidden<List<Settlement>>();
+        }
+
+
+        /*var tripResult = await GetTripAuthorisedForView(tripId);
 
         if (!tripResult.IsSuccess)
             return tripResult.ToFailure<List<Settlement>>();
@@ -351,7 +360,7 @@ public class TripService : ITripService
         var trip = await _unitOfWork.Trips.GetByIdWithExpensesAsync(tripId);
 
         if (trip == null)
-            return AppErrors.NotFound<Trip>();
+            return AppErrors.NotFound<Trip>();*/
 
         return SettlementCalculator.Calculate(trip);
     }

@@ -41,22 +41,6 @@ public class ExpenseRepository : IExpenseRepository
             e.Payments.Any(p => p.Participant.DisplayName.Contains(options.SearchString)));
         }
 
-        /*if (options.Category.HasValue)
-            query = query.Where(e => e.Category == options.Category.Value);
-
-        if (options.CreatedByMe)
-            query = query.Where(x => x.CreatorId == options.UserId);
-
-        query = options.SortBy switch
-        {
-            "name" => query.OrderBy(e => e.Name),
-            "name_desc" => query.OrderByDescending(e => e.Name),
-            "amount" => query.OrderBy(e => e.Payments.Where(p => !p.IsOwed).Sum(p => p.AmountBase)),
-            "amount_desc" => query.OrderByDescending(e => e.Payments.Where(p => !p.IsOwed).Sum(p => p.AmountBase)),
-            "date" => query.OrderBy(e => e.Date),
-            _ => query.OrderByDescending(e => e.Date),
-        };*/
-
         return await query
             .AsNoTracking()
             .AsSplitQuery()

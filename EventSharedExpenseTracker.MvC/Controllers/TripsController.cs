@@ -28,19 +28,15 @@ public class TripsController : BaseController
     // INDEX
     [HttpGet("Trips/")]
     [HttpGet("/")]
-    public async Task<IActionResult> Index(string? sortOrder, string? searchString, bool creator, TripCategory? categoryFilter)
+    public async Task<IActionResult> Index(string? searchString)
     {
-        var result = await _tripService.GetIndex(sortOrder, searchString, categoryFilter);
+        var result = await _tripService.GetIndex(searchString);
         if (!result.IsSuccess)
             return HandleServiceErrors(result.Errors);
 
         var vm = new TripIndexViewModel
         {
             SearchString = searchString,
-            //CategoryFilter = categoryFilter,
-            //Creator = creator,
-            //CurrentSort = sortOrder,
-            //DateSortParam = sortOrder == "date" ? "date_desc" : "date",
             Trips = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList()
         };
 

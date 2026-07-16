@@ -41,7 +41,7 @@ namespace EventSharedExpenseTracker.Application.Common.Results
 
         public static AppError Notification<T>(string message) => new()
         {
-            Type = AppErrorType.Validation,
+            Type = AppErrorType.Notification,
             Code = $"{typeof(T).Name}.Notification",
             Message = message,
         };
