@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
+﻿using EventSharedExpenseTracker.Application.Common.Constants;
+using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
@@ -99,6 +100,7 @@ public class TripsController : BaseController
 
     // CREATE: POST
     [HttpPost("Trips/Create")]
+    [RequestSizeLimit(ImageUploadLimits.MaxImageBytes)]
     public async Task<IActionResult> Create(TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)
@@ -137,6 +139,7 @@ public class TripsController : BaseController
 
     // EDIT: POST
     [HttpPost("Trips/Edit/{id}")]
+    [RequestSizeLimit(ImageUploadLimits.MaxImageBytes)]
     public async Task<IActionResult> Edit([FromRoute] int id, TripFormViewModel model, IFormFile? imageFile)
     {
         if (!ModelState.IsValid)

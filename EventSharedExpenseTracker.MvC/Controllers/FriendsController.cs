@@ -14,7 +14,7 @@ public class FriendsController : BaseController
         _friendService = friendService;
     }
 
-    // INDEX : GET
+    /*// INDEX : GET
     [HttpGet("Friends/")]
     public async Task<IActionResult> Index()
     {
@@ -25,7 +25,7 @@ public class FriendsController : BaseController
         var friends = result.Value;
 
         return PartialView("_Index", friends);
-    }
+    }*/
 
     // SEARCH : GET
     [HttpGet("Friends/Search/")]
@@ -40,7 +40,7 @@ public class FriendsController : BaseController
         return PartialView("_AddParticipant", users);
     }
 
-    // INVITE: POST
+    /*// INVITE: POST
     [HttpPost("Friends/Invite/")]
     public async Task<IActionResult> Invite(int friendId)
     {
@@ -83,7 +83,7 @@ public class FriendsController : BaseController
             return HandleServiceErrors(result.Errors);
 
         return RedirectToAction("Index", "Friends");
-    }
+    }*/
 
 
 }

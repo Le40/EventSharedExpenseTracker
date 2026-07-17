@@ -72,11 +72,13 @@ if (applyMigrations)
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-// LOGGING REQUESTS
-app.UseAppRequestLogging();
 
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
+
+// LOGGING REQUESTS
+app.UseAppRequestLogging();
 
 app.MapControllerRoute(
     name: "default",

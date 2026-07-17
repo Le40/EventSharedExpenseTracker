@@ -1,4 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Common.Results;
+﻿using EventSharedExpenseTracker.Application.Common.Constants;
+using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
@@ -47,6 +48,7 @@ public class ExpensesController : BaseController
     }
 
     [HttpPost]
+    [RequestSizeLimit(ImageUploadLimits.MaxImageBytes)]
     public async Task<IActionResult>ParseReceipt(int tripId, IFormFile receiptImage)
     {
         if (receiptImage is null || receiptImage.Length == 0)

@@ -101,5 +101,35 @@ namespace EventSharedExpenseTracker.Tests.Unit
             result.IsSuccess.Should().BeFalse();
         }
 
+        [Theory]
+        [InlineData(0)]
+        [InlineData(-1)]
+        public void ProcessForSaving_WhenExchangeRateIsNotPositive_ReturnsFailure(
+    decimal exchangeRate)
+        {
+            ICollection<PaymentDraft> drafts =
+            [
+                new()
+        {
+            ParticipantId = 1,
+            UserEnteredAmount = 20m,
+            IsOwed = false
+        },
+        new()
+        {
+            ParticipantId = 1,
+            UserEnteredAmount = 20m,
+            IsOwed = true
+        }
+            ];
+
+            var result = ExpenseProcessor.ProcessForSaving(drafts, exchangeRate);
+
+            result.IsSuccess.Should().BeFalse();
+            result.Errors.Should().ContainSingle();
+            result.Errors[0].Message.Should()
+                .Be("Exchange rate must be greater than zero.");
+        }
+
     }
 }

@@ -35,4 +35,6 @@ public class AuthTests
         response.Headers.Location!.ToString()
             .Should().Contain("/Identity/Account/Login");
     }
+
+
 }

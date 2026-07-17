@@ -20,7 +20,7 @@ public class FriendService : IFriendService
         _requestContext = requestContext;
     }
 
-    public async Task<ServiceResult<List<Friendship>>> Index()
+    /*public async Task<ServiceResult<List<Friendship>>> Index()
     {
         int userId = _requestContext.UserId;
 
@@ -29,7 +29,7 @@ public class FriendService : IFriendService
             return AppErrors.NotFound<CustomUser>();
 
         return (ServiceResult<List<Friendship>>)user.Friends;
-    }
+    }*/
 
     public async Task<ServiceResult<List<CustomUser>>> Search(int tripId, string? searchString)
     {
@@ -38,6 +38,11 @@ public class FriendService : IFriendService
         if (trip == null)
             return AppErrors.NotFound<List<CustomUser>>();
         //var user = await _unitOfWork.Users.GetUserWithFriends(userId);
+
+        // Only the trip creator/editor can search for users to add.
+        if (!AuthorisationRules.AuthorisedToEdit(trip, userId))
+            return AppErrors.Forbidden<List<CustomUser>>();
+
 
         var options = new FriendshipQueryOptions
         {
@@ -58,7 +63,7 @@ public class FriendService : IFriendService
     }
 
 
-    public async Task<ServiceResult<Friendship>> Invite(int friendId)
+    /*public async Task<ServiceResult<Friendship>> Invite(int friendId)
     {
         int userId = _requestContext.UserId;
 
@@ -150,5 +155,5 @@ public class FriendService : IFriendService
             userId);
 
         return ServiceResult.Ok();
-    }
+    }*/
 }

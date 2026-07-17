@@ -1,4 +1,6 @@
 ﻿
+using EventSharedExpenseTracker.Domain.Enums;
+using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Tests.Factories;
 using EventSharedExpenseTracker.Tests.Helpers;
@@ -151,6 +153,98 @@ public class ExpenseTests : IDisposable
 
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         db.Expenses.Any(e => e.Id == seed.ExpenseId).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Expense_Edit_WhenExpenseBelongsToAnotherUsersTrip_ReturnsForbidden()
+    {
+        int foreignExpenseId;
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var seeder = scope.ServiceProvider.GetRequiredService<TestDataSeeder>();
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            // Test authentication always represents user ID 1.
+            var currentUser = await seeder.SeedAuthenticatedUserAsync(
+                _cancellationToken);
+
+            var otherUser = await seeder.SeedUserAsync(
+                "other-user",
+                _cancellationToken);
+
+            // Trip A belongs to the authenticated user.
+            var tripA = new Trip
+            {
+                Name = "Trip A",
+                DateFrom = DateOnly.FromDateTime(DateTime.Today),
+                DateTo = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                CreatorId = currentUser.Id
+            };
+
+            tripA.Participants.Add(new TripParticipant
+            {
+                UserId = currentUser.Id,
+                DisplayName = currentUser.CustomUserName
+            });
+
+            // Trip B belongs only to another user.
+            var tripB = new Trip
+            {
+                Name = "Trip B",
+                DateFrom = DateOnly.FromDateTime(DateTime.Today),
+                DateTo = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+                CreatorId = otherUser.Id
+            };
+
+            var otherParticipant = new TripParticipant
+            {
+                UserId = otherUser.Id,
+                DisplayName = otherUser.CustomUserName
+            };
+
+            tripB.Participants.Add(otherParticipant);
+
+            var foreignExpense = new Expense
+            {
+                Name = "Private dinner",
+                Date = DateOnly.FromDateTime(DateTime.Today),
+                Category = ExpenseCategory.Restaurant,
+                CreatorId = otherUser.Id,
+                CurrencyCode = "EUR",
+                ExchangeRateToBase = 1m
+            };
+
+            foreignExpense.Payments.Add(new Payment
+            {
+                Participant = otherParticipant,
+                AmountOriginal = 20m,
+                AmountBase = 20m,
+                IsOwed = false
+            });
+
+            foreignExpense.Payments.Add(new Payment
+            {
+                Participant = otherParticipant,
+                AmountOriginal = -20m,
+                AmountBase = -20m,
+                IsOwed = true
+            });
+
+            tripB.Expenses.Add(foreignExpense);
+
+            db.Trips.AddRange(tripA, tripB);
+            await db.SaveChangesAsync(_cancellationToken);
+
+            foreignExpenseId = foreignExpense.Id;
+        }
+
+        // Authenticated user from Trip A tries to open an expense from Trip B.
+        var response = await _client.GetAsync(
+            $"/Expenses/Edit/{foreignExpenseId}",
+            _cancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
     public void Dispose()

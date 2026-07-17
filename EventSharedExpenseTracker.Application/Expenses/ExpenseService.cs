@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Authorisation;
+using EventSharedExpenseTracker.Application.Common.Constants;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses.Commands;
@@ -55,7 +56,7 @@ public class ExpenseService : IExpenseService
             BaseCurrencyCode = trip.BaseCurrencyCode,
             Expenses = expenses.Select(e =>
             {
-                var canEditExpense = AuthorisationRules.AuthorisedToEdit(e, userId);
+                var canEditExpense = AuthorisationRules.AuthorisedToEdit(e, userId); // after test no longer needed, as details page now provide info, non creator cannot edit. - bussiness rule, maybe change
                 return ExpenseMapper.ToQuery(e, canEditExpense);
             }).ToList()
         };
@@ -120,16 +121,26 @@ public class ExpenseService : IExpenseService
     {
         int userId = _requestContext.UserId;
 
-        // get Expense
-        var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        if (expense == null)
-            return AppErrors.NotFound<Expense>();
+        // get Expense and autorise
+        //var expenseResult = await GetExpenseAuthorisedForView(id);
+        var expenseResult = await GetExpenseAuthorisedForEdit(id);
 
-        // authorise Expense - if canUserEdit is false, user can still view the form, just not post it
+        if (!expenseResult.IsSuccess)
+        {
+            _logger.LogWarning("User {UserId} attempted edit expense {ExpenseId} without permission",
+            userId, id);
+            return expenseResult.ToFailure<ExpenseQuery>();
+        }
+
+        var expense = expenseResult.Value!;
+
+        var query = ExpenseMapper.ToQuery(expense, canUserEdit: true);
+
+        /*// authorise Expense - if canUserEdit is false, user can still view the form, just not post it
         var canUserEdit = AuthorisationRules.AuthorisedToEdit(expense, userId);
 
         // map Expense to expense query/request
-        var query = ExpenseMapper.ToQuery(expense, canUserEdit);
+        var query = ExpenseMapper.ToQuery(expense, canUserEdit);*/
 
         return query;
     }
@@ -283,6 +294,32 @@ public class ExpenseService : IExpenseService
 
     public async Task<ServiceResult<ReceiptParseResult>> ExtractReceiptDataAsync(Stream imageStream)
     {
+        // check for too big files
+        if (imageStream is null || !imageStream.CanRead)
+        {
+            return AppErrors.Validation<ReceiptParseResult>(
+                "No valid image was provided.");
+        }
+
+        if (imageStream.CanSeek)
+        {
+            if (imageStream.Length == 0)
+            {
+                return AppErrors.Validation<ReceiptParseResult>(
+                    "The image is empty.");
+            }
+
+            if (imageStream.Length > ImageUploadLimits.MaxImageBytes)
+            {
+                return AppErrors.Validation<ReceiptParseResult>(
+                    $"Image cannot be larger than " +
+                    $"{ImageUploadLimits.MaxImageBytes / 1024 / 1024} MB.");
+            }
+
+            imageStream.Position = 0;
+        }
+
+
         var imageBytes = await _imageService.ResizeAndCompressAsync(
             imageStream,
             maxWidth: 1920,

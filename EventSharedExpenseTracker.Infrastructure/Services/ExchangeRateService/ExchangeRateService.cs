@@ -95,6 +95,10 @@ namespace EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService
             if (!ratesPerEur.TryGetValue(toCurrencyCode, out var toPerEur))
                 throw new InvalidOperationException($"Unsupported currency: {toCurrencyCode}");
 
+            if (fromPerEur <= 0m || toPerEur <= 0m)
+                throw new InvalidOperationException(
+                    "Exchange rates must be greater than zero.");
+
             return toPerEur / fromPerEur;
         }
     }

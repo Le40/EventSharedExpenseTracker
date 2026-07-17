@@ -1,4 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Authorisation;
+using EventSharedExpenseTracker.Application.Common.Constants;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses;
@@ -98,7 +99,14 @@ public class TripService : ITripService
 
         // process images
         if (imageFileStream != null)
-            trip.ImagePath = await _imageService.SaveImageAsync(imageFileStream, string.Empty);
+        {
+            if (imageFileStream.CanSeek && imageFileStream.Length > ImageUploadLimits.MaxImageBytes)
+                return AppErrors.Validation<ReceiptParseResult>(
+                    $"Image cannot be larger than " +
+                    $"{ImageUploadLimits.MaxImageBytes / 1024 / 1024} MB.");
+
+            trip.ImagePath = await _imageService.SaveImageAsync(imageFileStream, trip.ImagePath ?? string.Empty);
+        }
 
         // create trip
         _unitOfWork.Trips.Add(trip);
@@ -166,7 +174,14 @@ public class TripService : ITripService
 
         // process images
         if (imageFileStream != null)
+        {
+            if (imageFileStream.CanSeek && imageFileStream.Length > ImageUploadLimits.MaxImageBytes)
+                return AppErrors.Validation<ReceiptParseResult>(
+                    $"Image cannot be larger than " +
+                    $"{ImageUploadLimits.MaxImageBytes / 1024 / 1024} MB.");
+
             existingTrip.ImagePath = await _imageService.SaveImageAsync(imageFileStream, existingTrip.ImagePath ?? string.Empty);
+        }
 
         //_unitOfWork.Trips.Update(existingTrip);
         await _unitOfWork.CompleteAsync();

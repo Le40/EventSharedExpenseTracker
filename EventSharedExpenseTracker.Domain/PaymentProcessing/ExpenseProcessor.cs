@@ -7,6 +7,13 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
     {
         public static DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentDraft> drafts, decimal exchangeRateToBase)
         {
+            // check for weird exchange rate
+            if (exchangeRateToBase <= 0m)
+            {
+                return DomainErrors.Validation<Payment>(
+                    "Exchange rate must be greater than zero.");
+            }
+
             // any owed payment with amount cannot be equally shared.
             NormalizeOwedInputs(drafts);
 
