@@ -5,8 +5,7 @@ using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.MvC.Common;
-using EventSharedExpenseTracker.MvC.Mappers.Expenses;
-using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
+using EventSharedExpenseTracker.MvC.Views.Expenses.Form;
 
 namespace EventSharedExpenseTracker.MvC.Factories
 {
@@ -111,7 +110,7 @@ namespace EventSharedExpenseTracker.MvC.Factories
 
             //var userId = _requestContext.UserId;
 
-            var model = ExpenseVMMapper.FromQuery(query, tripResult.Value!.Participants);
+            var model = ExpenseFormMapper.FromQuery(query, tripResult.Value!.Participants);
 
             return ServiceResult<ExpenseFormViewModel>.Ok(model);
         }

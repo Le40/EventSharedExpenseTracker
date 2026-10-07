@@ -4,8 +4,8 @@ using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
 using EventSharedExpenseTracker.MvC.Factories;
-using EventSharedExpenseTracker.MvC.Mappers.Expenses;
-using EventSharedExpenseTracker.MvC.ViewModels.Expenses;
+using EventSharedExpenseTracker.MvC.Views.Expenses.Form;
+using EventSharedExpenseTracker.MvC.Views.Expenses.Index;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,7 +44,7 @@ public class ExpensesController : BaseController
             SelectedCategory = suggestion
         };
 
-        return PartialView("_ExpenseForm_CategorySelect", vm);
+        return PartialView("~/Views/Expenses/Form/_ExpenseForm_CategorySelect.cshtml", vm);
     }
 
     [HttpPost]
@@ -68,7 +68,7 @@ public class ExpensesController : BaseController
 
         var vm = result.Value!;
 
-        return PartialView("_ExpenseForm", vm);
+        return PartialView("~/Views/Expenses/Form/_ExpenseForm.cshtml", vm);
     }
 
 
@@ -101,7 +101,7 @@ public class ExpensesController : BaseController
         var tripCurrencyCode = result.Value.BaseCurrencyCode;
         var vm = new ExpenseIndexViewModel
         {
-            Expenses = result.Value!.Expenses.Select(e => ExpenseVMMapper.FromQuery(e, tripCurrencyCode)).ToList(),
+            Expenses = result.Value!.Expenses.Select(e => ExpenseIndexMapper.FromQuery(e, tripCurrencyCode)).ToList(),
             TripId = tripId,
             SearchString = searchString,
             BaseCurrencyCode = result.Value.BaseCurrencyCode
@@ -109,7 +109,7 @@ public class ExpensesController : BaseController
 
         // if the request is from htmx, return the partial view
         if (Request.Headers["HX-Request"] == "true")
-            return PartialView("_ExpenseIndex", vm);
+            return PartialView("~/Views/Expenses/Index/_ExpenseIndex", vm);
         // normal view if in future standalone expense page.
         return View(vm);
     }
@@ -134,7 +134,7 @@ public class ExpensesController : BaseController
         if (!ModelState.IsValid)
             return FormValidationResponse(model, ExpenseFormMode.Create);
 
-        var expenseCommand = ExpenseVMMapper.ToCommand(model);//, _requestContext.UserId
+        var expenseCommand = ExpenseFormMapper.ToCommand(model);//, _requestContext.UserId
 
         var result = await _expenseService.Add(expenseCommand, tripId);
 
@@ -166,7 +166,7 @@ public class ExpensesController : BaseController
         if (!ModelState.IsValid)
             return RenderExpenseForm(model, ExpenseFormMode.Edit);
 
-        var expenseCommand = ExpenseVMMapper.ToCommand(model);//, _requestContext.UserId
+        var expenseCommand = ExpenseFormMapper.ToCommand(model);//, _requestContext.UserId
 
         var result = await _expenseService.Update(id, expenseCommand);
 
@@ -195,7 +195,7 @@ public class ExpensesController : BaseController
         model.Mode = mode;
         model.CurrencyOptions = CurrencySelectList.Get("EUR");
 
-        return PartialView("_ExpenseForm", model);
+        return PartialView("~/Views/Expenses/Form/_ExpenseForm.cshtml", model);
     }
 
     private IActionResult FormValidationResponse(ExpenseFormViewModel model, ExpenseFormMode mode)

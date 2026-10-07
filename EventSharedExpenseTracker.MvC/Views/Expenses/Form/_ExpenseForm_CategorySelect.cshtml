@@ -1,0 +1,12 @@
+﻿@using EventSharedExpenseTracker.Domain.Enums
+@using EventSharedExpenseTracker.MvC.Views.Expenses.Form
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model CategorySelectViewModel
+
+<select asp-for="SelectedCategory"
+        asp-items="Html.GetEnumSelectList<ExpenseCategory>()"
+        class="form-select"
+        id="category-select-@Model.FormId">
+
+    <option value="">Select Category</option>
+</select>

@@ -1,5 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.Settlements;
@@ -18,7 +18,7 @@ public class TripRepository : ITripRepository
         _context = context;
     }
 
-    public async Task<List<Trip>> GetAllFromUserAsync(int userId, TripQueryOptions options)
+    public async Task<List<Trip>> GetAllFromUserAsync(int userId, TripFilterOptions options)
     {
         // DEFAULT MANDATORY FILTER
         var query = _context.Trips

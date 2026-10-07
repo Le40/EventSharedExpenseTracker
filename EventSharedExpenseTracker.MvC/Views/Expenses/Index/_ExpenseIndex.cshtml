@@ -1,0 +1,23 @@
+﻿@using EventSharedExpenseTracker.Domain.Enums
+@using EventSharedExpenseTracker.MvC.Common
+@using EventSharedExpenseTracker.MvC.Views.Expenses.Index
+
+@model ExpenseIndexViewModel
+
+@{
+    Layout = null;
+}
+
+<div id="@Model.EIdExpenseCollection" onload="autoFocus()">
+    
+     <ul class="list-group list-group-flush"
+            data-expense-list="true"
+            data-trip-id="@Model.TripId">
+
+
+        @foreach (var expense in Model.Expenses)
+        {
+            <partial name="~/Views/Expenses/Index/_ExpenseIndex_Card.cshtml" model="expense" />
+        }
+    </ul>
+</div>

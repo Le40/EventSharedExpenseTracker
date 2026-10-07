@@ -28,12 +28,12 @@ public class TripService : ITripService
         _imageService = imageService;
     }
 
-    public async Task<ServiceResult<List<TripQuery>>> GetIndex(string? searchString)
+    public async Task<ServiceResult<List<TripDto>>> GetIndex(string? searchString)
     {
         int userId = _requestContext.UserId;
 
         // options for query
-        var options = new TripQueryOptions
+        var options = new TripFilterOptions
         {
             SearchString = searchString,
         };
@@ -42,9 +42,9 @@ public class TripService : ITripService
         var trips = await _unitOfWork.Trips.GetAllFromUserAsync(userId, options);
 
         // map to query/response
-        var queries = trips.Select(t => TripMapper.ToQuery(t)).ToList();
+        var tripDtos = trips.Select(t => TripMapper.ToDTO(t)).ToList();
             
-        return queries;
+        return tripDtos;
     }
 
     public async Task<ServiceResult<TripDetailsQuery>> Details(int id)
@@ -79,7 +79,7 @@ public class TripService : ITripService
         return query;
     }
 
-    public async Task<ServiceResult<Trip>> Add(TripCommand command, Stream? imageFileStream)
+    public async Task<ServiceResult<Trip>> Add(TripDto command, Stream? imageFileStream)
     {
         int userId = _requestContext.UserId;
 
@@ -119,7 +119,7 @@ public class TripService : ITripService
         return trip;
     }
 
-    public async Task<ServiceResult<TripQuery>> GetTripForm(int id)
+    public async Task<ServiceResult<TripDto>> GetTripForm(int id)
     {
         // get and autorise trip
         int userId = _requestContext.UserId;
@@ -130,19 +130,15 @@ public class TripService : ITripService
             _logger.LogWarning(
                 "User {UserId} attempted to update trip {TripId} without permission.",
                 userId, id);
-            return tripResult.ToFailure<TripQuery>();
+            return tripResult.ToFailure<TripDto>();
         }
 
         var trip = tripResult.Value!;
 
-        // map 
-        //var query = trip.Adapt<TripQuery>();
-        var query = TripMapper.ToQuery(trip);
-
-        return query;
+        return TripMapper.ToDTO(trip);
     }
 
-    public async Task<ServiceResult<Trip>> Update(int id, TripCommand command, Stream? imageFileStream)
+    public async Task<ServiceResult<Trip>> Update(int id, TripDto command, Stream? imageFileStream)
     {
         int userId = _requestContext.UserId;
 
@@ -226,7 +222,7 @@ public class TripService : ITripService
         return ServiceResult.Ok();
     }
 
-    public async Task<ServiceResult<TripParticipantsQuery>> GetParticipants(int id)
+    public async Task<ServiceResult<TripDto>> GetParticipants(int id)
     {
         // get and autorise trip
         var userId = _requestContext.UserId;
@@ -237,13 +233,13 @@ public class TripService : ITripService
             _logger.LogWarning(
                 "User {UserId} attempted to get participants from trip {TripId} without permission.",
                 userId, id);
-            return tripResult.ToFailure<TripParticipantsQuery>();
+            return tripResult.ToFailure<TripDto>();
         }
 
         var trip = tripResult.Value!;
 
         // map
-        var query = trip.Adapt<TripParticipantsQuery>();
+        var query = trip.Adapt<TripDto>();
 
         return query;
     }

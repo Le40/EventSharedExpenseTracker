@@ -1,4 +1,4 @@
-﻿using EventSharedExpenseTracker.Application.Trips.DTOs;
+﻿using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Domain.Settlements;
 
@@ -6,7 +6,7 @@ namespace EventSharedExpenseTracker.Application.Common.Interfaces;
 
 public interface ITripRepository
 {
-    Task<List<Trip>> GetAllFromUserAsync(int userId, TripQueryOptions options);
+    Task<List<Trip>> GetAllFromUserAsync(int userId, TripFilterOptions options);
     Task<Trip?> GetByIdAsync(int id);
     Task<Trip?> GetByIdWithExpensesAsync(int id);
     void Add(Trip trip);

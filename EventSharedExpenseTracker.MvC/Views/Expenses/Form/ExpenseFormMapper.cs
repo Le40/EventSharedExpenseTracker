@@ -1,0 +1,105 @@
+﻿using EventSharedExpenseTracker.Application.Expenses.Commands;
+using EventSharedExpenseTracker.Application.Expenses.DTOs;
+using EventSharedExpenseTracker.Application.Trips.DTOs;
+using EventSharedExpenseTracker.Domain.PaymentProcessing;
+using EventSharedExpenseTracker.MvC.Common;
+
+namespace EventSharedExpenseTracker.MvC.Views.Expenses.Form
+{
+    public static class ExpenseFormMapper
+    {
+        
+        public static ExpenseCommand ToCommand(ExpenseFormViewModel model) //, int userId
+        {
+            var expenseCommand = new ExpenseCommand
+            {
+                Name = model.Name,
+                Date = model.Date,
+                Category = model.Category.Value,
+                Description = model.Description,
+                CurrencyCode = model.CurrencyCode,
+                OfflineClientId = model.OfflineClientId
+            };
+
+            foreach (var participant in model.Participants)
+            { 
+                if (participant.PaidAmount > 0) // validated in viewmodel 
+                {
+                    expenseCommand.Payments.Add(new PaymentDraft
+                    {
+                        ParticipantId = participant.ParticipantId,
+                        UserEnteredAmount = participant.PaidAmount.Value,
+                        IsOwed = false,
+                        IsEquallyShared = false
+                    });
+                }
+
+                if (participant.IsOwedSelected || participant.OwedAmount > 0) // validated in viewmodel
+                {
+                    expenseCommand.Payments.Add(new PaymentDraft
+                    {
+                        ParticipantId = participant.ParticipantId,
+                        UserEnteredAmount = participant.OwedAmount,
+                        IsOwed = true,
+                        IsEquallyShared = participant.IsOwedSelected
+                    });
+                }
+            }
+
+            return expenseCommand;
+        }
+
+        public static ExpenseFormViewModel FromQuery(
+            ExpenseQuery query,
+            IEnumerable<TripParticipantDto> tripParticipants)
+        {
+            var paidByParticipant = query.Payments
+                .Where(p => !p.IsOwed)
+                .ToDictionary(p => p.ParticipantId);
+
+            var owedByParticipant = query.Payments
+                .Where(p => p.IsOwed)
+                .ToDictionary(p => p.ParticipantId);
+
+            var expenseViewModel = new ExpenseFormViewModel
+            {
+                FormId = $"expense-editForm-{query.Id}",
+                Id = query.Id,
+                TripId = query.TripId,
+                CanUserEdit = query.CanUserEdit,
+
+                Name = query.Name,
+                Date = query.Date,
+                Category = query.Category,
+                //CategoryOptions = ExpenseCategorySelectList.Get(),
+                Description = query.Description,
+                CurrencyCode = query.CurrencyCode,
+                CurrencyOptions = CurrencySelectList.Get("EUR")
+            };
+
+            foreach (var participant in tripParticipants)
+            {
+                paidByParticipant.TryGetValue(participant.Id, out var paid);
+                owedByParticipant.TryGetValue(participant.Id, out var owed);
+
+                expenseViewModel.Participants.Add(
+                    new ExpenseFormParticipantViewModel
+                    {
+                        ParticipantId = participant.Id,
+                        ParticipantName = participant.DisplayName,
+
+                        PaidPaymentId = paid?.Id,
+                        PaidAmount = paid?.AmountOriginal,
+
+                        OwedPaymentId = owed?.Id,
+                        // every owed payment is selected in form.
+                        IsOwedSelected = owed != null,
+                        // if command.IsequallyShared is true, then amount should not be shown in form.
+                        OwedAmount = owed is null || owed.IsEquallyShared ? null : owed.AmountOriginal       
+                    });
+            }
+
+            return expenseViewModel;
+        }
+    }
+}

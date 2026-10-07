@@ -5,9 +5,10 @@ using EventSharedExpenseTracker.Application.Trips;
 using EventSharedExpenseTracker.Application.Trips.DTOs;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.MvC.Common;
-using EventSharedExpenseTracker.MvC.Mappers.Trips;
 using EventSharedExpenseTracker.MvC.ViewModels;
-using EventSharedExpenseTracker.MvC.ViewModels.Trips;
+using EventSharedExpenseTracker.MvC.Views.Trips.Details;
+using EventSharedExpenseTracker.MvC.Views.Trips.Form;
+using EventSharedExpenseTracker.MvC.Views.Trips.Index;
 using Mapster;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +39,7 @@ public class TripsController : BaseController
         var vm = new TripIndexViewModel
         {
             SearchString = searchString,
-            Trips = result.Value.Select(r => r.Adapt<TripIndexItemViewModel>()).ToList()
+            Trips = result.Value
         };
 
         vm.Controls = new PageControlsViewModel()
@@ -87,7 +88,7 @@ public class TripsController : BaseController
     public IActionResult Create()
     {
         return PartialView(
-            "_TripForm", 
+            "~/Views/Trips/Form/_TripForm.cshtml", 
             new TripFormViewModel
             {
                 CurrencyOptions = CurrencySelectList.Get("EUR"),
@@ -108,7 +109,7 @@ public class TripsController : BaseController
 
         await using var imageStream = imageFile?.OpenReadStream();
 
-        var command = model.Adapt<TripCommand>();
+        var command = model.Adapt<TripDto>();
   
         var result = await _tripService.Add(command, imageStream);
 
@@ -146,7 +147,7 @@ public class TripsController : BaseController
             return RenderTripForm(model, TripFormMode.Edit);
 
         await using var imageStream = imageFile?.OpenReadStream();
-        var command = model.Adapt<TripCommand>();
+        var command = model.Adapt<TripDto>();
         var result = await _tripService.Update(id, command, imageStream);
 
         if (!result.IsSuccess)
@@ -244,7 +245,8 @@ public class TripsController : BaseController
         model.CountryOptions = CountrySelectList.Get();
 
         //Response.Headers.Append("Hx-Retarget", $"#{model.ElementId}");
-        return PartialView($"_TripForm", model);
+        //return PartialView($"_TripForm", model);
+        return PartialView("~/Views/Trips/Form/_TripForm.cshtml",model);
     }
 }
 

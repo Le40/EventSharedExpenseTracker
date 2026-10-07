@@ -1,5 +1,5 @@
 ﻿using EventSharedExpenseTracker.Application.Common.Interfaces;
-using EventSharedExpenseTracker.Application.Expenses.Queries;
+using EventSharedExpenseTracker.Application.Expenses;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
@@ -17,7 +17,7 @@ public class ExpenseRepository : IExpenseRepository
         _context = context;
     }
 
-    public async Task<List<Expense>> GetAllFromTripAsync(int tripId, ExpenseQueryOptions options)
+    public async Task<List<Expense>> GetAllFromTripAsync(int tripId, ExpenseFilterOptions options)
     {
         // DEFAULT MANDATORY FILTER
         var query = _context.Expenses

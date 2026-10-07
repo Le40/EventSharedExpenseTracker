@@ -3,6 +3,7 @@ using EventSharedExpenseTracker.Application.Common.Constants;
 using EventSharedExpenseTracker.Application.Common.Interfaces;
 using EventSharedExpenseTracker.Application.Common.Results;
 using EventSharedExpenseTracker.Application.Expenses.Commands;
+using EventSharedExpenseTracker.Application.Expenses.DTOs;
 using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Domain.Enums;
 using EventSharedExpenseTracker.Domain.Models;
@@ -42,7 +43,7 @@ public class ExpenseService : IExpenseService
         var trip = tripResult.Value!;
 
         // options for query
-        var options = new ExpenseQueryOptions
+        var options = new ExpenseFilterOptions
         {
             UserId = userId,
             SearchString = searchString,

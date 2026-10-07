@@ -1,0 +1,58 @@
+﻿@using EventSharedExpenseTracker.MvC.Common
+@using EventSharedExpenseTracker.MvC.Views.Trips.Details
+@model TripDetailsParticipantsViewModel
+
+@*EACH PARTICIPANT*@
+<form asp-action="Edit"> @*so anitforgety validates otherwise 400*@
+    <div id="@Model.EIdTripParticipants">
+        <div class="container-fluid">
+            <div class="row no-gutters">
+                @foreach (var participant in Model.Participants)
+                {
+                    var cardBg = participant.IsDummy 
+                        ? "bg-white border-info" 
+                        : "bg-white";
+
+                    var textClass = participant.PaymentSum >= 0
+                        ? "text-success"
+                        : "text-danger";
+
+                    <div class="col-auto p-0">
+                        <div class="card shadow m-1 photo-card-font @cardBg" style="min-width: 5rem;">
+
+                            @*ALTERNATIVE not select, and target= body*@
+                            <div class="card-body p-1"
+                                 hx-post=@Url.Action("DeleteParticipant", "Trips", new { id = Model.TripId, participantId = participant.Id })
+                                 data-can-delete="@participant.CanBeDeleted"
+                                 hx-trigger="dblclick[canDelete(this)]"
+                                 hx-select="#@Model.EIdTripParticipants"
+                                 hx-target="#@Model.EIdTripParticipants"
+                                 hx-swap="outerHTML"
+                                 data-confirm-message="@(participant.PaymentCount == 0 ? "Are you sure you want to delete Participant?" : "You cant delete participant that has payments")">
+                                 
+                                <div class="row">
+                                    <h5 class="card-text text-black">
+                                        @(participant.DisplayName)
+                                    </h5>
+                                </div>
+                                <div class="row">
+                                    <h5 class=@textClass>
+                                        @CurrencyFormatter.Format(
+                                        participant.PaymentSum,
+                                        Model.BaseCurrencyCode)
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</form>
+
+<script>
+    function canDelete(element) {
+        return element.dataset.canDelete === "True";
+    }
+</script>
