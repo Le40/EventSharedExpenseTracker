@@ -5,27 +5,36 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
     public static class ExpenseProcessor
     {
-        public static DomainResult<ICollection<Payment>> ProcessForSaving(ICollection<PaymentDraft> drafts, decimal exchangeRateToBase)
+        public static DomainResult<ICollection<Payment>> BuildPayments(
+            ICollection<PaymentDraft> drafts,
+            IReadOnlySet<int> participantIds,
+            decimal exchangeRateToBase)
         {
             // check for weird exchange rate
             if (exchangeRateToBase <= 0m)
-            {
-                return DomainErrors.Validation<Payment>(
+                return DomainErrors.Validation<Expense>(
                     "Exchange rate must be greater than zero.");
-            }
+
+            var workingDrafts = drafts
+                .Select(d => d with { })
+                .ToList();
+
+            var validationErrors = ValidateDraftsForTrip(workingDrafts, participantIds);
+            if (validationErrors.Count > 0)
+                return validationErrors;
 
             // any owed payment with amount cannot be equally shared.
-            NormalizeOwedInputs(drafts);
+            NormalizeOwedInputs(workingDrafts);
 
-            var inputErrors = ValidateInputAmounts(drafts);
+            var inputErrors = ValidateInputAmounts(workingDrafts);
             if (inputErrors.Count > 0)
                 return inputErrors;
 
-            var sharedOwed = drafts
+            var sharedOwed = workingDrafts
                 .Where(p => p.IsOwed && p.IsEquallyShared)
                 .ToList();
 
-            var totals = CalculateTotals(drafts, sharedOwed.Count);
+            var totals = CalculateTotals(workingDrafts, sharedOwed.Count);
 
             var totalErrors = ValidateTotals(totals);
 
@@ -34,11 +43,15 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
             ApplySharedOwedAmounts(sharedOwed, totals.RemainingAmountToShare);
 
-            var payments = drafts
+            var payments = workingDrafts
                 .Where(p => p.UserEnteredAmount > 0m)
                 .Select(p =>
                 {
-                    var amount = Math.Round(p.IsOwed ? -p.UserEnteredAmount!.Value : p.UserEnteredAmount!.Value,2);
+                    var amount = Math.Round(
+                        p.IsOwed 
+                            ? -p.UserEnteredAmount!.Value 
+                            : p.UserEnteredAmount!.Value
+                        ,2);
 
                     return new Payment
                     {
@@ -56,10 +69,31 @@ namespace EventSharedExpenseTracker.Domain.PaymentProcessing{
 
             RecalculateSharedAmountsBaseAndApplyRemainder(payments);
 
-            if (payments.Sum(p => p.AmountBase) != 0)
+            if (payments.Sum(p => p.AmountBase) != 0m)
                 return DomainErrors.Validation<Expense>("Paid and owed totals must match.");
 
             return payments;
+        }
+
+        private static List<DomainError> ValidateDraftsForTrip(
+            IEnumerable<PaymentDraft> payments,
+            IReadOnlySet<int> validParticipantIds)
+        {
+            var errors = new List<DomainError>();
+
+            if (payments.Any(p => !validParticipantIds.Contains(p.ParticipantId)))
+                errors.Add(DomainErrors.Validation<Expense>(
+                    "One or more participants do not belong to this trip."));
+
+            var hasDuplicates = payments
+                .GroupBy(p => new { p.ParticipantId, p.IsOwed })
+                .Any(group => group.Count() > 1);
+
+            if (hasDuplicates)
+                errors.Add(DomainErrors.Validation<Expense>(
+                    "A participant cannot have duplicate payment entries."));
+
+            return errors;
         }
 
 

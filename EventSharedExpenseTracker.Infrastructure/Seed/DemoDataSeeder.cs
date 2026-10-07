@@ -33,7 +33,7 @@ public class DemoDataOptions
 
 public class DemoDataSeeder
 {
-    private const string EurCurrencyCode = "EUR";
+private const string EurCurrencyCode = "EUR";
 
     private readonly ApplicationDbContext _context;
     private readonly Random _random = new();
@@ -45,6 +45,7 @@ public class DemoDataSeeder
 
     public async Task SeedBiDataAsync(DemoDataOptions? options = null)
     {
+    /*
         options ??= new DemoDataOptions();
 
         ValidateOptions(options);
@@ -1111,6 +1112,7 @@ public class DemoDataSeeder
                 ]
             }
         ];
+    */
     }
 
     private record TripTemplate
@@ -1138,6 +1140,7 @@ public class DemoDataSeeder
 
         public List<ExpenseRule> ExpenseRules { get; init; } = [];
     }
+   
 
     private record ExpenseRule(
         ExpenseCategory Category,

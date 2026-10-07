@@ -15,7 +15,9 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 2, UserEnteredAmount = 10, IsOwed = true, IsEquallyShared = true },
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
+            IReadOnlySet<int> validParticipantIds = new HashSet<int> { 1, 2 };
+
+            var result = ExpenseProcessor.BuildPayments(drafts, validParticipantIds, 1m);
 
             result.IsSuccess.Should().BeTrue();
         }
@@ -30,7 +32,9 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 2, UserEnteredAmount = 10, IsOwed = true, IsEquallyShared = true },
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
+            IReadOnlySet<int> validParticipantIds = new HashSet<int> { 1, 2 };
+
+            var result = ExpenseProcessor.BuildPayments(drafts, validParticipantIds, 1m);
 
             result.IsSuccess.Should().BeFalse();
         }
@@ -46,7 +50,9 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 3, IsOwed = true, IsEquallyShared = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
+            IReadOnlySet<int> validParticipantIds = new HashSet<int> { 1, 2,3 };
+
+            var result = ExpenseProcessor.BuildPayments(drafts, validParticipantIds, 1m);
 
             result.IsSuccess.Should().BeTrue();
 
@@ -65,7 +71,9 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 2, IsOwed = true, IsEquallyShared = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
+            IReadOnlySet<int> validParticipantIds = new HashSet<int> { 1, 2 };
+
+            var result = ExpenseProcessor.BuildPayments(drafts, validParticipantIds, 1m);
 
             result.IsSuccess.Should().BeTrue();
 
@@ -82,7 +90,9 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 1, UserEnteredAmount = 30, IsOwed = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
+            IReadOnlySet<int> validParticipantIds = new HashSet<int> { 1 };
+
+            var result = ExpenseProcessor.BuildPayments(drafts, validParticipantIds, 1m);
 
             result.IsSuccess.Should().BeFalse();
         }
@@ -96,7 +106,9 @@ namespace EventSharedExpenseTracker.Tests.Unit
                 new() { ParticipantId = 1, UserEnteredAmount = 10, IsOwed = true }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts,1m);
+            IReadOnlySet<int> validParticipantIds = new HashSet<int> { 1 };
+
+            var result = ExpenseProcessor.BuildPayments(drafts, validParticipantIds, 1m);
 
             result.IsSuccess.Should().BeFalse();
         }
@@ -110,20 +122,22 @@ namespace EventSharedExpenseTracker.Tests.Unit
             ICollection<PaymentDraft> drafts =
             [
                 new()
-        {
-            ParticipantId = 1,
-            UserEnteredAmount = 20m,
-            IsOwed = false
-        },
-        new()
-        {
-            ParticipantId = 1,
-            UserEnteredAmount = 20m,
-            IsOwed = true
-        }
+                    {
+                        ParticipantId = 1,
+                        UserEnteredAmount = 20m,
+                        IsOwed = false
+                    },
+                new()
+                {
+                    ParticipantId = 1,
+                    UserEnteredAmount = 20m,
+                    IsOwed = true
+                }
             ];
 
-            var result = ExpenseProcessor.ProcessForSaving(drafts, exchangeRate);
+            IReadOnlySet<int> validParticipantIds = new HashSet<int> { 1 };
+
+            var result = ExpenseProcessor.BuildPayments(drafts, validParticipantIds, exchangeRate);
 
             result.IsSuccess.Should().BeFalse();
             result.Errors.Should().ContainSingle();

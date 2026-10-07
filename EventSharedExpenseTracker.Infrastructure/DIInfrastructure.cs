@@ -2,12 +2,10 @@
 using EventSharedExpenseTracker.Infrastructure.Data.DbContexts;
 using EventSharedExpenseTracker.Infrastructure.Data.Repositories;
 using EventSharedExpenseTracker.Infrastructure.Identity;
-using EventSharedExpenseTracker.Infrastructure.Seed;
 using EventSharedExpenseTracker.Infrastructure.Services;
 using EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService;
 using EventSharedExpenseTracker.Infrastructure.Services.ExchangeRateService.Providers.ExchangeRateApi;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,7 +58,7 @@ public static class DIInfrastructure
         services.AddScoped<IFriendshipRepository, FriendshipRepository>();
         services.AddScoped<IExpenseAiService, OpenAiExpenseAiService>();
 
-        services.AddScoped<DemoDataSeeder>();
+        //services.AddScoped<DemoDataSeeder>();
 
         return services;
     }

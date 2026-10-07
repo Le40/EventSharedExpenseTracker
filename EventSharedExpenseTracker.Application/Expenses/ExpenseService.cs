@@ -56,7 +56,7 @@ public class ExpenseService : IExpenseService
             BaseCurrencyCode = trip.BaseCurrencyCode,
             Expenses = expenses.Select(e =>
             {
-                var canEditExpense = AuthorisationRules.AuthorisedToEdit(e, userId); // after test no longer needed, as details page now provide info, non creator cannot edit. - bussiness rule, maybe change
+                var canEditExpense = AuthorisationRules.AuthorisedToEdit(e, userId);
                 return ExpenseMapper.ToQuery(e, canEditExpense);
             }).ToList()
         };
@@ -66,7 +66,7 @@ public class ExpenseService : IExpenseService
 
     public async Task<ServiceResult<Expense>> Add(ExpenseCommand command, int tripId)
     {
-        // get and autorise trip
+        // get and authorise trip
         int userId = _requestContext.UserId;
         var tripResult = await GetTripAuthorisedForView(tripId);
 
@@ -75,36 +75,36 @@ public class ExpenseService : IExpenseService
 
         var trip = tripResult.Value!;
 
+        // prevention of double sync
         var offlineRetryResult = await CheckOfflineRetryAsync(command.OfflineClientId, tripId);
 
         if (offlineRetryResult is not null)
             return offlineRetryResult;
 
+        // Build validated payment entities from input.
         var exchangeRate = await _exchangeRateService.GetRateAsync(command.CurrencyCode, trip.BaseCurrencyCode, command.Date);
+        var participantIds = trip.Participants.Select(p => p.Id).ToHashSet();
 
-        var validationResult = ValidatePaymentsForTrip(command.Payments, trip);
+        var paymentsResult = ExpenseProcessor.BuildPayments(command.Payments, participantIds, exchangeRate);
+        if (!paymentsResult.IsSuccess)
+            return DomainErrorMapper.ToAppErrors(paymentsResult.Errors);
 
-        if (!validationResult.IsSuccess)
-            return ServiceResult<Expense>.Fail(validationResult.Errors);
+        var expenseResult = Expense.Create(
+            name: command.Name,
+            date: command.Date,
+            category: command.Category,
+            description: command.Description,
+            currencyCode: command.CurrencyCode,
+            offlineClientId: command.OfflineClientId,
+            tripId: tripId,
+            userId: userId,
+            exchangeRateToBase: exchangeRate,
+            payments: paymentsResult.Value!);
 
-        // process Expense's PaymentInputs to Payment entities. Validate their correctness.
-        var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
-        if (!paymentInputProcessingResult.IsSuccess)
-            return DomainErrorMapper.ToAppErrors(paymentInputProcessingResult.Errors);
-        var payments = paymentInputProcessingResult.Value;
-        // map expenseCommand to Expense
-        var context = new ExpenseCreationContext
-        {
-            TripId = tripId,
-            UserId = userId,
-            //TripBaseCurrencyCode = trip.BaseCurrencyCode,
-            ExchangeRateToBase = exchangeRate
-        };
-        var expense = ExpenseMapper.FromCommand(command, context);
-        // Expense attaches processed payments
-        var setPaymentsResult = expense.SetPayments(payments);
-        if (!setPaymentsResult.IsSuccess)
-            return DomainErrorMapper.ToAppErrors(setPaymentsResult.Errors);
+        if (!expenseResult.IsSuccess)
+            return DomainErrorMapper.ToAppErrors(expenseResult.Errors);
+
+        var expense = expenseResult.Value!;
 
         _unitOfWork.Expenses.Add(expense);
         await _unitOfWork.CompleteAsync();
@@ -121,8 +121,7 @@ public class ExpenseService : IExpenseService
     {
         int userId = _requestContext.UserId;
 
-        // get Expense and autorise
-        //var expenseResult = await GetExpenseAuthorisedForView(id);
+        // get Expense and authorise
         var expenseResult = await GetExpenseAuthorisedForEdit(id);
 
         if (!expenseResult.IsSuccess)
@@ -136,55 +135,47 @@ public class ExpenseService : IExpenseService
 
         var query = ExpenseMapper.ToQuery(expense, canUserEdit: true);
 
-        /*// authorise Expense - if canUserEdit is false, user can still view the form, just not post it
-        var canUserEdit = AuthorisationRules.AuthorisedToEdit(expense, userId);
-
-        // map Expense to expense query/request
-        var query = ExpenseMapper.ToQuery(expense, canUserEdit);*/
-
         return query;
     }
 
     public async Task<ServiceResult<Expense>> Update(int id, ExpenseCommand command)
     {
-        // get and autorise expense
+        // get and authorise expense
         int userId = _requestContext.UserId;
-        var expenseResult = await GetExpenseAuthorisedForEdit(id);
 
+        var expenseResult = await GetExpenseAuthorisedForEdit(id);
         if (!expenseResult.IsSuccess)
-        {
-            _logger.LogWarning("User {UserId} attempted update of expense {ExpenseId} without permission",
-            userId, id);
             return expenseResult;
-        }
+
         var existingExpense = expenseResult.Value!;
 
         // Get trip to get baseCurrency
-        var trip = await _unitOfWork.Trips.GetByIdAsync(existingExpense.TripId);
-        if (trip == null)
-            return AppErrors.NotFound<Trip>();
+        var tripResult = await GetTripAuthorisedForView(existingExpense.TripId);
+        if (!tripResult.IsSuccess)
+            return tripResult.ToFailure<Expense>();
 
+       var trip = tripResult.Value!;
+
+        // Build validated payment entities from input.
         var exchangeRate = await GetExchangeRateForUpdateAsync(existingExpense, command, trip.BaseCurrencyCode);
+        var participantIds = trip.Participants.Select(p => p.Id).ToHashSet();
 
-        var validationResult = ValidatePaymentsForTrip(command.Payments, trip);
+        var paymentsResult = ExpenseProcessor.BuildPayments(command.Payments, participantIds, exchangeRate);
+        if (!paymentsResult.IsSuccess)
+            return DomainErrorMapper.ToAppErrors(paymentsResult.Errors);
 
-        if (!validationResult.IsSuccess)
-            return ServiceResult<Expense>.Fail(validationResult.Errors);
+        var updateResult = existingExpense.Update(
+            name: command.Name,
+            date: command.Date,
+            category: command.Category,
+            description: command.Description,
+            currencyCode: command.CurrencyCode,
+            exchangeRateToBase: exchangeRate,
+            payments: paymentsResult.Value!);
 
-        // process Expense's PaymentInputs to Payment entities. Validate their correctness.
-        var paymentInputProcessingResult = ExpenseProcessor.ProcessForSaving(command.Payments, exchangeRate);
-        if (!paymentInputProcessingResult.IsSuccess)
-            return DomainErrorMapper.ToAppErrors(paymentInputProcessingResult.Errors);
-        var payments = paymentInputProcessingResult.Value;
+        if (!updateResult.IsSuccess)
+            return DomainErrorMapper.ToAppErrors(updateResult.Errors);
 
-        // apply changes from command to Expense
-        ExpenseMapper.ApplyToExpense(existingExpense, command, exchangeRate);
-        // Expense attaches processed payments
-        var setPaymentsResult = existingExpense.SetPayments(payments);
-        if (!setPaymentsResult.IsSuccess)
-            return DomainErrorMapper.ToAppErrors(setPaymentsResult.Errors);
-
-        //_unitOfWork.Expenses.Update(existingExpense);
         await _unitOfWork.CompleteAsync();
 
         _logger.LogInformation("Expense {ExpenseId} updated by user {UserId}",
@@ -240,6 +231,7 @@ public class ExpenseService : IExpenseService
     private async Task<ServiceResult<Expense>> GetExpenseAuthorisedForView(
     int expenseId)
     {
+        var userId = _requestContext.UserId;
         var expense = await _unitOfWork.Expenses.GetByIdAsync(expenseId);
 
         if (expense is null)
@@ -250,10 +242,9 @@ public class ExpenseService : IExpenseService
         if (trip is null)
             return AppErrors.NotFound<Expense>();
 
-        if (!AuthorisationRules.AuthorisedToView(
-                trip,
-                _requestContext.UserId))
+        if (!AuthorisationRules.AuthorisedToView(trip, userId))
         {
+            _logger.LogWarning("User {UserId} attempted view expense {ExpenseId} without permission",userId, expenseId);
             return AppErrors.Forbidden<Expense>();
         }
 
@@ -262,6 +253,7 @@ public class ExpenseService : IExpenseService
 
     private async Task<ServiceResult<Expense>> GetExpenseAuthorisedForEdit(int id)
     {
+        var userId = _requestContext.UserId;
         var expenseResult = await GetExpenseAuthorisedForView(id);
 
         if (!expenseResult.IsSuccess)
@@ -269,8 +261,11 @@ public class ExpenseService : IExpenseService
 
         var expense = expenseResult.Value!;
 
-        if (!AuthorisationRules.AuthorisedToEdit(expense, _requestContext.UserId))
+        if (!AuthorisationRules.AuthorisedToEdit(expense, userId))
+        {
+            _logger.LogWarning("User {UserId} attempted modify expense {ExpenseId} without permission", userId, id);
             return AppErrors.Forbidden<Expense>();
+        }
 
         return expense;
     }
@@ -360,32 +355,5 @@ public class ExpenseService : IExpenseService
             return AppErrors.Conflict<Expense>();
 
         return existingExpense;
-    }
-
-    private static ServiceResult ValidatePaymentsForTrip(
-        IEnumerable<PaymentDraft> payments,
-        Trip trip)
-    {
-        var validParticipantIds = trip.Participants
-            .Select(p => p.Id)
-            .ToHashSet();
-
-        if (payments.Any(p => !validParticipantIds.Contains(p.ParticipantId)))
-        {
-            return AppErrors.Validation<Expense>(
-                "One or more participants do not belong to this trip.");
-        }
-
-        var hasDuplicates = payments
-            .GroupBy(p => new { p.ParticipantId, p.IsOwed })
-            .Any(group => group.Count() > 1);
-
-        if (hasDuplicates)
-        {
-            return AppErrors.Validation<Expense>(
-                "A participant cannot have duplicate payment entries.");
-        }
-
-        return ServiceResult.Ok();
     }
 }

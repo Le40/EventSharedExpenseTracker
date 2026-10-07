@@ -1,7 +1,7 @@
 ﻿
 namespace EventSharedExpenseTracker.Domain.PaymentProcessing
 {
-    public class PaymentDraft
+    public record PaymentDraft
     {
         public int ParticipantId { get; init; }
         public decimal? UserEnteredAmount { get; set; }

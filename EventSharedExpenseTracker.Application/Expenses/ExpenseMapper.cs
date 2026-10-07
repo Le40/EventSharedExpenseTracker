@@ -1,7 +1,5 @@
-﻿using EventSharedExpenseTracker.Application.Expenses.Commands;
-using EventSharedExpenseTracker.Application.Expenses.Queries;
+﻿using EventSharedExpenseTracker.Application.Expenses.Queries;
 using EventSharedExpenseTracker.Domain.Models;
-using Mapster;
 
 namespace EventSharedExpenseTracker.Application.Expenses
 {
@@ -36,40 +34,6 @@ namespace EventSharedExpenseTracker.Application.Expenses
             }
             return query;
         }
-
-        public static Expense FromCommand(ExpenseCommand command, ExpenseCreationContext context)
-        {
-            // FOR CREATE ONLY
-            var expense = new Expense
-            {
-                CreatorId = context.UserId, // resouce.CreatorId is userId from the service layer
-                TripId = context.TripId,// resouce.TripId is tripId from the service layer
-                //BaseCurrencyCode = context.TripBaseCurrencyCode,
-                ExchangeRateToBase = context.ExchangeRateToBase,
-
-                Name = command.Name,
-                Date = command.Date,
-                Category = command.Category,
-                Description = command.Description,
-                CurrencyCode = command.CurrencyCode,
-                OfflineClientId = command.OfflineClientId
-            };
-
-            //AddPayments(expense, command.Payments);
-            return expense;
-        }
-
-        public static void ApplyToExpense(Expense expense, ExpenseCommand command, decimal exchangeRate)
-        {
-            // FOR UPDATE ONLY
-            expense.Name = command.Name;
-            expense.Date = command.Date;
-            expense.Category = command.Category;
-            expense.Description = command.Description;
-            expense.CurrencyCode = command.CurrencyCode;
-            expense.ExchangeRateToBase = exchangeRate;
-        }
-
 
     }
 }
